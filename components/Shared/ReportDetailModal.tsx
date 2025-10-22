@@ -23,19 +23,6 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ report, isOpen, o
   const [comment, setComment] = useState(report.managerComments || '');
   const [isEditingComment, setIsEditingComment] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
-  const [acknowledgingManager, setAcknowledgingManager] = useState<User | null>(null);
-
-  useEffect(() => {
-    const fetchManager = async () => {
-        if (report.acknowledgedByManagerId) {
-            const manager = await DataService.getUserById(report.acknowledgedByManagerId);
-            setAcknowledgingManager(manager || null);
-        } else {
-            setAcknowledgingManager(null);
-        }
-    };
-    fetchManager();
-  }, [report.acknowledgedByManagerId]);
   
   const sortedVersions = useMemo(() => 
     [...(report.versions || [])].sort((a, b) => b.versionNumber - a.versionNumber), 
@@ -179,14 +166,35 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ report, isOpen, o
                   {report.status}
               </span>
             } />
-             {report.status === ReportStatus.ACKNOWLEDGED && (
-                 <>
-                    <DetailItem label="Acknowledged By" value={acknowledgingManager?.name || 'N/A'} />
-                    <DetailItem label="Acknowledged At" value={report.acknowledgedAt ? formatDateTimeDDMonYYYYHHMM(report.acknowledgedAt) : 'N/A'} />
-                 </>
-            )}
             <DetailItem label="Total Versions" value={String(report.versions.length)} />
         </div>
+
+        {report.status === ReportStatus.ACKNOWLEDGED && (() => {
+          const ackStatus = DataService.getReportAcknowledgmentStatus(report);
+          const acknowledgingManagers = ackStatus.getAcknowledgingManagers();
+          
+          if (acknowledgingManagers.length > 0) {
+            return (
+              <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-md">
+                <p className="text-sm font-semibold text-green-800 dark:text-green-300 mb-2">
+                  <i className="fas fa-check-circle mr-2"></i>Acknowledged by:
+                </p>
+                <div className="space-y-1">
+                  {acknowledgingManagers.map((ack, idx) => (
+                    <div key={idx} className="text-sm text-green-700 dark:text-green-400">
+                      <i className="fas fa-user-check mr-2"></i>
+                      <span className="font-medium">{ack.managerName}</span>
+                      <span className="text-xs ml-2 text-green-600 dark:text-green-500">
+                        ({formatDateTimeDDMonYYYYHHMM(ack.acknowledgedAt)})
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          }
+          return null;
+        })()}
 
         {report.versions.length > 1 && (
             <div className="my-3">

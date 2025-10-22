@@ -93,12 +93,39 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, onViewDetails }) => {
         <p className="text-sm text-text-secondary dark:text-dark-text-secondary whitespace-pre-wrap truncate max-h-16">{tasksCompleted}</p>
         {!editableState.editable && editableState.reason && <p className="text-xs text-red-600 dark:text-red-400 mt-1 italic">{editableState.reason}</p>}
       </div>
-      {status === ReportStatus.ACKNOWLEDGED && managerComments && (
-        <div className="mt-3 pt-3 border-t border-gray-100 dark:border-slate-800">
-          <p className="text-sm text-text-primary dark:text-dark-text-primary mb-1"><strong>Manager's Feedback (Overall):</strong></p>
-          <p className="text-sm text-text-secondary dark:text-dark-text-secondary italic bg-gray-50 dark:bg-slate-800/50 p-2 rounded whitespace-pre-wrap truncate max-h-16">"{managerComments}"</p>
-        </div>
-      )}
+      {status === ReportStatus.ACKNOWLEDGED && (() => {
+        const ackStatus = DataService.getReportAcknowledgmentStatus(report);
+        const acknowledgingManagers = ackStatus.getAcknowledgingManagers();
+        
+        return (
+          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-slate-800 space-y-2">
+            {acknowledgingManagers.length > 0 && (
+              <div>
+                <p className="text-sm text-text-primary dark:text-dark-text-primary mb-1">
+                  <strong>Acknowledged by:</strong>
+                </p>
+                <div className="bg-green-50 dark:bg-green-900/30 p-2 rounded space-y-1">
+                  {acknowledgingManagers.map((ack, idx) => (
+                    <div key={idx} className="text-sm text-green-700 dark:text-green-400 flex items-center">
+                      <i className="fas fa-check-circle mr-2"></i>
+                      <span className="font-medium">{ack.managerName}</span>
+                      <span className="text-xs ml-2 text-green-600 dark:text-green-500">
+                        ({formatDateTimeDDMonYYYYHHMM(ack.acknowledgedAt)})
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {managerComments && (
+              <div>
+                <p className="text-sm text-text-primary dark:text-dark-text-primary mb-1"><strong>Manager's Feedback (Overall):</strong></p>
+                <p className="text-sm text-text-secondary dark:text-dark-text-secondary italic bg-gray-50 dark:bg-slate-800/50 p-2 rounded whitespace-pre-wrap truncate max-h-16">"{managerComments}"</p>
+              </div>
+            )}
+          </div>
+        );
+      })()}
     </Card>
   );
 };

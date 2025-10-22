@@ -461,6 +461,7 @@ const ReportList: React.FC<ReportListProps> = ({ currentUser, allUsers }) => {
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-text-secondary dark:text-dark-text-secondary uppercase tracking-wider">Tasks (Latest)</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-text-secondary dark:text-dark-text-secondary uppercase tracking-wider cursor-pointer" onClick={() => requestSort('status')}>Status {getSortIcon('status')}</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-text-secondary dark:text-dark-text-secondary uppercase tracking-wider cursor-pointer" onClick={() => requestSort('businessUnitName')}>Business Unit {getSortIcon('businessUnitName')}</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-text-secondary dark:text-dark-text-secondary uppercase tracking-wider">Acknowledgments</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-text-secondary dark:text-dark-text-secondary uppercase tracking-wider">Info</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-text-secondary dark:text-dark-text-secondary uppercase tracking-wider">Actions</th>
                 </tr>
@@ -470,6 +471,11 @@ const ReportList: React.FC<ReportListProps> = ({ currentUser, allUsers }) => {
                     const latestVersion = report.versions.sort((a,b) => b.versionNumber - a.versionNumber)[0];
                     if (!latestVersion) return null;
                     const employee = allUsers.find(u => u.id === report.employeeId);
+                    const ackStatus = DataService.getReportAcknowledgmentStatus(report);
+                    const hasCurrentManagerAcked = ackStatus.hasManagerAcknowledged(currentUser.id);
+                    const acknowledgingManagers = ackStatus.getAcknowledgingManagers();
+                    const ackCount = ackStatus.getAcknowledgmentCount();
+                    
                     return (
                         <tr key={report.id} className="hover:bg-surface-hover dark:hover:bg-dark-surface-hover animate-fade-in-up">
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-text-primary dark:text-dark-text"><div className="flex items-center"><UserAvatar name={report.employeeName} size="md" className="mr-3" />{report.employeeName}</div></td>
@@ -477,8 +483,45 @@ const ReportList: React.FC<ReportListProps> = ({ currentUser, allUsers }) => {
                             <td className="px-6 py-4 whitespace-normal text-sm text-text-secondary dark:text-dark-text-secondary max-w-sm break-words">{latestVersion.tasksCompleted.substring(0,70)}{latestVersion.tasksCompleted.length > 70 ? '...' : ''}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm"><span className={`px-2 py-0.5 inline-block text-xs font-semibold rounded-full ${report.status === ReportStatus.ACKNOWLEDGED ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-300'}`}>{report.status}</span></td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary dark:text-dark-text-secondary">{employee?.businessUnitName || 'N/A'}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary dark:text-dark-text-secondary">
+                              {report.status === ReportStatus.ACKNOWLEDGED ? (
+                                <div className="space-y-1">
+                                  {hasCurrentManagerAcked && (
+                                    <span className="block text-xs text-green-600 dark:text-green-400 font-semibold">
+                                      <i className="fas fa-check-circle mr-1"></i>By you
+                                      {ackCount > 1 && ` +${ackCount - 1} other${ackCount > 2 ? 's' : ''}`}
+                                    </span>
+                                  )}
+                                  {!hasCurrentManagerAcked && ackCount > 0 && (
+                                    <span className="block text-xs text-gray-600 dark:text-gray-400">
+                                      <i className="fas fa-user-check mr-1"></i>{ackCount} manager{ackCount > 1 ? 's' : ''}
+                                    </span>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-xs text-gray-500 dark:text-gray-400 italic">
+                                  <i className="fas fa-hourglass-half mr-1"></i>Not acknowledged
+                                </span>
+                              )}
+                            </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary dark:text-dark-text-secondary">{report.isLate && <span className="block text-xs text-orange-600 dark:text-orange-400 mb-0.5" title="Late Submission"><i className="fas fa-clock mr-1"></i>Late</span>}{report.managerComments && <span className="block text-xs text-indigo-600 dark:text-indigo-400 mb-0.5" title="Has comment"><i className="fas fa-comment-dots mr-1"></i>Commented</span>}{report.versions.length > 1 && <span className="block text-xs text-purple-600 dark:text-purple-400" title={`Edited (V${latestVersion.versionNumber})`}><i className="fas fa-history mr-1"></i>V{latestVersion.versionNumber}</span>}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium"><div className="flex items-center space-x-1"><Button onClick={() => setSelectedReport(report)} variant="ghost" size="sm" icon={<i className="fas fa-eye"></i>}>Details</Button>{report.status === ReportStatus.PENDING_ACKNOWLEDGMENT && (<Button onClick={() => handleAcknowledgeReport(report.id)} variant="success" size="sm" icon={<i className="fas fa-check"></i>}>Ack.</Button>)}</div></td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                              <div className="flex items-center space-x-1">
+                                <Button onClick={() => setSelectedReport(report)} variant="ghost" size="sm" icon={<i className="fas fa-eye"></i>}>Details</Button>
+                                {report.status === ReportStatus.PENDING_ACKNOWLEDGMENT && (
+                                  <Button 
+                                    onClick={() => handleAcknowledgeReport(report.id)} 
+                                    variant={hasCurrentManagerAcked ? "ghost" : "success"} 
+                                    size="sm" 
+                                    icon={<i className={`fas ${hasCurrentManagerAcked ? 'fa-check-double' : 'fa-check'}`}></i>}
+                                    disabled={hasCurrentManagerAcked}
+                                    title={hasCurrentManagerAcked ? "You have already acknowledged this report" : "Acknowledge this report"}
+                                  >
+                                    {hasCurrentManagerAcked ? 'Ack\'d' : 'Ack.'}
+                                  </Button>
+                                )}
+                              </div>
+                            </td>
                         </tr>
                     );
                 })}
