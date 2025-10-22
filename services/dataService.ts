@@ -1211,7 +1211,8 @@ export const updateTask = async (taskId: string, updatedFields: Partial<Task>, a
                     userId: assigneeId,
                     message: `Details for task "${updatedTask.title}" were updated.`,
                     type: 'info',
-                    link: isManagerOrAdmin(actor.roleName) ? `/team-tasks?taskId=${updatedTask.id}` : `/my-tasks?taskId=${updatedTask.id}`
+                    link: isManagerOrAdmin(actor.roleName) ? `/team-tasks?taskId=${updatedTask.id}` : `/my-tasks?taskId=${updatedTask.id}`,
+                    isCrucial: true
                 });
             }
         }

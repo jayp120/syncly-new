@@ -1,0 +1,87 @@
+Your Notification System
+📱 EMPLOYEE NOTIFICATIONS
+In-App (Bell Icon):
+
+Task assigned to you
+Task reassigned to you
+Task due date changed
+Manager commented on your report
+Meeting starting soon (5/10 min)
+Meeting cancelled
+Mentioned in task comment
+Task blocked/unblocked
+Profile updated by admin
+Desktop/Mobile Push (isCrucial=true):
+
+Task assigned (3 types: new, reassigned, due date changed)
+Task deadlines (3 types: due tomorrow 6PM, due today 9AM, overdue 10AM)
+EOD reminders (2 types: 6:45PM daily, missed report 9:30AM)
+Manager comments on report
+Meeting alerts (starting soon, cancelled)
+Mentioned in comments
+Task blocked status
+Automated Triggers:
+
+6:45 PM Daily - EOD reminder (if not submitted)
+9:30 AM Daily - Missed EOD nudge (previous day)
+6:00 PM Daily - Tasks due tomorrow
+9:00 AM Daily - Tasks due today
+10:00 AM Daily - Overdue tasks alert
+5/10 min before - Meeting start reminder
+👔 MANAGER NOTIFICATIONS
+In-App (Bell Icon):
+
+Employee submitted EOD report
+Employee submitted late EOD
+Team task due tomorrow
+Team task due today
+Team task overdue
+Meeting starting soon
+Meeting cancelled
+Meeting agenda reminder (24h before)
+Desktop/Mobile Push (isCrucial=true):
+
+Employee EOD submissions (on-time + late)
+Team task deadlines (3 types)
+Meeting alerts
+All employee notifications (managers are also employees)
+Automated Triggers:
+
+When employee submits report - Instant notification
+6:00 PM Daily - Team tasks due tomorrow
+9:00 AM Daily - Team tasks due today
+10:00 AM Daily - Overdue team tasks
+5/10 min before - Meeting start reminder
+24h before meeting - Agenda reminder (if empty)
+🔧 ADMIN NOTIFICATIONS
+In-App (Bell Icon):
+
+All manager notifications
+New user created
+User archived/unarchived
+Role changes
+Business unit changes
+System alerts
+Desktop/Mobile Push (isCrucial=true):
+
+Critical system events
+All manager crucial notifications
+User management actions
+Automated Triggers:
+
+All manager automated triggers
+System monitoring alerts
+🔔 BELL ICON BEHAVIOR
+Shows All Notifications:
+
+Real-time updates (Firestore listeners)
+Unread count badge
+3 types: info (blue), warning (orange), reminder (purple)
+Click notification → Navigate to relevant page
+Mark as read on click
+Crucial Flag (isCrucial: true):
+
+Triggers desktop/mobile push notification
+Shows OS-level notification
+Requires user permission (requested on login)
+Total: 14 notification types marked as crucial

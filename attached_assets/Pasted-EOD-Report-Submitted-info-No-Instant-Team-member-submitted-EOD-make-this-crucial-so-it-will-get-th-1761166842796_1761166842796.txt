@@ -1,0 +1,34 @@
+EOD Report Submitted info ❌ No Instant Team member submitted EOD(make this crucial so it will get the in app notification as well as desktop notification
+EOD Report Acknowledged info ❌ No Instant Your EOD was acknowledged
+Late EOD Submitted warning ✅ Yes Instant Team member submitted late
+Team Member Missing EOD warning ✅ Yes 9:30 AM 3+ day delinquency alert
+Task Completed info ❌ No Instant Assigned task completed
+
+2 hours ago
+EOD Report Submitted info ❌ No Instant Team member submitted EOD(make this crucial so it will get the in app notification as well as desktop notification)
+EOD Report Acknowledged info ❌ No Instant Your EOD was acknowledgedmake this crucial so it will get the in app notification as well as desktop notification)
+Late EOD Submitted warning ✅ Yes Instant Team member submitted late
+Team Member Missing EOD warning ✅ Yes 9:30 AM 3+ day delinquency alert
+Task Completed info ❌ No Instant Assigned task completed
+(make this crucial so it will get the in app notification as well as desktop notification)
+
+Employee Notifications (14 Types - 8 Crucial)
+Trigger Type Crucial Time Description
+Meeting in 10 mins reminder ✅ Yes Dynamic Meeting starting soon alert
+Meeting in 5 mins reminder ✅ Yes Dynamic Final meeting reminder
+EOD Reminder reminder ✅ Yes 6:45 PM Daily EOD submission reminder
+Missed EOD Nudge warning ✅ Yes 9:30 AM Next day reminder for missed EOD
+Task Due Tomorrow reminder ✅ Yes 6:00 PM Task due tomorrow alert
+Task Due Today reminder ✅ Yes 9:00 AM Task due today alert
+Task Overdue warning ✅ Yes 10:00 AM Daily overdue task alert
+Task Assigned info ❌ No Instant New task assignment-(make this crucial so it will get the in app notification as well as desktop notification)
+Task Comment info ❌ No Instant Someone commented on your task-(make this crucial so it will get the in app notification as well as desktop notification)
+Task Status Changed info ❌ No Instant Task status updated-(make this crucial so it will get the in app notification as well as desktop notification)
+Meeting RSVP info ❌ No Instant Someone RSVP'd to meeting-
+(make this crucial so it will get the in app notification as well as desktop notification)
+Meeting Update Posted info ❌ No Instant New meeting update((make this crucial so it will get the in app notification as well as desktop notification)
+Crucial Meeting Update warning ✅ Yes Instant Important meeting update
+Meeting Cancelled warning ❌ No Instant Meeting cancelled notification
+
+and test it enite all types of notifiations
+
