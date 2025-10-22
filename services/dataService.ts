@@ -908,19 +908,20 @@ export const getReportAcknowledgmentStatus = (report: EODReport) => {
         return report.acknowledgedByManagerId === managerId;
     };
     
-    const getAcknowledgingManagers = (): Array<{ managerId: string; managerName: string; acknowledgedAt: number }> => {
+    const getAcknowledgingManagers = (): Array<{ id: string; name: string; timestamp: number; designation?: string }> => {
         if (acknowledgments.length > 0) {
             return acknowledgments.map(ack => ({
-                managerId: ack.managerId,
-                managerName: ack.managerName,
-                acknowledgedAt: ack.acknowledgedAt
+                id: ack.managerId,
+                name: ack.managerName,
+                timestamp: ack.acknowledgedAt,
+                designation: ack.designation
             }));
         }
         if (report.acknowledgedByManagerId && report.acknowledgedAt) {
             return [{
-                managerId: report.acknowledgedByManagerId,
-                managerName: 'Manager',
-                acknowledgedAt: report.acknowledgedAt
+                id: report.acknowledgedByManagerId,
+                name: 'Manager',
+                timestamp: report.acknowledgedAt
             }];
         }
         return [];
@@ -962,7 +963,8 @@ export const acknowledgeMultipleReports = async (reportIds: string[], manager: U
             managerId: manager.id,
             managerName: manager.name,
             acknowledgedAt: acknowledgedAtTimestamp,
-            comments: comments || 'Acknowledged in batch'
+            comments: comments || 'Acknowledged in batch',
+            designation: manager.roleName // Store role (Manager, Director, etc.)
         };
         
         if (!report.acknowledgments) {

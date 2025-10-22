@@ -12,7 +12,7 @@ import Button from '../Common/Button';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
-import { formatDateDDMonYYYY, getLocalYYYYMMDD } from '../../utils/dateUtils';
+import { formatDateDDMonYYYY } from '../../utils/dateUtils';
 import { useToast } from '../../contexts/ToastContext';
 import UserAvatar from '../Common/UserAvatar';
 import AISummaryModal from './AISummaryModal';
@@ -484,19 +484,21 @@ const ReportList: React.FC<ReportListProps> = ({ currentUser, allUsers }) => {
                             <td className="px-6 py-4 whitespace-nowrap text-sm"><span className={`px-2 py-0.5 inline-block text-xs font-semibold rounded-full ${report.status === ReportStatus.ACKNOWLEDGED ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-300'}`}>{report.status}</span></td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary dark:text-dark-text-secondary">{employee?.businessUnitName || 'N/A'}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary dark:text-dark-text-secondary">
-                              {report.status === ReportStatus.ACKNOWLEDGED ? (
-                                <div className="space-y-1">
-                                  {hasCurrentManagerAcked && (
-                                    <span className="block text-xs text-green-600 dark:text-green-400 font-semibold">
-                                      <i className="fas fa-check-circle mr-1"></i>By you
-                                      {ackCount > 1 && ` +${ackCount - 1} other${ackCount > 2 ? 's' : ''}`}
-                                    </span>
-                                  )}
-                                  {!hasCurrentManagerAcked && ackCount > 0 && (
-                                    <span className="block text-xs text-gray-600 dark:text-gray-400">
-                                      <i className="fas fa-user-check mr-1"></i>{ackCount} manager{ackCount > 1 ? 's' : ''}
-                                    </span>
-                                  )}
+                              {ackCount > 0 ? (
+                                <div className="space-y-0.5">
+                                  {acknowledgingManagers.map((mgr, idx) => {
+                                    const isCurrentUser = mgr.id === currentUser.id;
+                                    const mgrUser = allUsers.find(u => u.id === mgr.id);
+                                    const isDirector = mgrUser?.roleName === 'Director';
+                                    
+                                    return (
+                                      <div key={idx} className={`text-xs ${isCurrentUser ? 'text-green-600 dark:text-green-400 font-semibold' : 'text-gray-600 dark:text-gray-400'}`}>
+                                        <i className={`fas ${isCurrentUser ? 'fa-check-circle' : 'fa-user-check'} mr-1`}></i>
+                                        {mgr.name}
+                                        {isDirector && <span className="ml-1 text-[10px] opacity-70">(Director)</span>}
+                                      </div>
+                                    );
+                                  })}
                                 </div>
                               ) : (
                                 <span className="text-xs text-gray-500 dark:text-gray-400 italic">

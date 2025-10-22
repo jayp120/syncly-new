@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { EODReport, ReportStatus, User, ReportVersion } from '../../types';
+import { EODReport, ReportStatus } from '../../types';
 import Card from '../Common/Card';
 import Button from '../Common/Button';
 import * as DataService from '../../services/dataService';
@@ -108,9 +108,12 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, onViewDetails }) => {
                   {acknowledgingManagers.map((ack, idx) => (
                     <div key={idx} className="text-sm text-green-700 dark:text-green-400 flex items-center">
                       <i className="fas fa-check-circle mr-2"></i>
-                      <span className="font-medium">{ack.managerName}</span>
+                      <span className="font-medium">
+                        {ack.name}
+                        {ack.designation && ack.designation === 'Director' && <span className="ml-1 text-xs opacity-70">(Director)</span>}
+                      </span>
                       <span className="text-xs ml-2 text-green-600 dark:text-green-500">
-                        ({formatDateTimeDDMonYYYYHHMM(ack.acknowledgedAt)})
+                        ({formatDateTimeDDMonYYYYHHMM(ack.timestamp)})
                       </span>
                     </div>
                   ))}

@@ -101,6 +101,7 @@ export interface ReportAcknowledgment {
   managerName: string;
   acknowledgedAt: number;
   comments?: string;
+  designation?: string; // Manager, Director, etc.
 }
 
 export interface EODReport {
