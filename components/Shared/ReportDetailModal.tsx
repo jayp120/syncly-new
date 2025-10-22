@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { EODReport, ReportStatus, User, Permission } from '../../types';
+import { getAttachmentDisplayUrl } from '../../services/storageService';
 import Modal from '../Common/Modal';
 import Button from '../Common/Button';
 import * as DataService from '../../services/dataService';
@@ -241,25 +242,31 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ report, isOpen, o
               <div className="mt-3 pt-3 border-t dark:border-slate-700">
                 <p className="text-sm font-semibold text-gray-600 dark:text-slate-400 mb-2">Attachments for this version ({selectedVersion.attachments.length}):</p>
                 <div className="flex flex-wrap gap-3">
-                  {selectedVersion.attachments.map((att, index) => (
-                    <div key={`${selectedVersionNumber}-${index}`} className="border dark:border-slate-700 rounded-md p-2 hover:shadow-md transition-shadow">
-                      {att.type.startsWith('image/') ? (
-                        <a href={att.dataUrl} target="_blank" rel="noopener noreferrer" title={`View ${att.name}`}>
-                          <img src={att.dataUrl} alt={att.name} className="w-20 h-20 object-cover rounded border" />
-                          <p className="text-xs text-center mt-1 truncate max-w-[80px] dark:text-slate-300">{att.name}</p>
-                        </a>
-                      ) : (
-                        <button
-                          onClick={() => downloadFile(att.dataUrl, att.name, att.type)}
-                          title={`Download ${att.name}`}
-                          className="flex flex-col items-center justify-center w-20 h-20 text-center p-1 rounded cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700/50"
-                        >
-                          <i className={`fas ${att.type === 'application/pdf' ? 'fa-file-pdf' : (att.type.includes('wordprocessingml') ? 'fa-file-word' : 'fa-file-alt')} text-3xl text-primary mb-1`}></i>
-                          <p className="text-xs truncate max-w-[80px] dark:text-slate-300">{att.name}</p>
-                        </button>
-                      )}
-                    </div>
-                  ))}
+                  {selectedVersion.attachments.map((att, index) => {
+                    const displayUrl = getAttachmentDisplayUrl(att);
+                    return (
+                      <div key={`${selectedVersionNumber}-${index}`} className="border dark:border-slate-700 rounded-md p-2 hover:shadow-md transition-shadow">
+                        {att.type.startsWith('image/') ? (
+                          <a href={displayUrl} target="_blank" rel="noopener noreferrer" title={`View ${att.name}`}>
+                            <img src={displayUrl} alt={att.name} className="w-20 h-20 object-cover rounded border" />
+                            <p className="text-xs text-center mt-1 truncate max-w-[80px] dark:text-slate-300">{att.name}</p>
+                          </a>
+                        ) : (
+                          <a
+                            href={displayUrl}
+                            download={att.name}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title={`Download ${att.name}`}
+                            className="flex flex-col items-center justify-center w-20 h-20 text-center p-1 rounded cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700/50"
+                          >
+                            <i className={`fas ${att.type === 'application/pdf' ? 'fa-file-pdf' : (att.type.includes('wordprocessingml') ? 'fa-file-word' : 'fa-file-alt')} text-3xl text-primary mb-1`}></i>
+                            <p className="text-xs truncate max-w-[80px] dark:text-slate-300">{att.name}</p>
+                          </a>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
