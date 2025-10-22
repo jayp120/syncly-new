@@ -1505,7 +1505,7 @@ export const clearAllUserNotifications = async (userId: string): Promise<void> =
         await notificationRepository.delete(notif.id);
     }
 };
-export const addNotification = async (notificationData: Omit<AppNotification, 'id' | 'timestamp' | 'read'>): Promise<AppNotification> => {
+export const addNotification = async (notificationData: Omit<AppNotification, 'id' | 'timestamp' | 'read' | 'tenantId'>): Promise<AppNotification> => {
     const tenantId = requireTenantId();
     const notifId = generateId('notif');
     const newNotification: AppNotification = {

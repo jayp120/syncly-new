@@ -1,8 +1,8 @@
 
 
-import { User, Task, TaskStatus, Meeting, ActivityLogActionType } from '../types';
+import { User, Task, TaskStatus } from '../types';
 import * as DataService from './dataService';
-import { getLocalYYYYMMDD, formatDateTimeDDMonYYYYHHMM, getNextOccurrence, formatDateDDMonYYYY } from '../utils/dateUtils';
+import { getLocalYYYYMMDD, getNextOccurrence, formatDateDDMonYYYY } from '../utils/dateUtils';
 import { SCHEDULED_NOTIFICATIONS_KEY } from '../constants';
 import eventBus from './eventBus';
 
