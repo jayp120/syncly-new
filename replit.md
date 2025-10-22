@@ -26,7 +26,7 @@ The application is built using **React 19.1** and **TypeScript**, with **Vite 6.
 -   **Task Management:** Personal, direct, and team tasks with Kanban boards. Includes employee mention/tagging system.
 -   **Smart Meeting Assistant:** Live memo and meeting scheduling with Google Calendar sync.
 -   **Performance & Gamification:** Badge system and leaderboards.
--   **Notifications:** Real-time activity logs, bell icon updates, and desktop push notifications for crucial events (19 total types, 15 crucial).
+-   **Notifications:** Production-ready notification system with 23 types (20 crucial). Includes real-time in-app bell icon, desktop/mobile push notifications, and 7 automated scheduled triggers. See NOTIFICATION_SYSTEM_VERIFICATION.md for complete details.
 
 **UI/UX Decisions:**
 -   Component-based architecture.
