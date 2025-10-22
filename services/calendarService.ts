@@ -6,12 +6,11 @@ declare const gapi: any;
 declare const google: any;
 
 // ========================================================================
-// TODO: PASTE YOUR GOOGLE CLOUD CLIENT ID HERE
-// This ID must be obtained from the Google Cloud Console for your project.
+// Google Cloud CLIENT_ID loaded from environment variables
+// Set VITE_GOOGLE_CLIENT_ID in your .env file or Replit Secrets
 // See the guide in /docs/google-calendar-guide.md for instructions.
 // ========================================================================
-const CLIENT_ID =
-  "790117665889-8mfsqenv4lcimef1728ikoj5pi1lrvi1.apps.googleusercontent.com";
+const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 // ========================================================================
 
 const SCOPES = "https://www.googleapis.com/auth/calendar.events";

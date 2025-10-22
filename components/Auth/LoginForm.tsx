@@ -15,17 +15,6 @@ const LoginForm: React.FC = () => {
   const { login, isLoading, currentUser } = useAuth();
   const navigate = useNavigate();
 
-  const handleSuperAdminAccess = () => {
-    const secretCode = prompt('🔒 Enter Super Admin Access Code:');
-    const SUPER_ADMIN_CODE = 'SYNCLY2025'; // Change this to your own secret code
-    
-    if (secretCode === SUPER_ADMIN_CODE) {
-      navigate('/super-admin');
-    } else if (secretCode !== null) {
-      alert('❌ Invalid access code');
-    }
-  };
-
   useEffect(() => {
     if (currentUser) {
       // The router in App.tsx will now handle directing to the correct dashboard
@@ -96,15 +85,6 @@ const LoginForm: React.FC = () => {
             <br />
             &copy; {new Date().getFullYear()} Syncly. All rights reserved.
         </p>
-        
-        {/* Super Admin Access - Owner Only */}
-        <button
-          type="button"
-          onClick={handleSuperAdminAccess}
-          className="mt-4 w-full py-1 text-xs text-gray-400 hover:text-gray-600 dark:text-gray-600 dark:hover:text-gray-400 transition-colors opacity-50 hover:opacity-100"
-        >
-          Admin Setup
-        </button>
       </div>
     </div>
   );
