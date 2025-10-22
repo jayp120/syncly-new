@@ -120,7 +120,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed, onToggl
         </div>
         
         {/* Nav Items */}
-        <nav className="flex-grow px-2">
+        <nav className="flex-grow px-2 overflow-y-auto">
           <ul>
             {filteredNavItems.map(item => {
               const Icon = item.icon;
