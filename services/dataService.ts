@@ -862,7 +862,8 @@ export const updateReportByManager = async (updateData: { id: string; status?: R
             link: `/my-reports`,
             actionType: 'EOD_ACKNOWLEDGED',
             targetId: report.id,
-            actors: [{ id: report.id, name: formatDateDDMonYYYY(report.date) }]
+            actors: [{ id: report.id, name: formatDateDDMonYYYY(report.date) }],
+            isCrucial: true
         });
     }
 
@@ -920,7 +921,8 @@ export const acknowledgeMultipleReports = async (reportIds: string[], manager: U
             link: '/my-reports',
             actionType: 'EOD_ACKNOWLEDGED',
             targetId: `batch-ack-${Date.now()}`,
-            actors: notifs.map(n => ({ id: n.report.id, name: formatDateDDMonYYYY(n.report.date) }))
+            actors: notifs.map(n => ({ id: n.report.id, name: formatDateDDMonYYYY(n.report.date) })),
+            isCrucial: true
         });
     }
 
@@ -1040,6 +1042,16 @@ export const updateTask = async (taskId: string, updatedFields: Partial<Task>, a
     if (oldTask.status !== updatedTask.status) {
         const logType = updatedTask.status === TaskStatus.Completed ? ActivityLogActionType.TASK_COMPLETED : updatedTask.status === TaskStatus.Blocked ? ActivityLogActionType.TASK_STATUS_CHANGED : ActivityLogActionType.TASK_STATUS_CHANGED;
         await logChange(logType, 'status', oldTask.status, updatedTask.status, updatedTask.status === TaskStatus.Blocked);
+        // If an employee marks a task as completed, notify the manager who created it
+        if (updatedTask.status === TaskStatus.Completed && actor.id !== updatedTask.createdBy) {
+            await addNotification({
+                userId: updatedTask.createdBy,
+                message: `${actor.name} completed the task: "${updatedTask.title}"`,
+                type: 'info',
+                isCrucial: true,
+                link: `/team-tasks?taskId=${updatedTask.id}`
+            });
+        }
         // If an employee marks a task as blocked, notify the manager who created it
         if (updatedTask.status === TaskStatus.Blocked && actor.id !== updatedTask.createdBy) {
             await addNotification({
@@ -1153,6 +1165,17 @@ export const updateTaskMemberStatus = async (taskId: string, memberId: string, n
         targetName: task.title
     });
 
+    // Notify the task creator when all team members complete the task
+    if (allCompleted && task.status === TaskStatus.Completed && actor.id !== task.createdBy) {
+        await addNotification({
+            userId: task.createdBy,
+            message: `All team members completed the task: "${task.title}"`,
+            type: 'info',
+            isCrucial: true,
+            link: `/team-tasks?taskId=${task.id}`
+        });
+    }
+
     return task;
 };
 
@@ -1211,7 +1234,8 @@ export const addTaskComment = async (taskId: string, text: string, actor: User):
                     link: isManagerOrAdmin(actor.roleName) ? `/team-tasks?taskId=${task.id}` : `/my-tasks?taskId=${task.id}`,
                     actionType: 'TASK_COMMENT_ADDED',
                     targetId: task.id,
-                    actors: [{ id: actor.id, name: actor.name }]
+                    actors: [{ id: actor.id, name: actor.name }],
+                    isCrucial: true
                 });
             }
         }
