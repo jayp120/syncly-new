@@ -94,8 +94,8 @@ interface CameraModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCapture: () => void;
-  videoRef: React.RefObject<HTMLVideoElement>;
-  canvasRef: React.RefObject<HTMLCanvasElement>;
+  videoRef: React.RefObject<HTMLVideoElement | null>;
+  canvasRef: React.RefObject<HTMLCanvasElement | null>;
 }
 
 const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCapture, videoRef, canvasRef }) => {
