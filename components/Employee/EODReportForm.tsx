@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { EODReport, User, Attachment, ReportVersion, Task, TaskStatus } from '../../types';
 import * as DataService from '../../services/dataService';
+import { uploadReportAttachment } from '../../services/storageService';
 import Input from '../Common/Input';
 import Textarea from '../Common/Textarea';
 import Button from '../Common/Button';
@@ -196,6 +197,12 @@ const EODReportForm: React.FC<EODReportFormProps> = ({ currentUser, reportDate, 
   const [pendingTasks, setPendingTasks] = useState<Task[]>([]);
   const [isLoadingTasks, setIsLoadingTasks] = useState(false);
   const [newlyCompletedTaskIds, setNewlyCompletedTaskIds] = useState<Set<string>>(new Set());
+  
+  // Report ID for file uploads (generated upfront)
+  const [pendingReportId] = useState(() => {
+    // Generate ID once when component mounts
+    return `report_${currentUser.id}_${date.replace(/-/g, '')}_${Date.now()}`;
+  });
 
   useEffect(() => {
     // Initialize SpeechRecognition only once on component mount
@@ -318,7 +325,7 @@ const EODReportForm: React.FC<EODReportFormProps> = ({ currentUser, reportDate, 
     };
   }, [isListeningFor]);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setAttachmentError(''); 
     const files = event.target.files;
     if (!files) return;
@@ -329,6 +336,8 @@ const EODReportForm: React.FC<EODReportFormProps> = ({ currentUser, reportDate, 
       return;
     }
 
+    // Show uploading feedback
+    setAttachmentError('Uploading files to secure storage...');
     const newAttachmentsPromises: Promise<Attachment>[] = [];
 
     for (let i = 0; i < files.length; i++) {
@@ -338,30 +347,33 @@ const EODReportForm: React.FC<EODReportFormProps> = ({ currentUser, reportDate, 
         if (fileInputRef.current) fileInputRef.current.value = ""; 
         return; 
       }
-      const promise = new Promise<Attachment>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          resolve({
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            dataUrl: e.target?.result as string,
-          });
-        };
-        reader.onerror = (err) => reject(err);
-        reader.readAsDataURL(file);
-      });
-      newAttachmentsPromises.push(promise);
+      
+      // Upload to Firebase Storage
+      const uploadPromise = uploadReportAttachment(file, reportToEdit?.id || pendingReportId)
+        .then(uploaded => ({
+          name: uploaded.name,
+          type: uploaded.type,
+          size: uploaded.size,
+          storageUrl: uploaded.storageUrl,
+          storagePath: uploaded.storagePath,
+        }))
+        .catch(err => {
+          console.error(`Error uploading ${file.name}:`, err);
+          throw new Error(`Failed to upload ${file.name}`);
+        });
+      
+      newAttachmentsPromises.push(uploadPromise);
     }
 
-    Promise.all(newAttachmentsPromises)
-      .then(newlyProcessedAttachments => {
-        setAttachments(prev => [...prev, ...newlyProcessedAttachments]);
-      })
-      .catch(err => {
-        console.error("Error processing files:", err);
-        setAttachmentError("Error processing one or more files.");
-      });
+    try {
+      const newlyProcessedAttachments = await Promise.all(newAttachmentsPromises);
+      setAttachments(prev => [...prev, ...newlyProcessedAttachments]);
+      setAttachmentError(''); // Clear uploading message
+      addToast(`${newlyProcessedAttachments.length} file(s) uploaded successfully`, 'success');
+    } catch (err: any) {
+      console.error("Error uploading files:", err);
+      setAttachmentError(err.message || "Error uploading one or more files.");
+    }
     
     if (fileInputRef.current) fileInputRef.current.value = ""; 
   };
@@ -566,7 +578,7 @@ const EODReportForm: React.FC<EODReportFormProps> = ({ currentUser, reportDate, 
     setIsCameraOpen(true);
   };
 
-  const handleCapture = () => {
+  const handleCapture = async () => {
     if (videoRef.current && canvasRef.current) {
         const video = videoRef.current;
         const canvas = canvasRef.current;
@@ -575,16 +587,41 @@ const EODReportForm: React.FC<EODReportFormProps> = ({ currentUser, reportDate, 
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-            const dataUrl = canvas.toDataURL('image/jpeg');
-            const newAttachment: Attachment = {
-                name: `photo-${Date.now()}.jpg`,
-                type: 'image/jpeg',
-                size: dataUrl.length, // This is not accurate byte size but good enough for display
-                dataUrl,
-            };
+            
+            // Convert canvas to Blob for upload
+            canvas.toBlob(async (blob) => {
+                if (!blob) {
+                    setAttachmentError('Failed to capture photo');
+                    return;
+                }
+                
+                try {
+                    setAttachmentError('Uploading photo to secure storage...');
+                    
+                    // Create File from Blob
+                    const fileName = `photo-${Date.now()}.jpg`;
+                    const file = new File([blob], fileName, { type: 'image/jpeg' });
+                    
+                    // Upload to Firebase Storage
+                    const uploaded = await uploadReportAttachment(file, reportToEdit?.id || pendingReportId);
+                    
+                    const newAttachment: Attachment = {
+                        name: uploaded.name,
+                        type: uploaded.type,
+                        size: uploaded.size,
+                        storageUrl: uploaded.storageUrl,
+                        storagePath: uploaded.storagePath,
+                    };
 
-            setAttachments(prev => [...prev, newAttachment]);
-            setIsCameraOpen(false);
+                    setAttachments(prev => [...prev, newAttachment]);
+                    setAttachmentError('');
+                    setIsCameraOpen(false);
+                    addToast('Photo uploaded successfully', 'success');
+                } catch (err: any) {
+                    console.error('Error uploading photo:', err);
+                    setAttachmentError('Failed to upload photo. Please try again.');
+                }
+            }, 'image/jpeg', 0.9);
         }
     }
   };
