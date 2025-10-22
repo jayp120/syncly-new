@@ -894,43 +894,116 @@ export const updateReportByManager = async (updateData: { id: string; status?: R
     return report;
 };
 
-export const acknowledgeMultipleReports = async (reportIds: string[], manager: User): Promise<boolean> => {
+export const getReportAcknowledgmentStatus = (report: EODReport) => {
+    const acknowledgments = report.acknowledgments || [];
+    
+    const hasManagerAcknowledged = (managerId: string): boolean => {
+        if (acknowledgments.length > 0) {
+            return acknowledgments.some(ack => ack.managerId === managerId);
+        }
+        return report.acknowledgedByManagerId === managerId;
+    };
+    
+    const getAcknowledgingManagers = (): Array<{ managerId: string; managerName: string; acknowledgedAt: number }> => {
+        if (acknowledgments.length > 0) {
+            return acknowledgments.map(ack => ({
+                managerId: ack.managerId,
+                managerName: ack.managerName,
+                acknowledgedAt: ack.acknowledgedAt
+            }));
+        }
+        if (report.acknowledgedByManagerId && report.acknowledgedAt) {
+            return [{
+                managerId: report.acknowledgedByManagerId,
+                managerName: 'Manager',
+                acknowledgedAt: report.acknowledgedAt
+            }];
+        }
+        return [];
+    };
+    
+    const getAcknowledgmentCount = (): number => {
+        if (acknowledgments.length > 0) {
+            return acknowledgments.length;
+        }
+        return report.acknowledgedByManagerId ? 1 : 0;
+    };
+    
+    return {
+        hasManagerAcknowledged,
+        getAcknowledgingManagers,
+        getAcknowledgmentCount
+    };
+};
+
+export const acknowledgeMultipleReports = async (reportIds: string[], manager: User, comments?: string): Promise<boolean> => {
     let allReports = await getReports();
     let updatedCount = 0;
-    const employeeNotifications: { [employeeId: string]: { report: EODReport }[] } = {};
+    const employeeNotifications: { [employeeId: string]: { report: EODReport, managerName: string }[] } = {};
 
     for (const id of reportIds) {
         const reportIndex = allReports.findIndex(r => r.id === id);
-        if (reportIndex !== -1 && allReports[reportIndex].status === ReportStatus.PENDING_ACKNOWLEDGMENT) {
-            const acknowledgedAtTimestamp = Date.now();
-            const report = allReports[reportIndex];
+        if (reportIndex === -1) continue;
+        
+        const report = allReports[reportIndex];
+        const acknowledgmentStatus = getReportAcknowledgmentStatus(report);
+        
+        if (acknowledgmentStatus.hasManagerAcknowledged(manager.id)) {
+            console.log(`Manager ${manager.name} has already acknowledged report ${report.id}`);
+            continue;
+        }
+        
+        const acknowledgedAtTimestamp = Date.now();
+        const newAcknowledgment = {
+            managerId: manager.id,
+            managerName: manager.name,
+            acknowledgedAt: acknowledgedAtTimestamp,
+            comments: comments || 'Acknowledged in batch'
+        };
+        
+        if (!report.acknowledgments) {
+            report.acknowledgments = [];
+        }
+        report.acknowledgments.push(newAcknowledgment);
+        
+        const isFirstAcknowledgment = report.acknowledgments.length === 1;
+        
+        if (isFirstAcknowledgment) {
             report.status = ReportStatus.ACKNOWLEDGED;
             report.acknowledgedByManagerId = manager.id;
             report.acknowledgedAt = acknowledgedAtTimestamp;
-            report.managerComments = report.managerComments || 'Acknowledged in batch';
-            updatedCount++;
-            
-             await addActivityLog({
-                timestamp: acknowledgedAtTimestamp,
-                actorId: manager.id, actorName: manager.name, type: ActivityLogActionType.EOD_ACKNOWLEDGED,
-                description: `batch-acknowledged EOD report for ${report.employeeName} on`,
-                targetId: report.id, targetName: formatDateDDMonYYYY(report.date),
-                targetUserId: report.employeeId, targetUserName: report.employeeName
-            });
-
-            if (!employeeNotifications[report.employeeId]) {
-                employeeNotifications[report.employeeId] = [];
+            if (!report.managerComments) {
+                report.managerComments = comments || 'Acknowledged in batch';
             }
-            employeeNotifications[report.employeeId].push({ report });
         }
+        
+        await reportRepository.update(report.id, report);
+        updatedCount++;
+        
+        await addActivityLog({
+            timestamp: acknowledgedAtTimestamp,
+            actorId: manager.id,
+            actorName: manager.name,
+            type: ActivityLogActionType.EOD_ACKNOWLEDGED,
+            description: `acknowledged ${report.employeeName}'s EOD report for`,
+            targetId: report.id,
+            targetName: formatDateDDMonYYYY(report.date),
+            targetUserId: report.employeeId,
+            targetUserName: report.employeeName
+        });
+
+        if (!employeeNotifications[report.employeeId]) {
+            employeeNotifications[report.employeeId] = [];
+        }
+        employeeNotifications[report.employeeId].push({ report, managerName: manager.name });
     }
     
-    // Send grouped notifications to employees
     for (const employeeId in employeeNotifications) {
         const notifs = employeeNotifications[employeeId];
+        const managerName = notifs[0].managerName;
         await addNotification({
             userId: employeeId,
-            message: `Your EOD reports have been acknowledged by ${manager.name}.`,
+            message: `Your EOD reports have been acknowledged by ${managerName}.`,
             type: 'info',
             link: '/my-reports',
             actionType: 'EOD_ACKNOWLEDGED',
@@ -940,8 +1013,6 @@ export const acknowledgeMultipleReports = async (reportIds: string[], manager: U
         });
     }
 
-
-    // Reports are already updated via reportRepository.update() in the loop above
     return true;
 };
 
