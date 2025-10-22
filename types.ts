@@ -82,7 +82,9 @@ export interface Attachment {
   name: string;
   type: string; 
   size: number; 
-  dataUrl: string; 
+  dataUrl?: string; // Legacy: base64 encoded data (deprecated, used for old reports)
+  storageUrl?: string; // New: Firebase Storage download URL
+  storagePath?: string; // Firebase Storage path for file management
 }
 
 export interface ReportVersion {
