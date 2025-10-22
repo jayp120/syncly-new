@@ -101,7 +101,7 @@ const RolesPermissionsPage: React.FC = () => {
         }
     };
     
-    const isDefaultRole = (roleId: string) => ['super_admin', 'manager', 'employee'].includes(roleId);
+    const isDefaultRole = (roleName: string) => ['Super Admin', 'Director', 'Manager', 'Employee'].includes(roleName);
 
     if (isLoading) {
         return <Spinner message="Loading roles and permissions..." />;
@@ -117,7 +117,7 @@ const RolesPermissionsPage: React.FC = () => {
                                 onClick={() => handleSelectRole(role)}
                                 className={`w-full text-left p-3 rounded-lg transition-colors ${selectedRole?.id === role.id ? 'bg-primary text-white' : 'hover:bg-primary-light dark:hover:bg-slate-700'}`}
                             >
-                                <div className="font-semibold">{role.name} {isDefaultRole(role.id) && <span className="text-xs opacity-70">(Default)</span>}</div>
+                                <div className="font-semibold">{role.name} {isDefaultRole(role.name) && <span className="text-xs opacity-70">(Default)</span>}</div>
                                 <div className="text-xs opacity-80">{role.description}</div>
                             </button>
                         </li>
