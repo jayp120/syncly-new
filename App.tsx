@@ -6,6 +6,7 @@ import AdminDashboard, { AdminUserManagementPage, AdminAllReportsPage, AdminTrig
 import SuperAdminDashboard from './components/Admin/SuperAdminDashboard';
 // FIX: Corrected import from ManagerDashboard to include newly exported page components.
 import ManagerDashboard, { ManagerReportListPage, ManagerDelinquentPage, ManagerCalendarPage, ManagerPerformanceHubPage } from './components/Manager/ManagerDashboard';
+import DirectorDashboard from './components/Director/DirectorDashboard';
 import EmployeeDashboard, { EmployeeMyReportsPage, EmployeeSubmitEODPage, EmployeeEditEODPage, EmployeeCalendarPage } from './components/Employee/EmployeeDashboard';
 import { MyTasksPage } from './components/Tasks/MyTasksPage';
 import { TeamTasksPage } from './components/Manager/TeamTasksPage';
@@ -45,6 +46,7 @@ const AppContent: React.FC = () => {
     if (currentUser?.isPlatformAdmin) return <SuperAdminDashboard />;
     // Regular tenant users get role-based dashboards
     if (hasPermission(Permission.CAN_MANAGE_USERS)) return <AdminDashboard />;
+    if (currentUser?.roleName === 'Director') return <DirectorDashboard />;
     if (hasPermission(Permission.CAN_MANAGE_TEAM_REPORTS)) return <ManagerDashboard />;
     return <EmployeeDashboard />;
   };
@@ -72,6 +74,9 @@ const AppContent: React.FC = () => {
       {hasPermission(Permission.CAN_MANAGE_TEAM_TASKS) && <Route path="/team-tasks" element={<TeamTasksPage />} />}
       {hasPermission(Permission.CAN_USE_PERFORMANCE_HUB) && <Route path="/performance-hub" element={<ManagerPerformanceHubPage />} />}
       {(hasPermission(Permission.CAN_MANAGE_TEAM_MEETINGS) || hasPermission(Permission.CAN_MANAGE_USERS)) && <Route path="/integrations" element={<IntegrationsPage />} />}
+
+      {/* Director Routes */}
+      {currentUser?.roleName === 'Director' && <Route path="/director-dashboard" element={<DirectorDashboard />} />}
 
 
       {/* Employee Routes */}

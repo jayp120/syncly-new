@@ -1642,7 +1642,7 @@ export const transformActivityToTimelineEvent = async (activity: ActivityLogItem
   };
 };
 const isManagerOrAdmin = (roleName?: string) => roleName === 'Manager' || roleName === 'Super Admin' || roleName === 'Director';
-const isDirector = (roleName?: string) => roleName === 'Director';
+export const isDirector = (roleName?: string) => roleName === 'Director';
 
 export const getMeetingsForUser = async (userId: string): Promise<Meeting[]> => (await getMeetings()).filter(m => m.attendeeIds.includes(userId) || m.createdBy === userId);
 
