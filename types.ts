@@ -96,6 +96,13 @@ export interface ReportVersion {
   action: 'submitted' | 'edited'; 
 }
 
+export interface ReportAcknowledgment {
+  managerId: string;
+  managerName: string;
+  acknowledgedAt: number;
+  comments?: string;
+}
+
 export interface EODReport {
   id: string;
   tenantId: string; // Multi-tenant: Organization/Company ID
@@ -109,8 +116,11 @@ export interface EODReport {
   isLate: boolean; 
   isYesterdaySubmission?: boolean; 
   submittedAt: number; 
+  // Legacy fields for backward compatibility
   acknowledgedByManagerId?: string; 
-  acknowledgedAt?: number; 
+  acknowledgedAt?: number;
+  // Multi-manager acknowledgment support
+  acknowledgments?: ReportAcknowledgment[];
 }
 
 // --- Task Management System Types ---
