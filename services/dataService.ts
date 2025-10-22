@@ -1043,7 +1043,8 @@ export const updateTask = async (taskId: string, updatedFields: Partial<Task>, a
         const logType = updatedTask.status === TaskStatus.Completed ? ActivityLogActionType.TASK_COMPLETED : updatedTask.status === TaskStatus.Blocked ? ActivityLogActionType.TASK_STATUS_CHANGED : ActivityLogActionType.TASK_STATUS_CHANGED;
         await logChange(logType, 'status', oldTask.status, updatedTask.status, updatedTask.status === TaskStatus.Blocked);
         // If an employee marks a task as completed, notify the manager who created it
-        if (updatedTask.status === TaskStatus.Completed && actor.id !== updatedTask.createdBy) {
+        // Guard: Only notify on TRANSITION to Completed (not if already Completed)
+        if (updatedTask.status === TaskStatus.Completed && oldTask.status !== TaskStatus.Completed && actor.id !== updatedTask.createdBy) {
             await addNotification({
                 userId: updatedTask.createdBy,
                 message: `${actor.name} completed the task: "${updatedTask.title}"`,
