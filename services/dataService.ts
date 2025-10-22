@@ -856,8 +856,31 @@ export const updateReportByManager = async (updateData: { id: string; status?: R
     if (updateData.managerComments !== undefined) report.managerComments = updateData.managerComments;
     const acknowledgedAtTimestamp = Date.now();
     if (updateData.status === ReportStatus.ACKNOWLEDGED) {
+        // Legacy fields for backward compatibility
         report.acknowledgedByManagerId = manager.id;
         report.acknowledgedAt = acknowledgedAtTimestamp;
+        
+        // Multi-Manager Acknowledgment: Append to acknowledgments array
+        if (!report.acknowledgments) {
+            report.acknowledgments = [];
+        }
+        
+        // Check if this manager already acknowledged
+        const existingAckIndex = report.acknowledgments.findIndex(ack => ack.managerId === manager.id);
+        if (existingAckIndex === -1) {
+            // New acknowledgment - add to array
+            report.acknowledgments.push({
+                managerId: manager.id,
+                managerName: manager.name,
+                acknowledgedAt: acknowledgedAtTimestamp,
+                comments: updateData.managerComments,
+                designation: manager.roleName // Manager, Director, etc.
+            });
+        } else {
+            // Update existing acknowledgment
+            report.acknowledgments[existingAckIndex].acknowledgedAt = acknowledgedAtTimestamp;
+            report.acknowledgments[existingAckIndex].comments = updateData.managerComments;
+        }
     }
     
     await reportRepository.update(report.id, report);
