@@ -110,14 +110,25 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ report, isOpen, o
   };
 
   const isManager = hasPermission(Permission.CAN_ACKNOWLEDGE_REPORTS);
+  
+  // Check if current manager has already acknowledged
+  const ackStatus = DataService.getReportAcknowledgmentStatus(report);
+  const hasCurrentManagerAcked = currentUser ? ackStatus.hasManagerAcknowledged(currentUser.id) : false;
 
   const renderFooter = () => {
     const buttons = [];
-    if (isManager && report.status === ReportStatus.PENDING_ACKNOWLEDGMENT) {
+    if (isManager && !hasCurrentManagerAcked) {
       buttons.push(
         <Button key="acknowledge" onClick={handleAcknowledge} variant="success">
           <i className="fas fa-check-circle mr-2"></i>Acknowledge Report
         </Button>
+      );
+    }
+    if (isManager && hasCurrentManagerAcked) {
+      buttons.push(
+        <span key="acknowledged-status" className="text-sm text-green-600 dark:text-green-400 font-semibold">
+          <i className="fas fa-check-double mr-2"></i>You acknowledged this report
+        </span>
       );
     }
     buttons.push(<Button key="close" onClick={onClose} variant="ghost">Close</Button>);
@@ -183,9 +194,12 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ report, isOpen, o
                   {acknowledgingManagers.map((ack, idx) => (
                     <div key={idx} className="text-sm text-green-700 dark:text-green-400">
                       <i className="fas fa-user-check mr-2"></i>
-                      <span className="font-medium">{ack.managerName}</span>
+                      <span className="font-medium">
+                        {ack.name}
+                        {ack.designation && ack.designation === 'Director' && <span className="ml-1 text-xs opacity-70">(Director)</span>}
+                      </span>
                       <span className="text-xs ml-2 text-green-600 dark:text-green-500">
-                        ({formatDateTimeDDMonYYYYHHMM(ack.acknowledgedAt)})
+                        ({formatDateTimeDDMonYYYYHHMM(ack.timestamp)})
                       </span>
                     </div>
                   ))}
@@ -254,7 +268,7 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ report, isOpen, o
         {!selectedVersion && report.versions.length > 0 && <p className="text-red-500">Error: Could not load selected version details.</p>}
         {!selectedVersion && report.versions.length === 0 && <p className="text-yellow-500">This report has no versions.</p>}
 
-        {isManager && report.status === ReportStatus.PENDING_ACKNOWLEDGMENT && (
+        {isManager && !hasCurrentManagerAcked && (
             <div className="my-3 p-3 border dark:border-slate-700 rounded-md bg-indigo-50 dark:bg-indigo-900/40">
                 <p className="text-sm font-semibold text-indigo-700 dark:text-indigo-300 mb-2">Add Quick Reaction (Optional):</p>
                 <div className="flex space-x-2 flex-wrap">
@@ -280,7 +294,7 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ report, isOpen, o
                 Manager Comments (Overall):
             </p>
             {isManager ? (
-                report.status === ReportStatus.PENDING_ACKNOWLEDGMENT ? (
+                !hasCurrentManagerAcked ? (
                     <>
                         <textarea 
                             value={comment} 

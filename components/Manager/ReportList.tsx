@@ -488,8 +488,7 @@ const ReportList: React.FC<ReportListProps> = ({ currentUser, allUsers }) => {
                                 <div className="space-y-0.5">
                                   {acknowledgingManagers.map((mgr, idx) => {
                                     const isCurrentUser = mgr.id === currentUser.id;
-                                    const mgrUser = allUsers.find(u => u.id === mgr.id);
-                                    const isDirector = mgrUser?.roleName === 'Director';
+                                    const isDirector = mgr.designation === 'Director';
                                     
                                     return (
                                       <div key={idx} className={`text-xs ${isCurrentUser ? 'text-green-600 dark:text-green-400 font-semibold' : 'text-gray-600 dark:text-gray-400'}`}>
@@ -510,17 +509,21 @@ const ReportList: React.FC<ReportListProps> = ({ currentUser, allUsers }) => {
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                               <div className="flex items-center space-x-1">
                                 <Button onClick={() => setSelectedReport(report)} variant="ghost" size="sm" icon={<i className="fas fa-eye"></i>}>Details</Button>
-                                {report.status === ReportStatus.PENDING_ACKNOWLEDGMENT && (
+                                {!hasCurrentManagerAcked && (
                                   <Button 
                                     onClick={() => handleAcknowledgeReport(report.id)} 
-                                    variant={hasCurrentManagerAcked ? "ghost" : "success"} 
+                                    variant="success" 
                                     size="sm" 
-                                    icon={<i className={`fas ${hasCurrentManagerAcked ? 'fa-check-double' : 'fa-check'}`}></i>}
-                                    disabled={hasCurrentManagerAcked}
-                                    title={hasCurrentManagerAcked ? "You have already acknowledged this report" : "Acknowledge this report"}
+                                    icon={<i className="fas fa-check"></i>}
+                                    title="Acknowledge this report"
                                   >
-                                    {hasCurrentManagerAcked ? 'Ack\'d' : 'Ack.'}
+                                    Ack.
                                   </Button>
+                                )}
+                                {hasCurrentManagerAcked && (
+                                  <span className="text-xs text-green-600 dark:text-green-400 font-semibold px-2">
+                                    <i className="fas fa-check-double mr-1"></i>You acknowledged
+                                  </span>
                                 )}
                               </div>
                             </td>
