@@ -723,9 +723,13 @@ export const permanentlyDeleteBusinessUnit = async (buId: string): Promise<void>
 
 // --- Report Management ---
 export const getReports = async (): Promise<EODReport[]> => {
-    const currentUser = getAuthUser();
     const tenantId = requireTenantId();
-    const allReports = await reportRepository.getAll(tenantId);
+    return await reportRepository.getAll(tenantId);
+};
+
+// Helper function to filter reports based on user role
+export const getReportsForUser = async (currentUser: User): Promise<EODReport[]> => {
+    const allReports = await getReports();
     
     // Directors see all reports across all business units in their tenant
     if (isDirector(currentUser.roleName)) {

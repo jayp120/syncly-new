@@ -1,0 +1,44 @@
+[UserRepository] Returning cached users for tenant: tenant_1760686473292_h4zi4y6nj
+repositories.ts:171 [UserRepository] Returning cached users for tenant: tenant_1760686473292_h4zi4y6nj
+repositories.ts:171 [UserRepository] Returning cached users for tenant: tenant_1760686473292_h4zi4y6nj
+repositories.ts:171 [UserRepository] Returning cached users for tenant: tenant_1760686473292_h4zi4y6nj
+dataService.ts:726 Uncaught (in promise) ReferenceError: getAuthUser is not defined
+    at Module.getReports (dataService.ts:726:25)
+    at ReportList.tsx:78:46
+    at ReportList.tsx:86:5
+dataService.ts:726 Uncaught (in promise) ReferenceError: getAuthUser is not defined
+    at Module.getReports (dataService.ts:726:25)
+    at ReportList.tsx:78:46
+    at ReportList.tsx:86:5
+repositories.ts:171 [UserRepository] Returning cached users for tenant: tenant_1760686473292_h4zi4y6nj
+repositories.ts:171 [UserRepository] Returning cached users for tenant: tenant_1760686473292_h4zi4y6nj
+dataService.ts:726 Uncaught (in promise) ReferenceError: getAuthUser is not defined
+    at Module.getReports (dataService.ts:726:25)
+    at fetchData (PerformanceHub.tsx:42:21)
+    at PerformanceHub.tsx:52:5
+dataService.ts:726 Uncaught (in promise) ReferenceError: getAuthUser is not defined
+    at Module.getReports (dataService.ts:726:25)
+    at fetchData (PerformanceHub.tsx:42:21)
+    at PerformanceHub.tsx:52:5
+repositories.ts:171 [UserRepository] Returning cached users for tenant: tenant_1760686473292_h4zi4y6nj
+repositories.ts:171 [UserRepository] Returning cached users for tenant: tenant_1760686473292_h4zi4y6nj
+dataService.ts:726 Uncaught (in promise) ReferenceError: getAuthUser is not defined
+    at getReports (dataService.ts:726:25)
+    at Module.getEmployeeConsistencyDetails (dataService.ts:1734:27)
+    at async Promise.all (index 0)
+    at async DelinquentEmployeeList.tsx:42:34
+dataService.ts:726 Uncaught (in promise) ReferenceError: getAuthUser is not defined
+    at getReports (dataService.ts:726:25)
+    at Module.getEmployeeConsistencyDetails (dataService.ts:1734:27)
+    at async Promise.all (index 0)
+    at async DelinquentEmployeeList.tsx:42:34
+repositories.ts:171 [UserRepository] Returning cached users for tenant: tenant_1760686473292_h4zi4y6nj
+repositories.ts:171 [UserRepository] Returning cached users for tenant: tenant_1760686473292_h4zi4y6nj
+dataService.ts:726 Uncaught (in promise) ReferenceError: getAuthUser is not defined
+    at Module.getReports (dataService.ts:726:25)
+    at ManagerDashboard.tsx:361:29
+    at ManagerDashboard.tsx:374:9
+dataService.ts:726 Uncaught (in promise) ReferenceError: getAuthUser is not defined
+    at Module.getReports (dataService.ts:726:25)
+    at ManagerDashboard.tsx:361:29
+    at ManagerDashboard.tsx:374:9
