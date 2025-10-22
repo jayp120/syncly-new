@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { EODReport, ReportStatus, User, Attachment, ReportVersion, Permission } from '../../types';
+import { EODReport, ReportStatus, User, Permission } from '../../types';
 import Modal from '../Common/Modal';
 import Button from '../Common/Button';
 import * as DataService from '../../services/dataService';
