@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { EODReport, User, Attachment, ReportVersion, Task, TaskStatus } from '../../types';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { EODReport, User, Attachment, Task, TaskStatus } from '../../types';
 import * as DataService from '../../services/dataService';
 import { uploadReportAttachment } from '../../services/storageService';
 import Input from '../Common/Input';
@@ -10,10 +10,10 @@ import Alert from '../Common/Alert';
 // FIX: Corrected react-router-dom import to use a standard named import.
 import { useNavigate, useParams } from "react-router-dom";
 import Spinner from '../Common/Spinner';
-import { WEEK_DAYS, MAX_REPORT_VERSIONS } from '../../constants';
+import { MAX_REPORT_VERSIONS } from '../../constants';
 import Modal from '../Common/Modal'; 
 // FIX: Import isDayWeeklyOff directly from dateUtils.
-import { formatDateDDMonYYYY, formatDateTimeDDMonYYYYHHMM, getLocalYYYYMMDD, isDayWeeklyOff } from '../../utils/dateUtils';
+import { formatDateDDMonYYYY, formatDateTimeDDMonYYYYHHMM, isDayWeeklyOff } from '../../utils/dateUtils';
 import { useToast } from '../../contexts/ToastContext';
 import Select from '../Common/Select';
 
@@ -190,8 +190,8 @@ const EODReportForm: React.FC<EODReportFormProps> = ({ currentUser, reportDate, 
   const [editableState, setEditableState] = useState({ editable: true, reason: "" });
 
   const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // NEW state for task integration
   const [pendingTasks, setPendingTasks] = useState<Task[]>([]);

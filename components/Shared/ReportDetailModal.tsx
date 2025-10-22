@@ -85,31 +85,6 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ report, isOpen, o
     </div>
   );
 
-  const downloadFile = (dataUrl: string, fileName: string, mimeType: string) => {
-    try {
-        const byteString = atob(dataUrl.split(',')[1]);
-        const ab = new ArrayBuffer(byteString.length);
-        const ia = new Uint8Array(ab);
-        for (let i = 0; i < byteString.length; i++) {
-            ia[i] = byteString.charCodeAt(i);
-        }
-        const blob = new Blob([ab], { type: mimeType });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
-    } catch (error) {
-        console.error("Error downloading file:", error);
-        const link = document.createElement('a');
-        link.href = dataUrl;
-        link.download = fileName;
-        link.click();
-    }
-  };
-
   const isManager = hasPermission(Permission.CAN_ACKNOWLEDGE_REPORTS);
   
   // Check if current manager has already acknowledged
