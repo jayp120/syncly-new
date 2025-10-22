@@ -44,6 +44,30 @@ const createDefaultRoles = async (tenantId: string): Promise<Role[]> => {
     {
       id: generateFirestoreId('role'),
       tenantId,
+      name: 'Director',
+      description: 'Company owner with full visibility across all business units (cannot submit reports)',
+      permissions: [
+        Permission.CAN_VIEW_ALL_REPORTS,
+        Permission.CAN_MANAGE_TEAM_REPORTS,
+        Permission.CAN_ACKNOWLEDGE_REPORTS,
+        Permission.CAN_VIEW_OWN_REPORTS,
+        Permission.CAN_MANAGE_TEAM_TASKS,
+        Permission.CAN_CREATE_PERSONAL_TASKS,
+        Permission.CAN_EDIT_ANY_TASK_STATUS,
+        Permission.CAN_MANAGE_ALL_LEAVES,
+        Permission.CAN_SUBMIT_OWN_LEAVE,
+        Permission.CAN_MANAGE_TEAM_MEETINGS,
+        Permission.CAN_VIEW_OWN_MEETINGS,
+        Permission.CAN_VIEW_LEADERBOARD,
+        Permission.CAN_VIEW_TEAM_CALENDAR,
+        Permission.CAN_VIEW_OWN_CALENDAR,
+        Permission.CAN_USE_PERFORMANCE_HUB,
+        Permission.CAN_VIEW_TRIGGER_LOG
+      ]
+    },
+    {
+      id: generateFirestoreId('role'),
+      tenantId,
       name: 'Manager',
       description: 'Team management and oversight',
       permissions: [

@@ -723,8 +723,22 @@ export const permanentlyDeleteBusinessUnit = async (buId: string): Promise<void>
 
 // --- Report Management ---
 export const getReports = async (): Promise<EODReport[]> => {
+    const currentUser = getAuthUser();
     const tenantId = requireTenantId();
-    return await reportRepository.getAll(tenantId);
+    const allReports = await reportRepository.getAll(tenantId);
+    
+    // Directors see all reports across all business units in their tenant
+    if (isDirector(currentUser.roleName)) {
+        return allReports;
+    }
+    
+    // Managers see reports from their business unit only
+    if (isManagerOrAdmin(currentUser.roleName) && currentUser.businessUnitId) {
+        return allReports.filter(r => r.businessUnitId === currentUser.businessUnitId);
+    }
+    
+    // For other roles (employees, admins without BU), return all
+    return allReports;
 };
 export const getReportById = async (id: string): Promise<EODReport | null> => await reportRepository.getById(id);
 export const getReportsByEmployee = async (employeeId: string): Promise<EODReport[]> => await reportRepository.getByEmployee(employeeId);
@@ -1627,7 +1641,8 @@ export const transformActivityToTimelineEvent = async (activity: ActivityLogItem
     targetLink: link,
   };
 };
-const isManagerOrAdmin = (roleName?: string) => roleName === 'Manager' || roleName === 'Super Admin';
+const isManagerOrAdmin = (roleName?: string) => roleName === 'Manager' || roleName === 'Super Admin' || roleName === 'Director';
+const isDirector = (roleName?: string) => roleName === 'Director';
 
 export const getMeetingsForUser = async (userId: string): Promise<Meeting[]> => (await getMeetings()).filter(m => m.attendeeIds.includes(userId) || m.createdBy === userId);
 
