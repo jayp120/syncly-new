@@ -1,0 +1,63 @@
+1) Add actorAuthUid when creating an activity log on login
+
+File: components/Auth/AuthContext.tsx
+Goal: When calling DataService.addActivityLog(...) on successful login, include the Firebase Auth UID and force an ID token refresh before any reads.
+
+Find the existing login flow that sets setCurrentUser(userProfile) and then calls DataService.addActivityLog({ ... }). Apply this patch:
+
+--- a/components/Auth/AuthContext.tsx
++++ b/components/Auth/AuthContext.tsx
+@@ -1,6 +1,7 @@
+ import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+ import { User, UserStatus, Role, Permission } from '../../types';
+ import * as DataService from '../../services/dataService';
++import { auth } from '../../services/firebase';
+ // (other imports remain)
+
+ // inside the login success block, after you set the user and tenant context:
+@@
+-          // Log login activity for timeline (tenant context is now set)
++          // Ensure token has fresh custom claims (tenantId, roles) BEFORE any Firestore reads
++          try {
++            await auth.currentUser?.getIdToken(true);
++          } catch (e) {
++            console.error("Failed to force ID token refresh:", e);
++          }
++
++          // Log login activity for timeline (tenant context is now set)
+           try {
+-            await DataService.addActivityLog({
++            const authUid = auth.currentUser?.uid!;
++            await DataService.addActivityLog({
+               timestamp: Date.now(),
+-              actorId: userProfile.id,
++              actorId: userProfile.id,           // Firestore user id (keep)
++              actorAuthUid: authUid,             // NEW: Firebase Auth UID for rules
+               actorName: userProfile.name,
+               type: 'USER_LOGIN' as any,
+               description: 'logged in to the system',
+               tenantId: userProfile.tenantId || 'platform'
+             });
+           } catch (e) {
+             console.error("Error logging login activity:", e);
+           }
+
+2) Update Firestore security rules for activityLogs
+
+File: firestore.rules
+Goal: Allow create if the authenticated user’s UID matches the actorAuthUid written above.
+
+Find the ACTIVITY LOGS section and replace just the allow create line with this:
+
+ match /activityLogs/{logId} {
+   allow read: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+-  allow create: if isPlatformAdmin() || 
+-                   (isAuthenticated() && request.resource.data.actorId == request.auth.uid);
++  // Create allowed if the document carries the same Firebase Auth UID
++  allow create: if isPlatformAdmin() ||
++                   (isAuthenticated() && request.resource.data.actorAuthUid == request.auth.uid);
+   allow update, delete: if false; // Activity logs are immutable
+ }
+
+
+Do not change other rule sections.

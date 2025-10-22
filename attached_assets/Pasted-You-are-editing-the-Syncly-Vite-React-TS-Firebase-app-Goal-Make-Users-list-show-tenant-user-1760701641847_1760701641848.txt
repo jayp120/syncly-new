@@ -1,0 +1,120 @@
+You are editing the Syncly Vite + React + TS Firebase app.
+
+Goal: Make Users list show tenant users reliably.
+
+Apply these changes EXACTLY:
+
+────────────────────────────────────────
+A) Ensure token refresh before listing
+────────────────────────────────────────
+Open services/repositories.ts (or wherever user list is first read after login).
+Right before the users fetch runs, add:
+
+import { auth } from './services/firebase'; // adjust path
+await auth.currentUser?.getIdToken(true);
+
+This guarantees getCurrentTenantId() reads a fresh claim.
+
+────────────────────────────────────────
+B) Create a single tenant-scoped list function
+────────────────────────────────────────
+Open services/firestoreService.ts and ADD this function (or replace any existing “getAllUsers”):
+
+import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { db } from './firebase';
+import { getCurrentTenantId } from './tenantContext'; // adjust import if needed
+
+export async function getUsersInCurrentTenant() {
+  const tenantId = getCurrentTenantId();
+  if (!tenantId) throw new Error('getUsersInCurrentTenant: tenantId missing');
+  const q = query(
+    collection(db, 'users'),
+    where('tenantId', '==', tenantId),
+    orderBy('createdAt', 'desc') // change to 'name' if your UI expects name order
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+Then, in services/repositories.ts and any components/hooks that list users (UserManagement page),
+REPLACE any call like getAllDocuments('users') or getUsers() with getUsersInCurrentTenant().
+
+────────────────────────────────────────
+C) Guarantee tenantId & createdAt on create
+────────────────────────────────────────
+Find the place that creates user docs (dataService.ts -> addUser or firestoreService.ts -> createUser).
+Before writing to Firestore, enforce defaults:
+
+import { getCurrentTenantId } from '../services/tenantContext'; // adjust path
+
+const tenantId = getCurrentTenantId();
+if (!tenantId) throw new Error('addUser: tenantId missing');
+
+const payload = {
+  ...input,
+  tenantId,
+  createdAt: Date.now(),
+};
+await setDocument('users', newUserId, payload); // keep your helper
+
+Make sure you NEVER set isPlatformAdmin in client writes.
+
+────────────────────────────────────────
+D) Add a composite index for Users list
+────────────────────────────────────────
+Create or update firestore.indexes.json at project root to include:
+
+{
+  "indexes": [
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tenantId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
+
+If your UI orders by 'name' instead of 'createdAt', change the second field accordingly.
+
+Deploy:
+  firebase deploy --only firestore:indexes,firestore:rules
+
+────────────────────────────────────────
+E) Users rules sanity (keep tenant scope)
+────────────────────────────────────────
+In firestore.rules, ensure /users rules allow tenant admins to list same-tenant users. It should look like:
+
+match /users/{userId} {
+  function isTenantAdmin() {
+    return isAuthenticated() && request.auth.token.isTenantAdmin == true;
+  }
+  allow get: if isPlatformAdmin()
+              || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+  allow list: if isPlatformAdmin() || isTenantAdmin();
+  allow create: if isPlatformAdmin()
+                || (isTenantAdmin() && request.resource.data.tenantId == getUserTenantId()
+                    && (request.resource.data.isPlatformAdmin == false
+                        || !('isPlatformAdmin' in request.resource.data)));
+  allow update: if isPlatformAdmin()
+                || (isTenantAdmin()
+                    && resource.data.tenantId == getUserTenantId()
+                    && request.resource.data.tenantId == resource.data.tenantId);
+  allow delete: if isPlatformAdmin()
+                || (isTenantAdmin() && resource.data.tenantId == getUserTenantId());
+}
+
+Deploy rules again after edits.
+
+────────────────────────────────────────
+F) After create, refresh list
+────────────────────────────────────────
+In the UserForm submit handler, after a successful create, refetch users by calling getUsersInCurrentTenant() (or invalidate your React query cache) so the new user appears immediately.
+
+Make all edits above now, then:
+1) firebase deploy --only firestore:indexes,firestore:rules
+2) Restart dev server, hard-refresh browser
+3) Log in as Tenant Admin, open User Management: users should display

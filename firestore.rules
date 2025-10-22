@@ -1,0 +1,287 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper: Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper: Check if user is platform admin (Syncly owner)
+    // Uses Firebase Auth custom claims only (secure, no hardcoded values)
+    function isPlatformAdmin() {
+      return isAuthenticated() && request.auth.token.isPlatformAdmin == true;
+    }
+    
+    // Helper: Get authenticated user's tenant ID from Firebase Auth custom claims
+    // Custom claims are set when user is created and stored in the auth token
+    function getUserTenantId() {
+      return request.auth.token.tenantId;
+    }
+    
+    // Helper: Check if user has access to this tenant's data
+    function hasAccessToTenant(tenantId) {
+      return isPlatformAdmin() || (isAuthenticated() && getUserTenantId() == tenantId);
+    }
+    
+    // Helper: Check if user is tenant admin from custom claims
+    // Uses Firebase Auth custom claims (no document reads required)
+    function isTenantAdmin() {
+      return isAuthenticated() && request.auth.token.isTenantAdmin == true;
+    }
+
+    // ---- USERS collection ----
+    match /users/{userId} {
+      // READ (get + list/query)
+      // - Platform admin can read all
+      // - A user can read itself (for get operations)
+      // - Tenant admin can read only docs in their tenant (using custom claims)
+      // - ANY authenticated user can list/query users in their own tenant
+      allow get, list: if
+        isPlatformAdmin() ||
+        (request.auth != null && request.auth.uid == userId) ||
+        (isTenantAdmin() && resource.data.tenantId == getUserTenantId()) ||
+        (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+
+      // CREATE
+      // - Platform admin anywhere
+      // - Tenant admin may only create inside their tenant
+      // - Prevent setting platform flags
+      allow create: if
+        isPlatformAdmin() ||
+        (
+          isTenantAdmin() &&
+          request.resource.data.tenantId == getUserTenantId() &&
+          (
+            !('isPlatformAdmin' in request.resource.data) ||
+            request.resource.data.isPlatformAdmin == false
+          )
+        );
+
+      // UPDATE
+      // - Platform admin anywhere
+      // - Tenant admin only inside same tenant, cannot move tenants
+      allow update: if
+        isPlatformAdmin() ||
+        (
+          isTenantAdmin() &&
+          resource.data.tenantId == getUserTenantId() &&
+          request.resource.data.tenantId == resource.data.tenantId
+        );
+
+      // DELETE
+      allow delete: if
+        isPlatformAdmin() ||
+        (
+          isTenantAdmin() &&
+          resource.data.tenantId == getUserTenantId()
+        );
+    }
+    
+    // TENANTS Collection
+    match /tenants/{tenantId} {
+      // Platform admin can read all, others only own tenant
+      allow get: if hasAccessToTenant(tenantId);
+      allow list: if isPlatformAdmin(); // Only platform admin can list all tenants
+      
+      // SECURITY: Only Platform Admin can create/modify tenants
+      allow create, update, delete: if isPlatformAdmin();
+    }
+    
+    // ROLES Collection
+    match /roles/{roleId} {
+      // Read:
+      // - Platform admin: all
+      // - Tenant user: roles in their tenant (from custom claims)
+      // - Anyone signed-in: roles marked as global (for login/bootstrap)
+      allow read: if isPlatformAdmin()
+                  || (isAuthenticated() && resource.data.tenantId == getUserTenantId())
+                  || (isAuthenticated() && (resource.data.isGlobal == true || resource.data.scope == "global"));
+
+      // Create: platform admin anywhere OR tenant can create roles in own tenant
+      allow create: if isPlatformAdmin()
+                    || (isAuthenticated() && request.resource.data.tenantId == getUserTenantId());
+
+      // Update: keep tenantId immutable
+      allow update: if isPlatformAdmin()
+                    || (isAuthenticated()
+                        && resource.data.tenantId == getUserTenantId()
+                        && request.resource.data.tenantId == resource.data.tenantId);
+
+      // Delete: platform admin or tenant on own roles
+      allow delete: if isPlatformAdmin()
+                    || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+    }
+    
+    // BUSINESS UNITS Collection
+    match /businessUnits/{buId} {
+      allow read: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+      allow create: if isPlatformAdmin() || (isAuthenticated() && request.resource.data.tenantId == getUserTenantId());
+      allow update: if isPlatformAdmin() || (isAuthenticated() && 
+                       resource.data.tenantId == getUserTenantId() &&
+                       request.resource.data.tenantId == resource.data.tenantId);
+      allow delete: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+    }
+    
+    // EOD REPORTS Collection
+    match /reports/{reportId} {
+      allow read: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+      allow create: if isPlatformAdmin() || (isAuthenticated() && request.resource.data.tenantId == getUserTenantId());
+      allow update: if isPlatformAdmin() || (isAuthenticated() && 
+                       resource.data.tenantId == getUserTenantId() &&
+                       request.resource.data.tenantId == resource.data.tenantId);
+      allow delete: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+    }
+    
+    // LEAVE RECORDS Collection
+    match /leaveRecords/{leaveId} {
+      allow read: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+      allow create: if isPlatformAdmin() || (isAuthenticated() && request.resource.data.tenantId == getUserTenantId());
+      allow update: if isPlatformAdmin() || (isAuthenticated() && 
+                       resource.data.tenantId == getUserTenantId() &&
+                       request.resource.data.tenantId == resource.data.tenantId);
+      allow delete: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+    }
+    
+    // TASKS Collection
+    match /tasks/{taskId} {
+      allow read: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+      allow create: if isPlatformAdmin() || (isAuthenticated() && request.resource.data.tenantId == getUserTenantId());
+      allow update: if isPlatformAdmin() || (isAuthenticated() && 
+                       resource.data.tenantId == getUserTenantId() &&
+                       request.resource.data.tenantId == resource.data.tenantId);
+      allow delete: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+    }
+    
+    // NOTIFICATIONS Collection
+    match /notifications/{notificationId} {
+      // Allow read if user owns the notification (userId match) OR tenant access
+      allow read: if isPlatformAdmin() || 
+                     (request.auth != null && resource.data.userId == request.auth.uid) ||
+                     (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+      allow create: if isPlatformAdmin() || (isAuthenticated() && request.resource.data.tenantId == getUserTenantId());
+      allow update: if isPlatformAdmin() || 
+                       (request.auth != null && resource.data.userId == request.auth.uid) ||
+                       (isAuthenticated() && 
+                        resource.data.tenantId == getUserTenantId() &&
+                        request.resource.data.tenantId == resource.data.tenantId);
+      allow delete: if isPlatformAdmin() || 
+                       (request.auth != null && resource.data.userId == request.auth.uid) ||
+                       (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+    }
+    
+    // ACTIVITY LOGS Collection
+    match /activityLogs/{logId} {
+      allow read: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+      // SECURE: Allow create if actorAuthUid matches authenticated user's Firebase Auth UID
+      // actorAuthUid is explicitly set during activity log creation
+      allow create: if isPlatformAdmin() || 
+                       (request.auth != null && request.resource.data.actorAuthUid == request.auth.uid);
+      allow update, delete: if false; // Activity logs are immutable
+    }
+    
+    // TRIGGER LOGS Collection
+    match /triggerLogs/{logId} {
+      allow read: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+      allow create: if isPlatformAdmin() || (isAuthenticated() && request.resource.data.tenantId == getUserTenantId());
+      allow update, delete: if false; // Trigger logs are immutable
+    }
+    
+    // TENANT OPERATIONS LOGS Collection (platform admin access only)
+    match /tenantOperationLogs/{logId} {
+      // Platform admin can read tenant operation logs
+      allow read: if isPlatformAdmin();
+      // Cloud Functions can create logs
+      allow create: if false; // Cloud Functions only
+      allow update, delete: if false; // Operations logs are immutable
+    }
+    
+    // MEETINGS Collection
+    match /meetings/{meetingId} {
+      allow read: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+      allow create: if isPlatformAdmin() || (isAuthenticated() && request.resource.data.tenantId == getUserTenantId());
+      allow update: if isPlatformAdmin() || (isAuthenticated() && 
+                       resource.data.tenantId == getUserTenantId() &&
+                       request.resource.data.tenantId == resource.data.tenantId);
+      allow delete: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+    }
+    
+    // BADGES Collection
+    match /badges/{badgeId} {
+      allow read: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+      allow create: if isPlatformAdmin() || (isAuthenticated() && request.resource.data.tenantId == getUserTenantId());
+      allow update: if isPlatformAdmin() || (isAuthenticated() && 
+                       resource.data.tenantId == getUserTenantId() &&
+                       request.resource.data.tenantId == resource.data.tenantId);
+      allow delete: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+    }
+    
+    // USER BADGES Collection
+    match /userBadges/{userBadgeId} {
+      allow read: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+      allow create: if isPlatformAdmin() || (isAuthenticated() && request.resource.data.tenantId == getUserTenantId());
+      allow update, delete: if false; // User badges are immutable once earned
+    }
+    
+    // MEETING INSTANCES Collection
+    match /meetingInstances/{instanceId} {
+      allow read: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+      allow create: if isPlatformAdmin() || (isAuthenticated() && request.resource.data.tenantId == getUserTenantId());
+      allow update: if isPlatformAdmin() || (isAuthenticated() && 
+                       resource.data.tenantId == getUserTenantId() &&
+                       request.resource.data.tenantId == resource.data.tenantId);
+      allow delete: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+    }
+    
+    // MEETING UPDATES Collection
+    match /meetingUpdates/{updateId} {
+      allow read: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+      allow create: if isPlatformAdmin() || (isAuthenticated() && request.resource.data.tenantId == getUserTenantId());
+      allow update, delete: if false; // Meeting updates are immutable
+    }
+    
+    // TASK COMMENTS Collection
+    match /taskComments/{commentId} {
+      allow read: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+      allow create: if isPlatformAdmin() || (isAuthenticated() && request.resource.data.tenantId == getUserTenantId());
+      allow update: if isPlatformAdmin() || (isAuthenticated() && 
+                       resource.data.tenantId == getUserTenantId() &&
+                       request.resource.data.tenantId == resource.data.tenantId);
+      allow delete: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+    }
+    
+    // SYSTEM LOGS Collection (for monitoring - optional, gracefully degrade if fails)
+    match /systemLogs/{logId} {
+      // Platform admin can read all logs
+      allow read: if isPlatformAdmin();
+      // Any authenticated user can write logs (for error tracking)
+      // Tenant filtering on read prevents cross-tenant data leaks
+      allow create: if isAuthenticated();
+      allow update, delete: if false; // Logs are immutable
+    }
+    
+    // SECURITY EVENTS Collection (for monitoring - optional, gracefully degrade if fails)
+    match /securityEvents/{eventId} {
+      // Platform admin can read all events
+      allow read: if isPlatformAdmin();
+      // Any authenticated user can write security events (for audit trail)
+      allow create: if isAuthenticated();
+      allow update, delete: if false; // Events are immutable
+    }
+    
+    // PERFORMANCE METRICS Collection (for monitoring - optional, gracefully degrade if fails)
+    match /performanceMetrics/{metricId} {
+      // Platform admin can read all metrics
+      allow read: if isPlatformAdmin();
+      // Any authenticated user can write metrics (for performance tracking)
+      allow create: if isAuthenticated();
+      allow update, delete: if false; // Metrics are immutable
+    }
+    
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

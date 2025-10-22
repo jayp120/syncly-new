@@ -1,0 +1,71 @@
+Uncaught (in promise) Error: Platform admin should not require tenantId
+    at requireTenantId (tenantContext.ts:58:11)
+    at Module.getUsers (dataService.ts:380:42)
+    at AppLayout.tsx:90:17
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=b44971a7:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=b44971a7:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=b44971a7:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=b44971a7:8518:138)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=b44971a7:9887:29)
+    at recursivelyTraversePassiveMountEffects (react-dom_client.js?v=b44971a7:9868:13)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=b44971a7:9984:13)Understand this error
+tenantContext.ts:58 Uncaught (in promise) Error: Platform admin should not require tenantId
+    at requireTenantId (tenantContext.ts:58:11)
+    at Module.getTasks (dataService.ts:777:22)
+    at runScheduledChecks (notificationScheduler.ts:305:38)
+    at AppLayout.tsx:182:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=b44971a7:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=b44971a7:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=b44971a7:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=b44971a7:8518:138)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=b44971a7:9887:29)
+    at recursivelyTraversePassiveMountEffects (react-dom_client.js?v=b44971a7:9868:13)Understand this error
+tenantContext.ts:58 Uncaught (in promise) Error: Platform admin should not require tenantId
+    at requireTenantId (tenantContext.ts:58:11)
+    at Module.getUsers (dataService.ts:380:42)
+    at AppLayout.tsx:90:17
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=b44971a7:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=b44971a7:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=b44971a7:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=b44971a7:8518:138)
+    at reconnectPassiveEffects (react-dom_client.js?v=b44971a7:10016:13)
+    at recursivelyTraverseReconnectPassiveEffects (react-dom_client.js?v=b44971a7:9995:11)
+    at reconnectPassiveEffects (react-dom_client.js?v=b44971a7:10054:13)Understand this error
+tenantContext.ts:58 Uncaught (in promise) Error: Platform admin should not require tenantId
+    at requireTenantId (tenantContext.ts:58:11)
+    at Module.getTasks (dataService.ts:777:22)
+    at runScheduledChecks (notificationScheduler.ts:305:38)
+    at AppLayout.tsx:182:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=b44971a7:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=b44971a7:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=b44971a7:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=b44971a7:8518:138)
+    at reconnectPassiveEffects (react-dom_client.js?v=b44971a7:10016:13)
+    at recursivelyTraverseReconnectPassiveEffects (react-dom_client.js?v=b44971a7:9995:11)Understand this error
+tenantContext.ts:58 Uncaught (in promise) Error: Platform admin should not require tenantId
+    at requireTenantId (tenantContext.ts:58:11)
+    at getMeetings (dataService.ts:1287:22)
+    at Module.getMeetingsForUser (dataService.ts:1430:88)
+    at AppLayout.tsx:95:44
+    at AppLayout.tsx:102:7
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=b44971a7:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=b44971a7:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=b44971a7:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=b44971a7:8518:138)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=b44971a7:9887:29)Understand this error
+tenantContext.ts:58 Uncaught (in promise) Error: Platform admin should not require tenantId
+    at requireTenantId (tenantContext.ts:58:11)
+    at getMeetings (dataService.ts:1287:22)
+    at Module.getMeetingsForUser (dataService.ts:1430:88)
+    at AppLayout.tsx:95:44
+    at AppLayout.tsx:102:7
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=b44971a7:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=b44971a7:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=b44971a7:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=b44971a7:8518:138)
+    at reconnectPassiveEffects (react-dom_client.js?v=b44971a7:10016:13)Understand this error
+SuperAdminDashboard.tsx:175 Password reset error: TypeError: Cannot read properties of undefined (reading '_url')
+    at call (firebase_functions.js?v=b44971a7:376:33)
+    at callable (firebase_functions.js?v=b44971a7:316:12)
+    at handleResetPassword (SuperAdminDashboard.tsx:161:28)
+handleResetPassword @ SuperAdminDashboard.tsx:175Understand this error

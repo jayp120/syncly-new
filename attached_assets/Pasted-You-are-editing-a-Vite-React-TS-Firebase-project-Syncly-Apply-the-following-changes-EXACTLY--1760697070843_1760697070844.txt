@@ -1,0 +1,94 @@
+You are editing a Vite + React + TS Firebase project (Syncly). Apply the following changes EXACTLY:
+
+A) Use the correct collection name everywhere
+
+Goal: Change Firestore collection path from singular "activityLog" to plural "activityLogs" everywhere it is used as a collection name.
+
+Search the whole project for exact string activityLog (singular).
+
+Replace ONLY collection name usages with activityLogs (plural).
+
+Likely files:
+
+services/firestoreService.ts (calls like setDocument('activityLog', ...))
+
+services/repositories.ts (activity log repository wrapper)
+
+services/dataService.ts (addActivityLog / getAllActivityLogs)
+
+hooks/useRealTimeActivityLogs.ts (querying the collection)
+
+any component calling Firestore directly for activity logs
+
+Do NOT rename variables or interface names; only the literal collection path argument.
+
+B) Include actorAuthUid when writing activity logs on login
+
+File: components/Auth/AuthContext.tsx
+Change: In the code that logs USER_LOGIN after you set setCurrentUser(userProfile), ensure we:
+
+Refresh token (so claims are fresh before reads)
+
+Pass actorAuthUid: auth.currentUser!.uid
+
+Patch this block:
+
++ import { auth } from '../../services/firebase';
+
+ // after setting userProfile and tenant context:
+- // Log login activity for timeline (tenant context is now set)
++ // 1) Refresh token so Firestore reads see correct claims
++ try { await auth.currentUser?.getIdToken(true); } catch (e) { console.error('Failed to refresh ID token', e); }
++ // 2) Log login activity for timeline
+ try {
+-  await DataService.addActivityLog({
++  const authUid = auth.currentUser?.uid!;
++  await DataService.addActivityLog({
+     timestamp: Date.now(),
+     actorId: userProfile.id,             // Keep your Firestore User ID
++    actorAuthUid: authUid,               // NEW: must match request.auth.uid
+     actorName: userProfile.name,
+     type: 'USER_LOGIN' as any,
+     description: 'logged in to the system',
+-    tenantId: userProfile.tenantId || 'platform'
++    tenantId: userProfile.tenantId || 'platform'
+   });
+ } catch (e) {
+   console.error('Error logging login activity:', e);
+ }
+
+C) Add a type field if needed
+
+If ActivityLogItem type complains, extend it:
+
+File: types.ts
+
+ export interface ActivityLogItem {
+   id: string;
+   tenantId: string;
+   timestamp: number;
+   type: ActivityLogActionType;
+   description: string;
+   actorId: string;
+   actorName: string;
++  actorAuthUid?: string; // Firebase Auth UID (for rules)
+   targetId?: string;
+   targetName?: string;
+   targetUserId?: string;
+   targetUserName?: string;
+   details?: { changes?: { field: string; from: any; to: any; }[] };
+   isCrucial?: boolean
+ }
+
+D) (Safety) Ensure tenantId is always present in writes
+
+File: the function that actually writes activity logs (wherever setDocument('activityLogs', ...) is called). Before calling setDocument, assert the payload includes a non-empty tenantId and actorAuthUid. If missing, throw a descriptive error.
+
+Example:
+
+// wherever we prepare the log object:
+if (!log.tenantId) throw new Error('activityLogs write missing tenantId');
+if (!log.actorAuthUid) throw new Error('activityLogs write missing actorAuthUid');
+
+
+This prevents silent write failures later.

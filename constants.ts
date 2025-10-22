@@ -1,0 +1,201 @@
+// constants.ts
+
+import { User, EODReport, ReportStatus, Notification as AppNotification, LeaveRecord, TriggerLogEntry, ReportVersion, Attachment, BusinessUnit, BadgeType, UserBadgeRecord, LeaveStatus, ActivityLogItem, ActivityLogActionType, Task, TaskPriority, TaskStatus, TaskType, MemberProgress, Meeting, MeetingUpdate, UserStatus, Role, Permission, MeetingInstance } from './types';
+import { getPastDate, getFutureDate } from '../utils/dateUtils';
+
+export const APP_NAME = "Syncly";
+
+export const USERS_KEY = 'eod_users';
+export const REPORTS_KEY = 'eod_reports';
+export const NOTIFICATIONS_KEY = 'eod_notifications';
+export const LEAVE_RECORDS_KEY = 'eod_leave_records';
+export const TRIGGER_LOG_KEY = 'eod_trigger_log';
+export const BUSINESS_UNITS_KEY = 'eod_business_units';
+export const USER_BADGES_KEY = 'eod_user_badges';
+export const ACTIVITY_LOG_KEY_PREFIX = 'eod_activity_log_';
+export const TASKS_KEY = 'eod_tasks';
+export const TASK_COMMENTS_KEY = 'eod_task_comments';
+export const SCHEDULED_NOTIFICATIONS_KEY = 'eod_sent_scheduled_notifications';
+export const MEETINGS_KEY = 'eod_meetings';
+export const MEETING_INSTANCES_KEY = 'eod_meeting_instances';
+export const MEETING_UPDATES_KEY = 'eod_meeting_updates';
+export const ROLES_KEY = 'eod_roles';
+export const SYNC_QUEUE_KEY = 'eod_sync_queue';
+
+
+export const WEEK_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+export const MAX_REPORT_VERSIONS = 2; // Initial submission + 1 edit
+export const MAX_TEAM_MEMBERS = 15; // Max members for a team task
+export const MAX_PINNED_TASKS = 5; // Maximum number of tasks a user can pin
+export const PERMISSIONS = Object.values(Permission);
+export const LATE_SUBMISSION_HOUR = 19; // 7 PM
+
+
+const todayDayIndex = new Date().getDay();
+const todayDayName = WEEK_DAYS[todayDayIndex];
+
+export const MISSING_REPORT_THRESHOLD_DAYS = 3;
+
+
+
+
+export const TEN_DAY_STREAK_THRESHOLD = 10;
+export const TWENTY_DAY_STREAK_THRESHOLD = 20;
+
+export const LAST_AWARD_MONTH_PROCESSED_KEY = 'eod_last_award_month_processed';
+export const MONTHLY_AWARD_KEY_PREFIX = 'eod_monthly_awards_';
+export const AWARD_SEEN_KEY_PREFIX = 'eod_award_seen_';
+
+
+export const DEFAULT_BUSINESS_UNITS: BusinessUnit[] = [
+  { id: 'bu_sales', name: 'Sales & Marketing', status: 'active' },
+  { id: 'bu_tech', name: 'Technology & Engineering', status: 'active' },
+  { id: 'bu_ops', name: 'Operations & Logistics', status: 'active' },
+  { id: 'bu_hr', name: 'Human Resources & Admin', status: 'active' },
+  { id: 'bu_finance', name: 'Finance & Accounts', status: 'active' },
+];
+
+export const DEFAULT_ROLES: Role[] = [
+  {
+    id: 'super_admin',
+    name: 'Super Admin',
+    description: 'Has all permissions and can manage roles.',
+    permissions: Object.values(Permission), // All permissions
+  },
+  {
+    id: 'manager',
+    name: 'Manager',
+    description: 'Manages a team, their reports, tasks, and meetings.',
+    permissions: [
+      Permission.CAN_MANAGE_TEAM_REPORTS,
+      Permission.CAN_ACKNOWLEDGE_REPORTS,
+      Permission.CAN_MANAGE_TEAM_TASKS,
+      Permission.CAN_EDIT_ANY_TASK_STATUS,
+      Permission.CAN_VIEW_LEADERBOARD,
+      Permission.CAN_VIEW_TEAM_CALENDAR,
+      Permission.CAN_MANAGE_TEAM_MEETINGS,
+      Permission.CAN_VIEW_OWN_MEETINGS,
+      Permission.CAN_USE_PERFORMANCE_HUB,
+      Permission.CAN_VIEW_TRIGGER_LOG, // For delinquent reports feature
+      Permission.CAN_CREATE_PERSONAL_TASKS, // Managers can have personal tasks too
+      Permission.CAN_SUBMIT_OWN_LEAVE,
+      Permission.CAN_VIEW_OWN_REPORTS,
+      Permission.CAN_SUBMIT_OWN_EOD,
+      Permission.CAN_VIEW_OWN_CALENDAR,
+    ],
+  },
+  {
+    id: 'employee',
+    name: 'Employee',
+    description: 'Submits EOD reports and manages personal tasks.',
+    permissions: [
+      Permission.CAN_CREATE_PERSONAL_TASKS,
+      Permission.CAN_SUBMIT_OWN_LEAVE,
+      Permission.CAN_VIEW_OWN_REPORTS,
+      Permission.CAN_SUBMIT_OWN_EOD,
+      Permission.CAN_VIEW_LEADERBOARD,
+      Permission.CAN_VIEW_OWN_CALENDAR,
+      Permission.CAN_VIEW_OWN_MEETINGS,
+    ],
+  },
+];
+
+
+const manager001TeamWeeklyOffDay = todayDayName;
+
+export const DEFAULT_USERS: Omit<User, 'businessUnitName' | 'id' | 'roleName'>[] = [
+  { email: 'superadmin@mittaleod.com', notificationEmail: 'superadmin@example.com', name: 'Super Admin', roleId: 'super_admin', status: UserStatus.ACTIVE },
+  { email: 'admin@mittaleod.com', notificationEmail: 'raj.chauhan.admin@example.com', name: 'Raj Chauhan (Admin)', roleId: 'super_admin', status: UserStatus.ACTIVE },
+  { email: 'manager.sales@mittaleod.com', notificationEmail: 'rajesh.k.manager@example.com', name: 'Rajesh K.', roleId: 'manager', designation: 'Sales Manager', businessUnitId: 'bu_sales', status: UserStatus.ACTIVE },
+  { email: 'manager.tech@mittaleod.com', notificationEmail: 'anita.s.manager@example.com', name: 'Anita S.', roleId: 'manager', designation: 'Tech Lead', businessUnitId: 'bu_tech', status: UserStatus.ACTIVE },
+  { email: 'manager.ops@mittaleod.com', notificationEmail: 'vikram.r.manager@example.com', name: 'Vikram R.', roleId: 'manager', designation: 'Operations Head', businessUnitId: 'bu_ops', status: UserStatus.ACTIVE },
+  { email: 'manager.hr@mittaleod.com', notificationEmail: 'sunita.m.manager@example.com', name: 'Sunita M.', roleId: 'manager', designation: 'HR Manager', businessUnitId: 'bu_hr', status: UserStatus.ACTIVE },
+
+  { email: 'alok.sharma@mittaleod.com', notificationEmail: 'alok.sharma@example.com', name: 'Alok Sharma', roleId: 'employee', designation: 'Sales Lead', weeklyOffDay: 'Sunday', businessUnitId: 'bu_sales', status: UserStatus.ACTIVE },
+  { email: 'priya.mehta@mittaleod.com', notificationEmail: 'priya.mehta@example.com', name: 'Priya Mehta', roleId: 'employee', designation: 'Marketing Executive', weeklyOffDay: manager001TeamWeeklyOffDay, businessUnitId: 'bu_sales', status: UserStatus.ACTIVE },
+  { email: 'rohan.singh@mittaleod.com', notificationEmail: 'rohan.singh@example.com', name: 'Rohan Singh', roleId: 'employee', designation: 'Sales Associate', weeklyOffDay: manager001TeamWeeklyOffDay, businessUnitId: 'bu_sales', status: UserStatus.ACTIVE },
+  { email: 'neha.patel@mittaleod.com', notificationEmail: 'neha.patel@example.com', name: 'Neha Patel', roleId: 'employee', designation: 'Sales Associate', weeklyOffDay: manager001TeamWeeklyOffDay, businessUnitId: 'bu_sales', status: UserStatus.ACTIVE },
+  { email: 'vivek.kumar@mittaleod.com', notificationEmail: 'vivek.kumar@example.com', name: 'Vivek Kumar', roleId: 'employee', designation: 'Marketing Analyst', weeklyOffDay: manager001TeamWeeklyOffDay, businessUnitId: 'bu_sales', status: UserStatus.ACTIVE },
+  { email: 'sunidhi.chauhan@mittaleod.com', notificationEmail: 'sunidhi.chauhan@example.com', name: 'Sunidhi Chauhan', roleId: 'employee', designation: 'Sales Representative', weeklyOffDay: manager001TeamWeeklyOffDay, businessUnitId: 'bu_sales', status: UserStatus.ACTIVE },
+
+  { email: 'arjun.reddy@mittaleod.com', notificationEmail: 'arjun.reddy@example.com', name: 'Arjun Reddy', roleId: 'employee', designation: 'Sales Specialist', weeklyOffDay: 'Saturday', businessUnitId: 'bu_sales', status: UserStatus.ACTIVE },
+  { email: 'kiara.advani@mittaleod.com', notificationEmail: 'kiara.advani@example.com', name: 'Kiara Advani', roleId: 'employee', designation: 'Marketing Coordinator', weeklyOffDay: 'Sunday', businessUnitId: 'bu_sales', status: UserStatus.ACTIVE },
+  { email: 'vijay.deverakonda@mittaleod.com', notificationEmail: 'vijay.deverakonda@example.com', name: 'Vijay Deverakonda', roleId: 'employee', designation: 'Business Development', weeklyOffDay: 'Saturday', businessUnitId: 'bu_sales', status: UserStatus.ACTIVE },
+  { email: 'ananya.pandey@mittaleod.com', notificationEmail: 'ananya.pandey@example.com', name: 'Ananya Pandey', roleId: 'employee', designation: 'Sales Intern', weeklyOffDay: 'Sunday', businessUnitId: 'bu_sales', status: UserStatus.ACTIVE },
+  { email: 'sandeep.g@mittaleod.com', notificationEmail: 'sandeep.g@example.com', name: 'Sandeep Gupta', roleId: 'employee', designation: 'Sales Associate', weeklyOffDay: 'Monday', businessUnitId: 'bu_sales', status: UserStatus.ACTIVE },
+  { email: 'shawn.mendes@mittaleod.com', notificationEmail: 'shawn.mendes@example.com', name: 'Shawn Mendes', roleId: 'employee', designation: 'Software Engineer', weeklyOffDay: 'Sunday', businessUnitId: 'bu_tech', status: UserStatus.ACTIVE },
+];
+
+export const DEFAULT_REPORTS: EODReport[] = [];
+export const DEFAULT_NOTIFICATIONS: AppNotification[] = [];
+export const DEFAULT_TASKS: Task[] = [];
+export const DEFAULT_LEAVE_RECORDS: LeaveRecord[] = [];
+export const DEFAULT_TRIGGER_LOG_ENTRIES: TriggerLogEntry[] = [];
+export const DEFAULT_USER_BADGES: UserBadgeRecord[] = [];
+export const DEFAULT_ACTIVITY_LOG: ActivityLogItem[] = [];
+export const DEFAULT_MEETINGS: Meeting[] = [];
+export const DEFAULT_MEETING_INSTANCES: MeetingInstance[] = [];
+
+export const TIMELINE_EVENT_ICONS: { [key in ActivityLogActionType]: string } = {
+    [ActivityLogActionType.EOD_SUBMITTED]: 'fas fa-paper-plane text-primary dark:text-sky-400',
+    [ActivityLogActionType.EOD_LATE_SUBMITTED]: 'fas fa-clock text-orange-500 dark:text-orange-400',
+    [ActivityLogActionType.EOD_EDITED]: 'fas fa-edit text-secondary dark:text-violet-400',
+    [ActivityLogActionType.EOD_ACKNOWLEDGED]: 'fas fa-check-circle text-green-500 dark:text-emerald-400',
+    [ActivityLogActionType.LEAVE_MARKED_BY_EMPLOYEE]: 'fas fa-plane-departure text-teal-500 dark:text-teal-400',
+    [ActivityLogActionType.LEAVE_REVOKED_BY_EMPLOYEE]: 'fas fa-undo text-gray-500 dark:text-slate-400',
+    [ActivityLogActionType.LEAVE_FUTURE_SCHEDULED_BY_EMPLOYEE]: 'fas fa-calendar-plus text-teal-500 dark:text-teal-400',
+    [ActivityLogActionType.LEAVE_FUTURE_CANCELED_BY_EMPLOYEE]: 'fas fa-calendar-times text-gray-500 dark:text-slate-400',
+    [ActivityLogActionType.WEEKLY_OFF_AUTO]: 'fas fa-bed text-indigo-500 dark:text-indigo-400',
+    [ActivityLogActionType.TASK_CREATED]: 'fas fa-tasks text-primary dark:text-sky-400',
+    [ActivityLogActionType.TASK_EDITED]: 'fas fa-pen text-secondary dark:text-violet-400',
+    [ActivityLogActionType.TASK_REASSIGNED]: 'fas fa-users text-indigo-500 dark:text-indigo-400',
+    [ActivityLogActionType.TASK_DUE_DATE_UPDATED]: 'fas fa-calendar-alt text-orange-500 dark:text-orange-400',
+    [ActivityLogActionType.TASK_PRIORITY_CHANGED]: 'fas fa-exclamation text-yellow-500 dark:text-yellow-400',
+    [ActivityLogActionType.TASK_STATUS_CHANGED]: 'fas fa-exchange-alt text-yellow-500 dark:text-yellow-400',
+    [ActivityLogActionType.TASK_COMMENT_ADDED]: 'fas fa-comment text-gray-500 dark:text-slate-400',
+    [ActivityLogActionType.TASK_COMPLETED]: 'fas fa-check-double text-green-500 dark:text-emerald-400',
+    [ActivityLogActionType.TASK_REOPENED]: 'fas fa-folder-open text-primary dark:text-sky-400',
+    [ActivityLogActionType.TASK_PINNED]: 'fas fa-thumbtack text-yellow-500 dark:text-yellow-400',
+    [ActivityLogActionType.TASK_UNPINNED]: 'fas fa-thumbtack text-gray-500 dark:text-slate-400',
+    [ActivityLogActionType.TASK_DELETED]: 'fas fa-trash-alt text-red-500 dark:text-red-400',
+    [ActivityLogActionType.TASK_OVERDUE_REMINDER]: 'fas fa-bell text-red-500 dark:text-red-400',
+    [ActivityLogActionType.MEETING_CREATED]: 'fas fa-users-crown text-secondary dark:text-violet-400',
+    [ActivityLogActionType.MEETING_EDITED]: 'fas fa-edit text-indigo-500 dark:text-indigo-400',
+    [ActivityLogActionType.MEETING_RSVP]: 'fas fa-user-check text-green-500 dark:text-emerald-400',
+    [ActivityLogActionType.MEETING_OCCURRENCE_CANCELLED]: 'fas fa-calendar-times text-orange-500 dark:text-orange-400',
+    [ActivityLogActionType.MEETING_ENDED]: 'fas fa-flag-checkered text-red-500 dark:text-red-400',
+    [ActivityLogActionType.MEETING_UPDATE_POSTED]: 'fas fa-comment-alt text-gray-500 dark:text-slate-400',
+    [ActivityLogActionType.MEETING_CRUCIAL_UPDATE_POSTED]: 'fas fa-bell text-amber-500 dark:text-amber-400',
+    [ActivityLogActionType.MEETING_STARTING_SOON]: 'fas fa-hourglass-start text-accent dark:text-cyan-400',
+    [ActivityLogActionType.MEETING_FINALIZED]: 'fas fa-gavel text-green-600 dark:text-emerald-400',
+    [ActivityLogActionType.MEETING_ASYNCHRONOUS_UPDATE]: 'fas fa-comment-alt-edit text-blue-600 dark:text-sky-400',
+    [ActivityLogActionType.COMPLETION_LETTER_GENERATED]: 'fas fa-file-award text-emerald-500 dark:text-emerald-400',
+    [ActivityLogActionType.USER_CREATED]: 'fas fa-user-plus text-accent dark:text-cyan-400',
+    [ActivityLogActionType.USER_ARCHIVED]: 'fas fa-user-lock text-gray-500 dark:text-slate-400',
+    [ActivityLogActionType.USER_UNARCHIVED]: 'fas fa-user-unlock text-gray-500 dark:text-slate-400',
+    [ActivityLogActionType.USER_PERMANENTLY_DELETED]: 'fas fa-user-slash text-red-700 dark:text-red-500',
+    [ActivityLogActionType.USER_ROLE_CHANGED]: 'fas fa-user-tag text-indigo-500 dark:text-indigo-400',
+    [ActivityLogActionType.USER_NOTIFICATION_EMAIL_CHANGED]: 'fas fa-envelope text-blue-500 dark:text-blue-400',
+    [ActivityLogActionType.USER_LOGIN]: 'fas fa-sign-in-alt text-green-500 dark:text-emerald-400',
+};
+
+export const BADGE_DEFINITIONS: { [key in BadgeType]: { icon: string; title: string; defaultTooltip: string; earnedTooltipText: string; } } = {
+    [BadgeType.TEN_DAY_STREAK]: {
+      icon: '🔥',
+      title: '10-Day Streak',
+      defaultTooltip: 'Submit reports for 10 consecutive working days to earn this!',
+      earnedTooltipText: 'Awesome! You submitted reports for 10 consecutive working days.',
+    },
+    [BadgeType.TWENTY_DAY_STREAK]: {
+      icon: '🚀',
+      title: '20-Day Streak',
+      defaultTooltip: 'Submit reports for 20 consecutive working days for this achievement.',
+      earnedTooltipText: 'Incredible! You maintained a 20-day reporting streak.',
+    },
+    [BadgeType.FULL_MONTH_FINISHER]: {
+      icon: '🗓️',
+      title: 'Full Month Finisher',
+      defaultTooltip: 'Submit reports for every working day in a calendar month.',
+      earnedTooltipText: 'Consistency King/Queen! You reported on every working day of a month.',
+    },
+};

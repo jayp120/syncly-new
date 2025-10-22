@@ -1,0 +1,2092 @@
+Failed to load resource: the server responded with a status of 400 ()Understand this error
+firestoreService.ts:72 Error getting document from roles: FirebaseError: Missing or insufficient permissions.
+getDocument @ firestoreService.ts:72Understand this error
+AuthContext.tsx:157 Login error: FirebaseError: Missing or insufficient permissions.
+login @ AuthContext.tsx:157Understand this error
+firestoreMigration.ts:241 [Firestore] User authenticated, initializing Firestore...
+firestoreMigration.ts:250 [Firestore] Found LocalStorage data, migrating to Firestore...
+firestoreMigration.ts:100 Starting migration from LocalStorage to Firestore...
+firestoreMigration.ts:216 Migration requires authentication - will retry after login
+firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?VER=8&database=projects%2Fsyncly-473404%2Fdatabases%2F(default)&gsessionid=H7kftY6yboXVR7sdiYHXY8hGds2cJt3cx8mYXJQR0Ow&SID=mezbnX2nAwlQnGykXhrARA&RID=52969&TYPE=terminate&zx=y3akm0gkv2j8:1  Failed to load resource: the server responded with a status of 400 ()Understand this error
+firestoreService.ts:72 Error getting document from roles: FirebaseError: Missing or insufficient permissions.
+getDocument @ firestoreService.ts:72Understand this error
+AuthContext.tsx:157 Login error: FirebaseError: Missing or insufficient permissions.
+login @ AuthContext.tsx:157Understand this error
+firestoreMigration.ts:241 [Firestore] User authenticated, initializing Firestore...
+firestoreMigration.ts:250 [Firestore] Found LocalStorage data, migrating to Firestore...
+firestoreMigration.ts:100 Starting migration from LocalStorage to Firestore...
+firestoreMigration.ts:216 Migration requires authentication - will retry after login
+firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?VER=8&database=projects%2Fsyncly-473404%2Fdatabases%2F(default)&gsessionid=Q7gt2ClFk8BBRNGoEbfMn6xo9DkFw973ZRkvt4RjV-U&SID=-tHa7oMsWuO9XXWuTWDiaw&RID=80873&TYPE=terminate&zx=nyiizecq9xsy:1  Failed to load resource: the server responded with a status of 400 ()Understand this error
+firestoreService.ts:72 Error getting document from roles: FirebaseError: Missing or insufficient permissions.
+getDocument @ firestoreService.ts:72Understand this error
+AuthContext.tsx:157 Login error: FirebaseError: Missing or insufficient permissions.
+login @ AuthContext.tsx:157Understand this error
+firestoreMigration.ts:241 [Firestore] User authenticated, initializing Firestore...
+firestoreMigration.ts:250 [Firestore] Found LocalStorage data, migrating to Firestore...
+firestoreMigration.ts:100 Starting migration from LocalStorage to Firestore...
+firestoreMigration.ts:216 Migration requires authentication - will retry after login
+firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?VER=8&database=projects%2Fsyncly-473404%2Fdatabases%2F(default)&gsessionid=jyS4nEHU8GC3XnWVjFXq9ci4yD0mnXtAY1xlVqZNPDE&SID=SBcq4gE0SBYqXJwL_5ftTw&RID=18751&TYPE=terminate&zx=orjpk7fgr1ut:1  Failed to load resource: the server responded with a status of 400 ()Understand this error
+firestoreService.ts:72 Error getting document from roles: FirebaseError: Missing or insufficient permissions.
+getDocument @ firestoreService.ts:72Understand this error
+AuthContext.tsx:157 Login error: FirebaseError: Missing or insufficient permissions.
+login @ AuthContext.tsx:157Understand this error
+firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Fsyncly-473404%2Fdatabases%2F(default)&gsessionid=8lsXiThSbK9tAp3sO6e_7WvD6B5sZuVHgMcArTk9-Us&SID=tfEAdf3Fdnv6o2FLB7SU-g&RID=11099&TYPE=terminate&zx=uuke3xoyvfaq:1  Failed to load resource: the server responded with a status of 400 ()Understand this error
+firestoreMigration.ts:241 [Firestore] User authenticated, initializing Firestore...
+firestoreMigration.ts:257 [Firestore] Already initialized
+tenantContext.ts:22 Error getting tenantId from localStorage: TypeError: Cannot read properties of null (reading 'tenantId')
+    at getCurrentTenantId (tenantContext.ts:18:30)
+    at requireTenantId (tenantContext.ts:29:20)
+    at Module.addActivityLog (dataService.ts:126:22)
+    at login (AuthContext.tsx:130:31)
+    at async handleSubmit (LoginForm.tsx:33:21)
+getCurrentTenantId @ tenantContext.ts:22
+requireTenantId @ tenantContext.ts:29
+addActivityLog @ dataService.ts:126
+login @ AuthContext.tsx:130Understand this error
+AuthContext.tsx:138 Error logging login activity: Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.addActivityLog (dataService.ts:126:22)
+    at login (AuthContext.tsx:130:31)
+    at async handleSubmit (LoginForm.tsx:33:21)
+login @ AuthContext.tsx:138Understand this error
+useRealTimeNotifications.ts:90 Error setting up notifications listener: Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at useRealTimeNotifications.ts:39:24
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=1c4e2c84:9887:29)
+    at recursivelyTraversePassiveMountEffects (react-dom_client.js?v=1c4e2c84:9868:13)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=1c4e2c84:9984:13)
+    at recursivelyTraversePassiveMountEffects (react-dom_client.js?v=1c4e2c84:9868:13)
+(anonymous) @ useRealTimeNotifications.ts:90
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9887
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9899
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11302
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+useRealTimeNotifications.ts:90 Error setting up notifications listener: Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at useRealTimeNotifications.ts:39:24
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at reconnectPassiveEffects (react-dom_client.js?v=1c4e2c84:10016:13)
+    at recursivelyTraverseReconnectPassiveEffects (react-dom_client.js?v=1c4e2c84:9995:11)
+    at reconnectPassiveEffects (react-dom_client.js?v=1c4e2c84:10054:13)
+    at recursivelyTraverseReconnectPassiveEffects (react-dom_client.js?v=1c4e2c84:9995:11)
+(anonymous) @ useRealTimeNotifications.ts:90
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10016
+recursivelyTraverseReconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:9995
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10054
+recursivelyTraverseReconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:9995
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10054
+recursivelyTraverseReconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:9995
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10009
+doubleInvokeEffectsOnFiber @ react-dom_client.js?v=1c4e2c84:11461
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11432
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+commitDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11469
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11309
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at fetchStats (AdminDashboard.tsx:37:41)
+    at AdminDashboard.tsx:93:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=1c4e2c84:9887:29)
+    at recursivelyTraversePassiveMountEffects (react-dom_client.js?v=1c4e2c84:9868:13)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+fetchStats @ AdminDashboard.tsx:37
+(anonymous) @ AdminDashboard.tsx:93
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9887
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9899
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11302
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at AppLayout.tsx:90:17
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=1c4e2c84:9887:29)
+    at recursivelyTraversePassiveMountEffects (react-dom_client.js?v=1c4e2c84:9868:13)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=1c4e2c84:9984:13)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+(anonymous) @ AppLayout.tsx:90
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9887
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9899
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11302
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getTasks (dataService.ts:776:22)
+    at runScheduledChecks (notificationScheduler.ts:305:38)
+    at AppLayout.tsx:182:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=1c4e2c84:9887:29)
+    at recursivelyTraversePassiveMountEffects (react-dom_client.js?v=1c4e2c84:9868:13)
+requireTenantId @ tenantContext.ts:31
+getTasks @ dataService.ts:776
+runScheduledChecks @ notificationScheduler.ts:305
+(anonymous) @ AppLayout.tsx:182
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9887
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9899
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11302
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at fetchStats (AdminDashboard.tsx:37:41)
+    at AdminDashboard.tsx:93:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at reconnectPassiveEffects (react-dom_client.js?v=1c4e2c84:10016:13)
+    at recursivelyTraverseReconnectPassiveEffects (react-dom_client.js?v=1c4e2c84:9995:11)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+fetchStats @ AdminDashboard.tsx:37
+(anonymous) @ AdminDashboard.tsx:93
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10016
+recursivelyTraverseReconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:9995
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10054
+recursivelyTraverseReconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:9995
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10009
+recursivelyTraverseReconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:9995
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10009
+recursivelyTraverseReconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:9995
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10009
+recursivelyTraverseReconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:9995
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10054
+recursivelyTraverseReconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:9995
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10054
+recursivelyTraverseReconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:9995
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10054
+recursivelyTraverseReconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:9995
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10009
+doubleInvokeEffectsOnFiber @ react-dom_client.js?v=1c4e2c84:11461
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11432
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+commitDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11469
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11309
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at AppLayout.tsx:90:17
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at reconnectPassiveEffects (react-dom_client.js?v=1c4e2c84:10016:13)
+    at doubleInvokeEffectsOnFiber (react-dom_client.js?v=1c4e2c84:11461:207)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+(anonymous) @ AppLayout.tsx:90
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10016
+doubleInvokeEffectsOnFiber @ react-dom_client.js?v=1c4e2c84:11461
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11432
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+commitDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11469
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11309
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getTasks (dataService.ts:776:22)
+    at runScheduledChecks (notificationScheduler.ts:305:38)
+    at AppLayout.tsx:182:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at reconnectPassiveEffects (react-dom_client.js?v=1c4e2c84:10016:13)
+    at doubleInvokeEffectsOnFiber (react-dom_client.js?v=1c4e2c84:11461:207)
+requireTenantId @ tenantContext.ts:31
+getTasks @ dataService.ts:776
+runScheduledChecks @ notificationScheduler.ts:305
+(anonymous) @ AppLayout.tsx:182
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10016
+doubleInvokeEffectsOnFiber @ react-dom_client.js?v=1c4e2c84:11461
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11432
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+commitDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11469
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11309
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at getMeetings (dataService.ts:1286:22)
+    at Module.getMeetingsForUser (dataService.ts:1429:88)
+    at AppLayout.tsx:95:44
+    at AppLayout.tsx:102:7
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=1c4e2c84:9887:29)
+requireTenantId @ tenantContext.ts:31
+getMeetings @ dataService.ts:1286
+getMeetingsForUser @ dataService.ts:1429
+(anonymous) @ AppLayout.tsx:95
+(anonymous) @ AppLayout.tsx:102
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9887
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9899
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11302
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at getMeetings (dataService.ts:1286:22)
+    at Module.getMeetingsForUser (dataService.ts:1429:88)
+    at AppLayout.tsx:95:44
+    at AppLayout.tsx:102:7
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at reconnectPassiveEffects (react-dom_client.js?v=1c4e2c84:10016:13)
+requireTenantId @ tenantContext.ts:31
+getMeetings @ dataService.ts:1286
+getMeetingsForUser @ dataService.ts:1429
+(anonymous) @ AppLayout.tsx:95
+(anonymous) @ AppLayout.tsx:102
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10016
+doubleInvokeEffectsOnFiber @ react-dom_client.js?v=1c4e2c84:11461
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11432
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+commitDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11469
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11309
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+firestoreService.ts:88 Error getting documents from tenants: FirebaseError: Missing or insufficient permissions.
+getAllDocuments @ firestoreService.ts:88Understand this error
+SuperAdminDashboard.tsx:53 Error loading tenants: FirebaseError: Missing or insufficient permissions.
+loadTenants @ SuperAdminDashboard.tsx:53Understand this error
+firestoreService.ts:88 Error getting documents from tenants: FirebaseError: Missing or insufficient permissions.
+getAllDocuments @ firestoreService.ts:88Understand this error
+SuperAdminDashboard.tsx:53 Error loading tenants: FirebaseError: Missing or insufficient permissions.
+loadTenants @ SuperAdminDashboard.tsx:53Understand this error
+2firestoreService.ts:88 Error getting documents from reports: FirebaseError: Missing or insufficient permissions.
+getAllDocuments @ firestoreService.ts:88Understand this error
+2MyReportsList.tsx:48 Uncaught (in promise) FirebaseError: Missing or insufficient permissions.Understand this error
+firestoreService.ts:88 Error getting documents from tenants: FirebaseError: Missing or insufficient permissions.
+getAllDocuments @ firestoreService.ts:88Understand this error
+SuperAdminDashboard.tsx:53 Error loading tenants: FirebaseError: Missing or insufficient permissions.
+loadTenants @ SuperAdminDashboard.tsx:53Understand this error
+firestoreService.ts:88 Error getting documents from tenants: FirebaseError: Missing or insufficient permissions.
+getAllDocuments @ firestoreService.ts:88Understand this error
+SuperAdminDashboard.tsx:53 Error loading tenants: FirebaseError: Missing or insufficient permissions.
+loadTenants @ SuperAdminDashboard.tsx:53Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getTasks (dataService.ts:776:22)
+    at runScheduledChecks (notificationScheduler.ts:305:38)
+    at AppLayout.tsx:187:13
+requireTenantId @ tenantContext.ts:31
+getTasks @ dataService.ts:776
+runScheduledChecks @ notificationScheduler.ts:305
+(anonymous) @ AppLayout.tsx:187Understand this error
+2firestoreService.ts:88 Error getting documents from reports: FirebaseError: Missing or insufficient permissions.
+getAllDocuments @ firestoreService.ts:88Understand this error
+2MyReportsList.tsx:48 Uncaught (in promise) FirebaseError: Missing or insufficient permissions.Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at fetchStats (AdminDashboard.tsx:37:41)
+    at AdminDashboard.tsx:93:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=1c4e2c84:9887:29)
+    at recursivelyTraversePassiveMountEffects (react-dom_client.js?v=1c4e2c84:9868:13)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+fetchStats @ AdminDashboard.tsx:37
+(anonymous) @ AdminDashboard.tsx:93
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9887
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9899
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11302
+flushPendingEffects @ react-dom_client.js?v=1c4e2c84:11276
+performSyncWorkOnRoot @ react-dom_client.js?v=1c4e2c84:11632
+flushSyncWorkAcrossRoots_impl @ react-dom_client.js?v=1c4e2c84:11536
+flushSpawnedWork @ react-dom_client.js?v=1c4e2c84:11254
+commitRoot @ react-dom_client.js?v=1c4e2c84:11081
+commitRootWhenReady @ react-dom_client.js?v=1c4e2c84:10512
+performWorkOnRoot @ react-dom_client.js?v=1c4e2c84:10457
+performWorkOnRootViaSchedulerTask @ react-dom_client.js?v=1c4e2c84:11623
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at fetchStats (AdminDashboard.tsx:37:41)
+    at AdminDashboard.tsx:93:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at reconnectPassiveEffects (react-dom_client.js?v=1c4e2c84:10016:13)
+    at doubleInvokeEffectsOnFiber (react-dom_client.js?v=1c4e2c84:11461:207)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+fetchStats @ AdminDashboard.tsx:37
+(anonymous) @ AdminDashboard.tsx:93
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10016
+doubleInvokeEffectsOnFiber @ react-dom_client.js?v=1c4e2c84:11461
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11432
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+commitDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11469
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11309
+flushPendingEffects @ react-dom_client.js?v=1c4e2c84:11276
+performSyncWorkOnRoot @ react-dom_client.js?v=1c4e2c84:11632
+flushSyncWorkAcrossRoots_impl @ react-dom_client.js?v=1c4e2c84:11536
+flushSpawnedWork @ react-dom_client.js?v=1c4e2c84:11254
+commitRoot @ react-dom_client.js?v=1c4e2c84:11081
+commitRootWhenReady @ react-dom_client.js?v=1c4e2c84:10512
+performWorkOnRoot @ react-dom_client.js?v=1c4e2c84:10457
+performWorkOnRootViaSchedulerTask @ react-dom_client.js?v=1c4e2c84:11623
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getTasks (dataService.ts:776:22)
+    at fetchTasks (EODReportForm.tsx:265:46)
+    at EODReportForm.tsx:273:7
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=1c4e2c84:9887:29)
+    at recursivelyTraversePassiveMountEffects (react-dom_client.js?v=1c4e2c84:9868:13)
+requireTenantId @ tenantContext.ts:31
+getTasks @ dataService.ts:776
+fetchTasks @ EODReportForm.tsx:265
+(anonymous) @ EODReportForm.tsx:273
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9887
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9899
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11302
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getTasks (dataService.ts:776:22)
+    at fetchTasks (EODReportForm.tsx:265:46)
+    at EODReportForm.tsx:273:7
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at reconnectPassiveEffects (react-dom_client.js?v=1c4e2c84:10016:13)
+    at recursivelyTraverseReconnectPassiveEffects (react-dom_client.js?v=1c4e2c84:9995:11)
+requireTenantId @ tenantContext.ts:31
+getTasks @ dataService.ts:776
+fetchTasks @ EODReportForm.tsx:265
+(anonymous) @ EODReportForm.tsx:273
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10016
+recursivelyTraverseReconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:9995
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10054
+recursivelyTraverseReconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:9995
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10009
+recursivelyTraverseReconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:9995
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10009
+doubleInvokeEffectsOnFiber @ react-dom_client.js?v=1c4e2c84:11461
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11432
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+commitDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11469
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11309
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at fetchStats (AdminDashboard.tsx:37:41)
+    at AdminDashboard.tsx:93:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=1c4e2c84:9887:29)
+    at recursivelyTraversePassiveMountEffects (react-dom_client.js?v=1c4e2c84:9868:13)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+fetchStats @ AdminDashboard.tsx:37
+(anonymous) @ AdminDashboard.tsx:93
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9887
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9899
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11302
+flushPendingEffects @ react-dom_client.js?v=1c4e2c84:11276
+flushSpawnedWork @ react-dom_client.js?v=1c4e2c84:11250
+commitRoot @ react-dom_client.js?v=1c4e2c84:11081
+commitRootWhenReady @ react-dom_client.js?v=1c4e2c84:10512
+performWorkOnRoot @ react-dom_client.js?v=1c4e2c84:10457
+performSyncWorkOnRoot @ react-dom_client.js?v=1c4e2c84:11635
+flushSyncWorkAcrossRoots_impl @ react-dom_client.js?v=1c4e2c84:11530
+processRootScheduleInMicrotask @ react-dom_client.js?v=1c4e2c84:11558
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11649Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at fetchStats (AdminDashboard.tsx:37:41)
+    at AdminDashboard.tsx:93:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at reconnectPassiveEffects (react-dom_client.js?v=1c4e2c84:10016:13)
+    at doubleInvokeEffectsOnFiber (react-dom_client.js?v=1c4e2c84:11461:207)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+fetchStats @ AdminDashboard.tsx:37
+(anonymous) @ AdminDashboard.tsx:93
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10016
+doubleInvokeEffectsOnFiber @ react-dom_client.js?v=1c4e2c84:11461
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11432
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+commitDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11469
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11309
+flushPendingEffects @ react-dom_client.js?v=1c4e2c84:11276
+flushSpawnedWork @ react-dom_client.js?v=1c4e2c84:11250
+commitRoot @ react-dom_client.js?v=1c4e2c84:11081
+commitRootWhenReady @ react-dom_client.js?v=1c4e2c84:10512
+performWorkOnRoot @ react-dom_client.js?v=1c4e2c84:10457
+performSyncWorkOnRoot @ react-dom_client.js?v=1c4e2c84:11635
+flushSyncWorkAcrossRoots_impl @ react-dom_client.js?v=1c4e2c84:11530
+processRootScheduleInMicrotask @ react-dom_client.js?v=1c4e2c84:11558
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11649Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at ManagerDashboard.tsx:323:21
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=1c4e2c84:9887:29)
+    at recursivelyTraversePassiveMountEffects (react-dom_client.js?v=1c4e2c84:9868:13)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=1c4e2c84:9984:13)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+(anonymous) @ ManagerDashboard.tsx:323
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9887
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9899
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11302
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at ManagerDashboard.tsx:323:21
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at reconnectPassiveEffects (react-dom_client.js?v=1c4e2c84:10016:13)
+    at doubleInvokeEffectsOnFiber (react-dom_client.js?v=1c4e2c84:11461:207)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+(anonymous) @ ManagerDashboard.tsx:323
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10016
+doubleInvokeEffectsOnFiber @ react-dom_client.js?v=1c4e2c84:11461
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11432
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+commitDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11469
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11309
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at fetchStats (AdminDashboard.tsx:37:41)
+    at AdminDashboard.tsx:93:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=1c4e2c84:9887:29)
+    at recursivelyTraversePassiveMountEffects (react-dom_client.js?v=1c4e2c84:9868:13)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+fetchStats @ AdminDashboard.tsx:37
+(anonymous) @ AdminDashboard.tsx:93
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9887
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9899
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11302
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at fetchStats (AdminDashboard.tsx:37:41)
+    at AdminDashboard.tsx:93:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at reconnectPassiveEffects (react-dom_client.js?v=1c4e2c84:10016:13)
+    at doubleInvokeEffectsOnFiber (react-dom_client.js?v=1c4e2c84:11461:207)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+fetchStats @ AdminDashboard.tsx:37
+(anonymous) @ AdminDashboard.tsx:93
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10016
+doubleInvokeEffectsOnFiber @ react-dom_client.js?v=1c4e2c84:11461
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11432
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+commitDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11469
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11309
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at UserManagementTable.tsx:62:21
+    at UserManagementTable.tsx:73:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=1c4e2c84:9887:29)
+    at recursivelyTraversePassiveMountEffects (react-dom_client.js?v=1c4e2c84:9868:13)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+(anonymous) @ UserManagementTable.tsx:62
+(anonymous) @ UserManagementTable.tsx:73
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9887
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9899
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11302
+flushPendingEffects @ react-dom_client.js?v=1c4e2c84:11276
+performSyncWorkOnRoot @ react-dom_client.js?v=1c4e2c84:11632
+flushSyncWorkAcrossRoots_impl @ react-dom_client.js?v=1c4e2c84:11536
+flushSpawnedWork @ react-dom_client.js?v=1c4e2c84:11254
+commitRoot @ react-dom_client.js?v=1c4e2c84:11081
+commitRootWhenReady @ react-dom_client.js?v=1c4e2c84:10512
+performWorkOnRoot @ react-dom_client.js?v=1c4e2c84:10457
+performWorkOnRootViaSchedulerTask @ react-dom_client.js?v=1c4e2c84:11623
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at UserManagementTable.tsx:62:21
+    at UserManagementTable.tsx:73:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at reconnectPassiveEffects (react-dom_client.js?v=1c4e2c84:10016:13)
+    at recursivelyTraverseReconnectPassiveEffects (react-dom_client.js?v=1c4e2c84:9995:11)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+(anonymous) @ UserManagementTable.tsx:62
+(anonymous) @ UserManagementTable.tsx:73
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10016
+recursivelyTraverseReconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:9995
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10054
+recursivelyTraverseReconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:9995
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10009
+recursivelyTraverseReconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:9995
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10009
+doubleInvokeEffectsOnFiber @ react-dom_client.js?v=1c4e2c84:11461
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11432
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+commitDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11469
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11309
+flushPendingEffects @ react-dom_client.js?v=1c4e2c84:11276
+performSyncWorkOnRoot @ react-dom_client.js?v=1c4e2c84:11632
+flushSyncWorkAcrossRoots_impl @ react-dom_client.js?v=1c4e2c84:11536
+flushSpawnedWork @ react-dom_client.js?v=1c4e2c84:11254
+commitRoot @ react-dom_client.js?v=1c4e2c84:11081
+commitRootWhenReady @ react-dom_client.js?v=1c4e2c84:10512
+performWorkOnRoot @ react-dom_client.js?v=1c4e2c84:10457
+performWorkOnRootViaSchedulerTask @ react-dom_client.js?v=1c4e2c84:11623
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at fetchStats (AdminDashboard.tsx:37:41)
+    at AdminDashboard.tsx:93:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=1c4e2c84:9887:29)
+    at recursivelyTraversePassiveMountEffects (react-dom_client.js?v=1c4e2c84:9868:13)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+fetchStats @ AdminDashboard.tsx:37
+(anonymous) @ AdminDashboard.tsx:93
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9887
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9899
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11302
+flushPendingEffects @ react-dom_client.js?v=1c4e2c84:11276
+performSyncWorkOnRoot @ react-dom_client.js?v=1c4e2c84:11632
+flushSyncWorkAcrossRoots_impl @ react-dom_client.js?v=1c4e2c84:11536
+flushSpawnedWork @ react-dom_client.js?v=1c4e2c84:11254
+commitRoot @ react-dom_client.js?v=1c4e2c84:11081
+commitRootWhenReady @ react-dom_client.js?v=1c4e2c84:10512
+performWorkOnRoot @ react-dom_client.js?v=1c4e2c84:10457
+performWorkOnRootViaSchedulerTask @ react-dom_client.js?v=1c4e2c84:11623
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at fetchStats (AdminDashboard.tsx:37:41)
+    at AdminDashboard.tsx:93:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at reconnectPassiveEffects (react-dom_client.js?v=1c4e2c84:10016:13)
+    at doubleInvokeEffectsOnFiber (react-dom_client.js?v=1c4e2c84:11461:207)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+fetchStats @ AdminDashboard.tsx:37
+(anonymous) @ AdminDashboard.tsx:93
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10016
+doubleInvokeEffectsOnFiber @ react-dom_client.js?v=1c4e2c84:11461
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11432
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+commitDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11469
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11309
+flushPendingEffects @ react-dom_client.js?v=1c4e2c84:11276
+performSyncWorkOnRoot @ react-dom_client.js?v=1c4e2c84:11632
+flushSyncWorkAcrossRoots_impl @ react-dom_client.js?v=1c4e2c84:11536
+flushSpawnedWork @ react-dom_client.js?v=1c4e2c84:11254
+commitRoot @ react-dom_client.js?v=1c4e2c84:11081
+commitRootWhenReady @ react-dom_client.js?v=1c4e2c84:10512
+performWorkOnRoot @ react-dom_client.js?v=1c4e2c84:10457
+performWorkOnRootViaSchedulerTask @ react-dom_client.js?v=1c4e2c84:11623
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at fetchData (MeetingListPage.tsx:57:33)
+    at MeetingListPage.tsx:64:9
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=1c4e2c84:9887:29)
+    at recursivelyTraversePassiveMountEffects (react-dom_client.js?v=1c4e2c84:9868:13)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+fetchData @ MeetingListPage.tsx:57
+(anonymous) @ MeetingListPage.tsx:64
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9887
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9899
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11302
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at fetchData (MeetingListPage.tsx:57:33)
+    at MeetingListPage.tsx:64:9
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at reconnectPassiveEffects (react-dom_client.js?v=1c4e2c84:10016:13)
+    at doubleInvokeEffectsOnFiber (react-dom_client.js?v=1c4e2c84:11461:207)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+fetchData @ MeetingListPage.tsx:57
+(anonymous) @ MeetingListPage.tsx:64
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10016
+doubleInvokeEffectsOnFiber @ react-dom_client.js?v=1c4e2c84:11461
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11432
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+commitDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11469
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11309
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getTasks (dataService.ts:776:22)
+    at runScheduledChecks (notificationScheduler.ts:305:38)
+    at AppLayout.tsx:187:13
+requireTenantId @ tenantContext.ts:31
+getTasks @ dataService.ts:776
+runScheduledChecks @ notificationScheduler.ts:305
+(anonymous) @ AppLayout.tsx:187Understand this error
+firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Fsyncly-473404%2Fdatabases%2F(default)&gsessionid=KM8hWzV_bPDquuteNX2LtqCYIg0FP4Qsrv03YB54cFc&SID=LqhSypwV0v9Qypd8hCI2bw&RID=76239&TYPE=terminate&zx=kjiwa9hpduse:1  Failed to load resource: the server responded with a status of 400 ()Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getTasks (dataService.ts:776:22)
+    at runScheduledChecks (notificationScheduler.ts:305:38)
+    at AppLayout.tsx:187:13
+requireTenantId @ tenantContext.ts:31
+getTasks @ dataService.ts:776
+runScheduledChecks @ notificationScheduler.ts:305
+(anonymous) @ AppLayout.tsx:187Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at fetchStats (AdminDashboard.tsx:37:41)
+    at AdminDashboard.tsx:93:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=1c4e2c84:9887:29)
+    at recursivelyTraversePassiveMountEffects (react-dom_client.js?v=1c4e2c84:9868:13)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+fetchStats @ AdminDashboard.tsx:37
+(anonymous) @ AdminDashboard.tsx:93
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9887
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9899
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11302
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at fetchStats (AdminDashboard.tsx:37:41)
+    at AdminDashboard.tsx:93:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at reconnectPassiveEffects (react-dom_client.js?v=1c4e2c84:10016:13)
+    at doubleInvokeEffectsOnFiber (react-dom_client.js?v=1c4e2c84:11461:207)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+fetchStats @ AdminDashboard.tsx:37
+(anonymous) @ AdminDashboard.tsx:93
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10016
+doubleInvokeEffectsOnFiber @ react-dom_client.js?v=1c4e2c84:11461
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11432
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+commitDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11469
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11309
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+2firestoreService.ts:88 Error getting documents from reports: FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/syncly-473404/firestore/indexes?create_composite=Ck1wcm9qZWN0cy9zeW5jbHktNDczNDA0L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9yZXBvcnRzL2luZGV4ZXMvXxABGg4KCmVtcGxveWVlSWQQARoICgRkYXRlEAIaDAoIX19uYW1lX18QAg
+getAllDocuments @ firestoreService.ts:88Understand this error
+2MyReportsList.tsx:48 Uncaught (in promise) FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/syncly-473404/firestore/indexes?create_composite=Ck1wcm9qZWN0cy9zeW5jbHktNDczNDA0L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9yZXBvcnRzL2luZGV4ZXMvXxABGg4KCmVtcGxveWVlSWQQARoICgRkYXRlEAIaDAoIX19uYW1lX18QAgUnderstand this error
+2firestoreService.ts:88 Error getting documents from reports: FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/syncly-473404/firestore/indexes?create_composite=Ck1wcm9qZWN0cy9zeW5jbHktNDczNDA0L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9yZXBvcnRzL2luZGV4ZXMvXxABGg4KCmVtcGxveWVlSWQQARoICgRkYXRlEAIaDAoIX19uYW1lX18QAg
+getAllDocuments @ firestoreService.ts:88Understand this error
+2MyReportsList.tsx:48 Uncaught (in promise) FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/syncly-473404/firestore/indexes?create_composite=Ck1wcm9qZWN0cy9zeW5jbHktNDczNDA0L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9yZXBvcnRzL2luZGV4ZXMvXxABGg4KCmVtcGxveWVlSWQQARoICgRkYXRlEAIaDAoIX19uYW1lX18QAgUnderstand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at fetchStats (AdminDashboard.tsx:37:41)
+    at AdminDashboard.tsx:93:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=1c4e2c84:9887:29)
+    at recursivelyTraversePassiveMountEffects (react-dom_client.js?v=1c4e2c84:9868:13)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+fetchStats @ AdminDashboard.tsx:37
+(anonymous) @ AdminDashboard.tsx:93
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9887
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9899
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11302
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at fetchStats (AdminDashboard.tsx:37:41)
+    at AdminDashboard.tsx:93:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at reconnectPassiveEffects (react-dom_client.js?v=1c4e2c84:10016:13)
+    at doubleInvokeEffectsOnFiber (react-dom_client.js?v=1c4e2c84:11461:207)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+fetchStats @ AdminDashboard.tsx:37
+(anonymous) @ AdminDashboard.tsx:93
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10016
+doubleInvokeEffectsOnFiber @ react-dom_client.js?v=1c4e2c84:11461
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11432
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+commitDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11469
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11309
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at fetchStats (AdminDashboard.tsx:37:41)
+    at AdminDashboard.tsx:93:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at commitPassiveMountOnFiber (react-dom_client.js?v=1c4e2c84:9887:29)
+    at recursivelyTraversePassiveMountEffects (react-dom_client.js?v=1c4e2c84:9868:13)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+fetchStats @ AdminDashboard.tsx:37
+(anonymous) @ AdminDashboard.tsx:93
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9887
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9881
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9984
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=1c4e2c84:9868
+commitPassiveMountOnFiber @ react-dom_client.js?v=1c4e2c84:9899
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11302
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getUsers (dataService.ts:379:22)
+    at fetchStats (AdminDashboard.tsx:37:41)
+    at AdminDashboard.tsx:93:5
+    at Object.react_stack_bottom_frame (react-dom_client.js?v=1c4e2c84:17486:20)
+    at runWithFiberInDEV (react-dom_client.js?v=1c4e2c84:1485:72)
+    at commitHookEffectListMount (react-dom_client.js?v=1c4e2c84:8460:122)
+    at commitHookPassiveMountEffects (react-dom_client.js?v=1c4e2c84:8518:138)
+    at reconnectPassiveEffects (react-dom_client.js?v=1c4e2c84:10016:13)
+    at doubleInvokeEffectsOnFiber (react-dom_client.js?v=1c4e2c84:11461:207)
+requireTenantId @ tenantContext.ts:31
+getUsers @ dataService.ts:379
+fetchStats @ AdminDashboard.tsx:37
+(anonymous) @ AdminDashboard.tsx:93
+react_stack_bottom_frame @ react-dom_client.js?v=1c4e2c84:17486
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+commitHookEffectListMount @ react-dom_client.js?v=1c4e2c84:8460
+commitHookPassiveMountEffects @ react-dom_client.js?v=1c4e2c84:8518
+reconnectPassiveEffects @ react-dom_client.js?v=1c4e2c84:10016
+doubleInvokeEffectsOnFiber @ react-dom_client.js?v=1c4e2c84:11461
+runWithFiberInDEV @ react-dom_client.js?v=1c4e2c84:1485
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11432
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+recursivelyTraverseAndDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11438
+commitDoubleInvokeEffectsInDEV @ react-dom_client.js?v=1c4e2c84:11469
+flushPassiveEffects @ react-dom_client.js?v=1c4e2c84:11309
+(anonymous) @ react-dom_client.js?v=1c4e2c84:11060
+performWorkUntilDeadline @ react-dom_client.js?v=1c4e2c84:36Understand this error
+tenantContext.ts:31 Uncaught (in promise) Error: No tenant context available. User must be logged in.
+    at requireTenantId (tenantContext.ts:31:11)
+    at Module.getTasks (dataService.ts:776:22)
+    at runScheduledChecks (notificationScheduler.ts:305:38)
+    at AppLayout.tsx:187:13

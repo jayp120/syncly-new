@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fix Existing Users - Set Custom Claims</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h1 { color: #333; }
+    .info { background: #e3f2fd; padding: 15px; border-radius: 4px; margin: 20px 0; }
+    .warning { background: #fff3cd; padding: 15px; border-radius: 4px; margin: 20px 0; }
+    .success { background: #d4edda; padding: 15px; border-radius: 4px; margin: 20px 0; }
+    .error { background: #f8d7da; padding: 15px; border-radius: 4px; margin: 20px 0; }
+    input, button {
+      padding: 10px;
+      margin: 5px 0;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover { background: #0056b3; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+    .user-item {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+    pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔧 Fix Existing Users</h1>
+    
+    <div class="info">
+      <strong>ℹ️ What This Does:</strong><br>
+      This tool sets custom claims for your existing users so they can login.<br>
+      Custom claims include: <code>tenantId</code> and <code>isPlatformAdmin</code>
+    </div>
+
+    <div class="warning">
+      <strong>⚠️ Important:</strong><br>
+      This will ONLY work for users who already have Firebase Auth accounts.<br>
+      If a user was created only in Firestore (without Auth), they need to be recreated.
+    </div>
+
+    <h2>Platform Admin</h2>
+    <div class="user-item">
+      <strong>Email:</strong> superadmin@syncly.com<br>
+      <strong>Status:</strong> <span id="platform-status">Not checked</span><br>
+      <button id="fix-platform" onclick="fixPlatformAdmin()">Set Platform Admin Claims</button>
+    </div>
+
+    <h2>Tenant Admin Users</h2>
+    <div id="tenant-users">
+      <p>Loading users from Firestore...</p>
+    </div>
+
+    <div id="results"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+    import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+    import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+    import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-functions.js';
+
+    const firebaseConfig = {
+      apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+      authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+      projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+      storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+      appId: import.meta.env.VITE_FIREBASE_APP_ID,
+      measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const functions = getFunctions(app);
+
+    window.fixPlatformAdmin = async function() {
+      const button = document.getElementById('fix-platform');
+      const status = document.getElementById('platform-status');
+      
+      button.disabled = true;
+      status.textContent = 'Setting claims...';
+
+      try {
+        const setCustomClaims = httpsCallable(functions, 'setUserCustomClaims');
+        
+        // First, get the user ID from Auth
+        const userRecord = await auth.getUserByEmail('superadmin@syncly.com');
+        
+        const result = await setCustomClaims({
+          userId: userRecord.uid,
+          tenantId: null,
+          isPlatformAdmin: true
+        });
+
+        status.textContent = '✅ Claims set successfully!';
+        status.style.color = 'green';
+        
+        showResult('success', 'Platform Admin claims set! Ask them to logout and login again.');
+      } catch (error) {
+        status.textContent = '❌ Failed';
+        status.style.color = 'red';
+        showResult('error', `Error: ${error.message}`);
+      } finally {
+        button.disabled = false;
+      }
+    };
+
+    // Load tenant users
+    async function loadTenantUsers() {
+      const container = document.getElementById('tenant-users');
+      
+      try {
+        const usersSnapshot = await getDocs(collection(db, 'users'));
+        const tenantAdmins = [];
+        
+        usersSnapshot.forEach((doc) => {
+          const user = doc.data();
+          if (!user.isPlatformAdmin && user.tenantId) {
+            tenantAdmins.push({ id: doc.id, ...user });
+          }
+        });
+
+        if (tenantAdmins.length === 0) {
+          container.innerHTML = '<p>No tenant admin users found.</p>';
+          return;
+        }
+
+        container.innerHTML = tenantAdmins.map(user => `
+          <div class="user-item">
+            <strong>Email:</strong> ${user.email}<br>
+            <strong>Name:</strong> ${user.name}<br>
+            <strong>TenantId:</strong> ${user.tenantId}<br>
+            <strong>Role:</strong> ${user.roleName}<br>
+            <strong>Status:</strong> <span id="status-${user.id}">Ready to fix</span><br>
+            <button onclick="fixTenantUser('${user.id}', '${user.email}', '${user.tenantId}')">
+              Set Claims for ${user.name}
+            </button>
+          </div>
+        `).join('');
+      } catch (error) {
+        container.innerHTML = `<p class="error">Error loading users: ${error.message}</p>`;
+      }
+    }
+
+    window.fixTenantUser = async function(userId, email, tenantId) {
+      const status = document.getElementById(`status-${userId}`);
+      status.textContent = 'Setting claims...';
+
+      try {
+        const setCustomClaims = httpsCallable(functions, 'setUserCustomClaims');
+        
+        const result = await setCustomClaims({
+          userId: userId,
+          tenantId: tenantId,
+          isPlatformAdmin: false
+        });
+
+        status.textContent = '✅ Claims set!';
+        status.style.color = 'green';
+        
+        showResult('success', `Claims set for ${email}! Ask them to logout and login again.`);
+      } catch (error) {
+        status.textContent = '❌ Failed';
+        status.style.color = 'red';
+        
+        if (error.message.includes('user-not-found')) {
+          showResult('error', `${email} doesn't have a Firebase Auth account. They need to be recreated using the dashboard.`);
+        } else {
+          showResult('error', `Error for ${email}: ${error.message}`);
+        }
+      }
+    };
+
+    function showResult(type, message) {
+      const results = document.getElementById('results');
+      const div = document.createElement('div');
+      div.className = type;
+      div.textContent = message;
+      results.appendChild(div);
+    }
+
+    // Load users on page load
+    loadTenantUsers();
+  </script>
+</body>
+</html>

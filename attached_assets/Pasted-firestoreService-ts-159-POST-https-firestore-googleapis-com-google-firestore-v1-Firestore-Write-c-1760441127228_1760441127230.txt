@@ -1,0 +1,124 @@
+firestoreService.ts:159  POST https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?VER=8&database=projects%2Fsyncly-473404%2Fdatabases%2F(default)&gsessionid=zo7p3_7_yZW5IdfuIu45qYeN65z6ysxSW0-b9fzMBQw&SID=qGXMNBIoOeW5SXF2xrj6ig&RID=10002&TYPE=terminate&zx=nn8x9u3l92ta 400 (Bad Request)
+gc @ firebase_firestore.js?v=1c4e2c84:2147
+Y2.close @ firebase_firestore.js?v=1c4e2c84:2491
+(anonymous) @ firebase_firestore.js?v=1c4e2c84:12697
+(anonymous) @ firebase_firestore.js?v=1c4e2c84:12661
+ab @ firebase_firestore.js?v=1c4e2c84:950
+F2 @ firebase_firestore.js?v=1c4e2c84:920
+Z2.ta @ firebase_firestore.js?v=1c4e2c84:2540
+Rb @ firebase_firestore.js?v=1c4e2c84:1419
+M2.Y @ firebase_firestore.js?v=1c4e2c84:1284
+M2.ca @ firebase_firestore.js?v=1c4e2c84:1215
+ab @ firebase_firestore.js?v=1c4e2c84:950
+F2 @ firebase_firestore.js?v=1c4e2c84:920
+Wc @ firebase_firestore.js?v=1c4e2c84:1954
+h.bb @ firebase_firestore.js?v=1c4e2c84:1949
+h.Ea @ firebase_firestore.js?v=1c4e2c84:1946
+Lc @ firebase_firestore.js?v=1c4e2c84:1846
+h.Pa @ firebase_firestore.js?v=1c4e2c84:1813
+Promise.then
+Nc @ firebase_firestore.js?v=1c4e2c84:1804
+h.Pa @ firebase_firestore.js?v=1c4e2c84:1814
+Promise.then
+Nc @ firebase_firestore.js?v=1c4e2c84:1804
+h.Sa @ firebase_firestore.js?v=1c4e2c84:1800
+Promise.then
+h.send @ firebase_firestore.js?v=1c4e2c84:1781
+h.ea @ firebase_firestore.js?v=1c4e2c84:1922
+Jb @ firebase_firestore.js?v=1c4e2c84:1208
+fd @ firebase_firestore.js?v=1c4e2c84:2341
+h.Fa @ firebase_firestore.js?v=1c4e2c84:2308
+Da @ firebase_firestore.js?v=1c4e2c84:669
+Promise.then
+x2 @ firebase_firestore.js?v=1c4e2c84:663
+ec @ firebase_firestore.js?v=1c4e2c84:2294
+Rb @ firebase_firestore.js?v=1c4e2c84:1416
+M2.Y @ firebase_firestore.js?v=1c4e2c84:1284
+M2.ca @ firebase_firestore.js?v=1c4e2c84:1215
+ab @ firebase_firestore.js?v=1c4e2c84:950
+F2 @ firebase_firestore.js?v=1c4e2c84:920
+Wc @ firebase_firestore.js?v=1c4e2c84:1954
+h.bb @ firebase_firestore.js?v=1c4e2c84:1949
+h.Ea @ firebase_firestore.js?v=1c4e2c84:1946
+Lc @ firebase_firestore.js?v=1c4e2c84:1846
+h.Pa @ firebase_firestore.js?v=1c4e2c84:1813
+Promise.then
+Nc @ firebase_firestore.js?v=1c4e2c84:1804
+h.Sa @ firebase_firestore.js?v=1c4e2c84:1800
+Promise.then
+h.send @ firebase_firestore.js?v=1c4e2c84:1781
+h.ea @ firebase_firestore.js?v=1c4e2c84:1922
+Jb @ firebase_firestore.js?v=1c4e2c84:1203
+Hb @ firebase_firestore.js?v=1c4e2c84:1178
+h.Ga @ firebase_firestore.js?v=1c4e2c84:2228
+Da @ firebase_firestore.js?v=1c4e2c84:669
+Promise.then
+x2 @ firebase_firestore.js?v=1c4e2c84:663
+fc @ firebase_firestore.js?v=1c4e2c84:2172
+h.connect @ firebase_firestore.js?v=1c4e2c84:2132
+Y2.m @ firebase_firestore.js?v=1c4e2c84:2488
+Yo @ firebase_firestore.js?v=1c4e2c84:12655
+send @ firebase_firestore.js?v=1c4e2c84:12546
+q_ @ firebase_firestore.js?v=1c4e2c84:12863
+ra @ firebase_firestore.js?v=1c4e2c84:13066
+__PRIVATE_onWriteStreamOpen @ firebase_firestore.js?v=1c4e2c84:13418
+(anonymous) @ firebase_firestore.js?v=1c4e2c84:12941
+(anonymous) @ firebase_firestore.js?v=1c4e2c84:12965
+(anonymous) @ firebase_firestore.js?v=1c4e2c84:16056
+(anonymous) @ firebase_firestore.js?v=1c4e2c84:16087
+Promise.then
+cc @ firebase_firestore.js?v=1c4e2c84:16087
+enqueue @ firebase_firestore.js?v=1c4e2c84:16056
+enqueueAndForget @ firebase_firestore.js?v=1c4e2c84:16038
+(anonymous) @ firebase_firestore.js?v=1c4e2c84:12965
+(anonymous) @ firebase_firestore.js?v=1c4e2c84:12941
+__ @ firebase_firestore.js?v=1c4e2c84:12552
+(anonymous) @ firebase_firestore.js?v=1c4e2c84:12703
+setTimeout
+T_ @ firebase_firestore.js?v=1c4e2c84:12702
+j_ @ firebase_firestore.js?v=1c4e2c84:13045
+G_ @ firebase_firestore.js?v=1c4e2c84:12938
+(anonymous) @ firebase_firestore.js?v=1c4e2c84:12928
+Promise.then
+auth @ firebase_firestore.js?v=1c4e2c84:12924
+start @ firebase_firestore.js?v=1c4e2c84:12823
+start @ firebase_firestore.js?v=1c4e2c84:13039
+__PRIVATE_startWriteStream @ firebase_firestore.js?v=1c4e2c84:13415
+__PRIVATE_fillWritePipeline @ firebase_firestore.js?v=1c4e2c84:13401
+await in __PRIVATE_fillWritePipeline
+__PRIVATE_syncEngineWrite @ firebase_firestore.js?v=1c4e2c84:14419
+await in __PRIVATE_syncEngineWrite
+(anonymous) @ firebase_firestore.js?v=1c4e2c84:18073
+await in (anonymous)
+(anonymous) @ firebase_firestore.js?v=1c4e2c84:16056
+(anonymous) @ firebase_firestore.js?v=1c4e2c84:16087
+Promise.then
+cc @ firebase_firestore.js?v=1c4e2c84:16087
+enqueue @ firebase_firestore.js?v=1c4e2c84:16056
+enqueueAndForget @ firebase_firestore.js?v=1c4e2c84:16038
+__PRIVATE_firestoreClientWrite @ firebase_firestore.js?v=1c4e2c84:18073
+executeWrite @ firebase_firestore.js?v=1c4e2c84:18074
+(anonymous) @ firebase_firestore.js?v=1c4e2c84:18355
+commit @ firebase_firestore.js?v=1c4e2c84:18243
+batchWrite @ firestoreService.ts:159
+migrateFromLocalStorage @ firestoreMigration.ts:207
+initializeFirestoreAfterLogin @ firestoreMigration.ts:251
+await in initializeFirestoreAfterLogin
+login @ AuthContext.tsx:113
+IndexedDB
+_putObject @ firebase_auth.js?v=1c4e2c84:5902
+(anonymous) @ firebase_auth.js?v=1c4e2c84:6058
+_withRetries @ firebase_auth.js?v=1c4e2c84:5947
+await in _withRetries
+(anonymous) @ firebase_auth.js?v=1c4e2c84:6058
+_withPendingWrite @ firebase_auth.js?v=1c4e2c84:6051
+_set @ firebase_auth.js?v=1c4e2c84:6057
+setCurrentUser @ firebase_auth.js?v=1c4e2c84:1990
+directlySetCurrentUser @ firebase_auth.js?v=1c4e2c84:2787
+(anonymous) @ firebase_auth.js?v=1c4e2c84:2544
+Promise.then
+queue @ firebase_auth.js?v=1c4e2c84:2793
+_updateCurrentUser @ firebase_auth.js?v=1c4e2c84:2543
+await in _updateCurrentUser
+_signInWithCredential @ firebase_auth.js?v=1c4e2c84:4642Understand this error
+AuthContext.tsx:163  POST https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?VER=8&database=projects%2Fsyncly-473404%2Fdatabases%2F(default)&gsessionid=N9WUX-fCx6D0DbDR5MJrzgpXPjPVXHpDecoABIlgf_0&SID=FDYBihyiprAIR-xy2Lpm7g&RID=30307&TYPE=terminate&zx=z9wqionryoqm 400 (Bad Request)

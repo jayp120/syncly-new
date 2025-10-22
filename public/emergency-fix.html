@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emergency Platform Admin Fix</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 700px;
+      margin: 50px auto;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+    h1 { 
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+    }
+    .alert {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .success {
+      background: #d4edda;
+      border-left: 4px solid #28a745;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .error {
+      background: #f8d7da;
+      border-left: 4px solid #dc3545;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    button:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .steps {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .steps ol {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    .steps li {
+      margin: 8px 0;
+      line-height: 1.6;
+    }
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    code {
+      background: #f4f4f4;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚨 Emergency Platform Admin Fix</h1>
+    <p class="subtitle">One-click solution to fix platform admin permissions</p>
+
+    <div class="alert">
+      <strong>⚠️ What this does:</strong><br>
+      This will set custom claims (<code>isPlatformAdmin: true</code>) for your platform admin user (superadmin@syncly.com) so they can access the dashboard without permission errors.
+    </div>
+
+    <button id="fixButton" onclick="fixPlatformAdmin()">
+      🔧 Fix Platform Admin Now
+    </button>
+
+    <div id="result"></div>
+
+    <div class="steps">
+      <h3>📝 After clicking the button:</h3>
+      <ol>
+        <li><strong>Wait for success message</strong> (usually takes 2-5 seconds)</li>
+        <li><strong>Logout</strong> from the app completely</li>
+        <li><strong>Clear browser cache</strong> (Ctrl+Shift+Delete or Cmd+Shift+Delete)</li>
+        <li><strong>Login again</strong> as superadmin@syncly.com</li>
+        <li>✅ <strong>Everything works!</strong></li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    async function fixPlatformAdmin() {
+      const button = document.getElementById('fixButton');
+      const resultDiv = document.getElementById('result');
+      
+      button.disabled = true;
+      button.innerHTML = '<span class="loading"></span> Fixing platform admin...';
+      resultDiv.innerHTML = '';
+
+      try {
+        const response = await fetch('https://us-central1-syncly-473404.cloudfunctions.net/emergencyFixPlatformAdmin?secretCode=SYNCLY_EMERGENCY_FIX_2025', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            secretCode: 'SYNCLY_EMERGENCY_FIX_2025'
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          resultDiv.innerHTML = `
+            <div class="success">
+              <h3>✅ Success!</h3>
+              <p><strong>Platform admin fixed:</strong> ${data.email}</p>
+              <p><strong>User ID:</strong> ${data.userId}</p>
+              <p><strong>Custom claims set:</strong> isPlatformAdmin = true</p>
+              <br>
+              <p><strong>Next steps:</strong></p>
+              <ol>
+                ${data.nextSteps.map(step => `<li>${step}</li>`).join('')}
+              </ol>
+            </div>
+          `;
+          button.innerHTML = '✅ Platform Admin Fixed!';
+        } else {
+          throw new Error(data.error || data.message || 'Unknown error');
+        }
+
+      } catch (error) {
+        console.error('Error:', error);
+        resultDiv.innerHTML = `
+          <div class="error">
+            <h3>❌ Error</h3>
+            <p>${error.message}</p>
+            <p><strong>Possible solutions:</strong></p>
+            <ul>
+              <li>The emergency function might not be deployed yet - wait 2 minutes and try again</li>
+              <li>Check that platform admin user exists in Firestore</li>
+              <li>Contact support if issue persists</li>
+            </ul>
+          </div>
+        `;
+        button.disabled = false;
+        button.innerHTML = '🔧 Fix Platform Admin Now';
+      }
+    }
+  </script>
+</body>
+</html>

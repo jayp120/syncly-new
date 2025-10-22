@@ -1,0 +1,115 @@
+We need Tenant Admins to SEE newly created users in User Management. Users get created (auth + Firestore doc) but don’t appear in the list. Also saw intermittent "Missing or insufficient permissions".
+
+Do ALL items below exactly:
+
+────────────────────────────────────────
+A) Verify & fix the user document that’s written on creation
+────────────────────────────────────────
+Open the Cloud Function (or the code path) that creates the user doc in /users/{uid}. Ensure the doc includes ALL of:
+
+- tenantId: <creator’s tenantId>  (MUST be set)
+- role: 'Manager' | 'Employee' | 'Admin'
+- createdAt: serverTimestamp()
+- isActive: true
+- isDeleted: false
+
+If any are missing, add them. Log the doc after write.
+
+Add a one-off maintenance script (local or callable function) to patch any existing user docs in this tenant that are missing tenantId/createdAt/isActive/isDeleted. Only run on the current tenant.
+
+────────────────────────────────────────
+B) Make the listing query tenant-scoped and consistent
+────────────────────────────────────────
+Open services/firestoreService.ts:
+
+1) In getUsersInCurrentTenant(), ensure we refresh token first:
+   await auth.currentUser?.getIdToken(true);
+
+2) Query must be:
+   query(
+     collection(db, 'users'),
+     where('tenantId', '==', tenantId),
+     where('isDeleted', '==', false),
+     orderBy('createdAt', 'desc')
+   )
+
+3) Add diagnostics before the query:
+   const token = await auth.currentUser?.getIdTokenResult();
+   console.log('[Users] claims:', token?.claims);
+   const me = await getDoc(doc(db, 'users', auth.currentUser!.uid));
+   console.log('[Users] my doc:', me.exists() ? me.data() : null);
+
+4) Ensure we’re not filtering the UI list in a way that hides roles (e.g., only Admins). The table should show Admin, Manager, Employee for the current tenant.
+
+────────────────────────────────────────
+C) Ensure security rules allow list for tenant admins
+────────────────────────────────────────
+Open firestore.rules and make list authorization NOT depend solely on custom claims. Add helpers:
+
+  function currentUserDoc() {
+    return get(/databases/$(database)/documents/users/$(request.auth.uid));
+  }
+  function isTenantAdminByDoc() {
+    return isAuthenticated()
+      && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+      && (lower(currentUserDoc().data.role) in ['admin','tenant admin','tenant_admin'])
+      && currentUserDoc().data.tenantId == getUserTenantId();
+  }
+  function isTenantAdminAny() { return isTenantAdminByDoc() || (isAuthenticated() && request.auth.token.isTenantAdmin == true); }
+
+Replace the /users rules with:
+
+  match /users/{userId} {
+    allow get, list: if isPlatformAdmin()
+                     || (isAuthenticated() && request.auth.uid == userId)
+                     || (isTenantAdminAny() && resource.data.tenantId == getUserTenantId());
+
+    allow create: if isPlatformAdmin()
+                  || ( isTenantAdminAny()
+                       && request.resource.data.tenantId == getUserTenantId()
+                       && (!('isPlatformAdmin' in request.resource.data) || request.resource.data.isPlatformAdmin == false) );
+
+    allow update: if isPlatformAdmin()
+                  || ( isTenantAdminAny()
+                       && resource.data.tenantId == getUserTenantId()
+                       && request.resource.data.tenantId == resource.data.tenantId );
+
+    allow delete: if isPlatformAdmin()
+                  || ( isTenantAdminAny() && resource.data.tenantId == getUserTenantId() );
+  }
+
+Deploy: firebase deploy --only firestore:rules
+
+────────────────────────────────────────
+D) Composite indexes for the users list
+────────────────────────────────────────
+Add to firestore.indexes.json (if not present) and deploy:
+- Collection: users
+  Fields:
+    - tenantId ASC
+    - isDeleted ASC
+    - createdAt DESC
+Deploy: firebase deploy --only firestore:indexes
+
+────────────────────────────────────────
+E) After creation, force cache clear + refetch
+────────────────────────────────────────
+Open repositories.ts (user repo) and UserManagementTable:
+
+- Ensure clearUserCache(tenantId) is called after a successful create/update/delete.
+- After modal closes, call await userRepository.getAll({ forceRefresh: true }) and update state.
+- Add logs:
+  console.log('[UserRepository] fetched count:', users.length);
+  console.log('[UserManagement] showing users:', users.map(u => ({email: u.email, role: u.role, tenantId: u.tenantId})));
+
+────────────────────────────────────────
+F) Quick sanity checks
+────────────────────────────────────────
+- In Firestore Console, confirm the new user’s document has correct tenantId and isDeleted=false.
+- Hard refresh the app and open console to verify:
+  [Users] claims: ...
+  [Users] my doc: { tenantId: '...', role: 'Admin', ... }
+  [UserRepository] fetched count: N
+  [UserManagement] showing users: [...]
+
+This should make newly created Manager/Employee users appear immediately in the User Management list for the tenant admin and prevent permission errors.

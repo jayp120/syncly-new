@@ -1,0 +1,122 @@
+✔ Enter authorization code: 4/0AVGzR1DpVIgof1eU0n6QHN-sXC4bHWf5dBxnQ8Arn-TupsY4yW-1H6yiG02J7CtcCbp8dQ
+
+✔  Success! Logged in as jaypathade5291@gmail.com
+~/workspace$ ./deploy.sh
+🚀 Starting Firebase deployment for Syncly...
+
+Checking Firebase authentication...
+✅ Authenticated with Firebase
+
+📦 Building Cloud Functions...
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: 'syncly-functions@1.0.0',
+npm warn EBADENGINE   required: { node: '18' },
+npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+npm warn EBADENGINE }
+
+up to date, audited 245 packages in 1s
+
+28 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+> syncly-functions@1.0.0 build
+> tsc
+
+✅ Cloud Functions built successfully
+
+🔒 Deploying Firestore security rules...
+
+=== Deploying to 'syncly-473404'...
+
+i  deploying firestore
+i  firestore: ensuring required API firestore.googleapis.com is enabled...
+✔  firestore: required API firestore.googleapis.com is enabled
+i  firestore: ensuring required API firestore.googleapis.com is enabled...
+i  firestore: reading indexes from firestore.indexes.json...
+i  cloud.firestore: checking firestore.rules for compilation errors...
+⚠  [W] 52:14 - Unused function: hasPermission.
+✔  cloud.firestore: rules file firestore.rules compiled successfully
+i  firestore: latest version of firestore.rules already up to date, skipping upload...
+✔  firestore: released rules firestore.rules to cloud.firestore
+
+✔  Deploy complete!
+
+Project Console: https://console.firebase.google.com/project/syncly-473404/overview
+✅ Firestore rules deployed successfully
+
+📑 Deploying Firestore indexes...
+
+=== Deploying to 'syncly-473404'...
+
+i  deploying firestore
+i  firestore: ensuring required API firestore.googleapis.com is enabled...
+i  firestore: ensuring required API firestore.googleapis.com is enabled...
+i  firestore: reading indexes from firestore.indexes.json...
+i  cloud.firestore: checking firestore.rules for compilation errors...
+⚠  [W] 52:14 - Unused function: hasPermission.
+✔  cloud.firestore: rules file firestore.rules compiled successfully
+i  firestore: deploying indexes...
+i  firestore: The following indexes are defined in your project but are not present in your firestore indexes file:
+    (notifications) -- (userId,ASCENDING) (timestamp,DESCENDING)  -- Density:SPARSE_ALL 
+? Would you like to delete these indexes? Selecting no will continue the rest of the deployment. (y/N)
+
+Error: An unexpected error has occurred.
+⚠️  Warning: Firestore indexes deployment failed (may need manual creation)
+
+☁️  Deploying Cloud Functions...
+
+=== Deploying to 'syncly-473404'...
+
+i  deploying functions
+Running command: npm --prefix "$RESOURCE_DIR" run build
+
+> syncly-functions@1.0.0 build
+> tsc
+
+✔  functions: Finished running predeploy script.
+i  functions: preparing codebase default for deployment
+i  functions: ensuring required API cloudfunctions.googleapis.com is enabled...
+i  functions: ensuring required API cloudbuild.googleapis.com is enabled...
+i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled...
+⚠  functions: missing required API cloudfunctions.googleapis.com. Enabling now...
+✔  artifactregistry: required API artifactregistry.googleapis.com is enabled
+✔  functions: required API cloudbuild.googleapis.com is enabled
+⚠  functions: Runtime Node.js 18 was deprecated on 2025-04-30 and will be decommissioned on 2025-10-30, after which you will not be able to deploy without upgrading. Consider upgrading now to avoid disruption. See https://cloud.google.com/functions/docs/runtime-support for full details on the lifecycle policy
+⚠  functions: package.json indicates an outdated version of firebase-functions. Please upgrade using npm install --save firebase-functions@latest in your functions directory.
+⚠  functions: Please note that there will be breaking changes when you upgrade.
+i  functions: Loading and analyzing source code for codebase default to determine what to deploy
+i  functions: You are using a version of firebase-functions SDK (4.9.0) that does not have support for the newest Firebase Extensions features. Please update firebase-functions SDK to >=5.1.0 to use them correctly
+Serving at port 8178
+
+i  functions: preparing functions directory for uploading...
+i  functions: packaged /home/runner/workspace/functions (41.86 KB) for uploading
+✔  functions: functions source uploaded successfully
+i  functions: creating Node.js 18 (1st Gen) function createTenant(us-central1)...
+i  functions: creating Node.js 18 (1st Gen) function updateTenantStatus(us-central1)...
+i  functions: creating Node.js 18 (1st Gen) function updateTenantPlan(us-central1)...
+i  functions: creating Node.js 18 (1st Gen) function getTenantOperationsLog(us-central1)...
+⚠  functions: failed to create function projects/syncly-473404/locations/us-central1/functions/createTenant
+Failed to create function projects/syncly-473404/locations/us-central1/functions/createTenant
+✅ Cloud Functions deployed successfully
+
+🔍 Verifying deployment...
+
+Cloud Functions:
+┌──────────┬─────────┬─────────┬──────────┬────────┬─────────┐
+│ Function │ Version │ Trigger │ Location │ Memory │ Runtime │
+└──────────┴─────────┴─────────┴──────────┴────────┴─────────┘
+
+Firestore Rules:
+Error: firestore:rules is not a Firebase command
+
+Did you mean firestore:delete?
+
+🎉 Deployment complete!
+
+📊 Next steps:
+1. Test tenant creation via Cloud Functions
+2. Verify Firestore security rules are active
+3. Check Cloud Functions logs: firebase functions:log
+4. Monitor in Firebase Console: https://console.firebase.google.com/project/syncly-473404

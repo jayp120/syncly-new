@@ -1,0 +1,106 @@
+You are editing a Vite + React + TypeScript Firebase project called Syncly.
+
+Apply the following fixes exactly and consistently across the codebase:
+
+────────────────────────────
+A) FIX FIRESTORE “Missing or insufficient permissions” ERROR FOR REPORTS & CONSISTENCY TRACKER
+────────────────────────────
+
+1. In all Firestore read/write operations involving the `reports` collection:
+   - Ensure every query includes the tenant ID filter:
+     where('tenantId', '==', currentTenantId)
+   - Ensure every document written includes:
+     tenantId: currentTenantId
+
+2. Locate the function `getReportsByEmployee` in `firestoreService.ts` or similar.
+   Replace its Firestore query block with:
+
+   ```ts
+   import { collection, query, where, getDocs } from 'firebase/firestore';
+   import { db } from './firebase';
+   import { getCurrentTenantId } from './tenantContext'; // adjust path if needed
+
+   export async function getReportsByEmployee(employeeId: string) {
+     const tenantId = getCurrentTenantId();
+     const q = query(
+       collection(db, 'reports'),
+       where('tenantId', '==', tenantId),
+       where('employeeId', '==', employeeId)
+     );
+     const snap = await getDocs(q);
+     return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+   }
+In all report creation functions (e.g., createReport, saveEODReport, etc.):
+Before writing, enforce tenant fields:
+
+ts
+Copy code
+if (!data.tenantId) data.tenantId = getCurrentTenantId();
+and refresh the ID token before reads:
+
+ts
+Copy code
+await auth.currentUser?.getIdToken(true);
+Confirm your Firestore security rule for reports matches:
+
+js
+Copy code
+match /reports/{reportId} {
+  allow read: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+  allow create: if isPlatformAdmin() || (isAuthenticated() && request.resource.data.tenantId == getUserTenantId());
+  allow update: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId() && request.resource.data.tenantId == resource.data.tenantId);
+  allow delete: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+}
+────────────────────────────
+B) FIX REACT “Maximum update depth exceeded” ERROR IN ConsistencyCalendarModal.tsx
+────────────────────────────
+
+Locate the ConsistencyCalendarModal.tsx file.
+
+Find the useEffect or useLayoutEffect that’s calling setState (or setOpen, setRange, etc.) on every render.
+
+Apply this fix pattern:
+
+❌ BAD (causes infinite re-renders)
+
+ts
+Copy code
+useEffect(() => {
+  setRange(calcRange(start, end));
+});
+✅ GOOD
+
+ts
+Copy code
+useEffect(() => {
+  const next = calcRange(start, end);
+  setRange(prev => {
+    if (!prev || prev.from !== next.from || prev.to !== next.to) return next;
+    return prev;
+  });
+}, [start, end]);
+Or, if the loop is caused by setOpen or a modal toggle:
+
+ts
+Copy code
+useEffect(() => {
+  if (!open) setOpen(true);
+}, []); // Only once, not on every render
+────────────────────────────
+C) AFTER APPLYING ALL CHANGES
+────────────────────────────
+
+Run npm run build to confirm no type errors.
+
+Run firebase deploy --only firestore:rules to deploy updated rules.
+
+Log in as a Tenant Admin and open My EOD Report and Consistency Tracker:
+
+Reports should now load properly.
+
+The React infinite re-render loop should stop.
+
+────────────────────────────
+IMPORTANT:
+Do not modify component names or interfaces, only the collection queries, field enforcement, and useEffect logic.
+Keep tenantId logic consistent with the current Firebase Auth custom claim tenantId.

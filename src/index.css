@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+  }
+  
+  body {
+    color: #0f172a;
+    background-color: transparent;
+  }
+  
+  .dark body {
+    color: #f8fafc;
+    background-color: transparent;
+  }
+  
+  ::-webkit-scrollbar { 
+    width: 8px; 
+  }
+  
+  ::-webkit-scrollbar-track { 
+    background: transparent; 
+  }
+  
+  ::-webkit-scrollbar-thumb { 
+    background: #94a3b8; 
+    border-radius: 4px; 
+    border: 2px solid transparent; 
+    background-clip: content-box; 
+  }
+  
+  .dark ::-webkit-scrollbar-thumb { 
+    background: #475569; 
+  }
+  
+  ::-webkit-scrollbar-thumb:hover { 
+    background: #475569; 
+  }
+  
+  .dark ::-webkit-scrollbar-thumb:hover { 
+    background: #334152; 
+  }
+}
+
+@layer components {
+  /* Cosmic Aurora Background */
+  .aurora-bg {
+    position: fixed;
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    overflow: hidden;
+    background-color: #f1f5f9;
+    background-image: radial-gradient(circle at 10% 20%, rgba(147, 197, 253, 0.2) 0%, rgba(147, 197, 253, 0) 25%),
+                      radial-gradient(circle at 80% 30%, rgba(192, 132, 252, 0.15) 0%, rgba(192, 132, 252, 0) 30%),
+                      radial-gradient(circle at 20% 80%, rgba(34, 211, 238, 0.15) 0%, rgba(34, 211, 238, 0) 30%);
+    z-index: -10;
+    transition: background-color 0.5s ease-in-out;
+  }
+  
+  .dark .aurora-bg {
+    background-color: #0f172a;
+  }
+  
+  .aurora-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.4;
+    will-change: transform;
+  }
+  
+  .dark .aurora-orb { 
+    opacity: 0.6; 
+  }
+  
+  @keyframes move-orb-1 { 
+    0%, 100% { transform: translate(0, 0); } 
+    50% { transform: translate(100px, -50px); } 
+  }
+  
+  @keyframes move-orb-2 { 
+    0%, 100% { transform: translate(0, 0); } 
+    50% { transform: translate(-80px, 60px); } 
+  }
+  
+  .aurora-orb-1 { 
+    width: 400px; 
+    height: 400px; 
+    background: #3b82f6; 
+    top: 10%; 
+    left: 15%; 
+    animation: move-orb-1 20s infinite ease-in-out; 
+  }
+  
+  .aurora-orb-2 { 
+    width: 300px; 
+    height: 300px; 
+    background: #8b5cf6; 
+    bottom: 5%; 
+    right: 10%; 
+    animation: move-orb-2 25s infinite ease-in-out; 
+  }
+  
+  .aurora-orb-3 { 
+    width: 350px; 
+    height: 350px; 
+    background: #22d3ee; 
+    top: 30%; 
+    right: 25%; 
+    animation: move-orb-1 22s infinite ease-in-out reverse; 
+  }
+  
+  .aurora-orb-4 { 
+    width: 250px; 
+    height: 250px; 
+    background: #ec4899; 
+    bottom: 20%; 
+    left: 5%; 
+    animation: move-orb-2 18s infinite ease-in-out reverse; 
+  }
+}

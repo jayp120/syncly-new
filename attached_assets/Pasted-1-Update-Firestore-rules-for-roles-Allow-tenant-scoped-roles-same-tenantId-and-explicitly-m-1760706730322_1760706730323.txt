@@ -1,0 +1,77 @@
+1) Update Firestore rules for /roles
+
+Allow:
+
+tenant-scoped roles (same tenantId), and
+
+explicitly marked global roles (e.g., default templates).
+
+Add the helpers we already use (or reuse your existing ones), then replace the /roles block with this:
+
+match /roles/{roleId} {
+  // Read:
+  // - Platform admin: all
+  // - Tenant user: roles in their tenant
+  // - Anyone signed-in: roles marked as global (for login/bootstrap)
+  allow read: if isPlatformAdmin()
+              || (hasSelfUser() && resource.data.tenantId == selfTenantId())
+              || (isAuthenticated() && (resource.data.isGlobal == true || resource.data.scope == "global"));
+
+  // Create: platform admin anywhere OR tenant can create roles in own tenant
+  allow create: if isPlatformAdmin()
+                || (hasSelfUser() && request.resource.data.tenantId == selfTenantId());
+
+  // Update: keep tenantId immutable
+  allow update: if isPlatformAdmin()
+                || (hasSelfUser()
+                    && resource.data.tenantId == selfTenantId()
+                    && request.resource.data.tenantId == resource.data.tenantId);
+
+  // Delete: platform admin or tenant on own roles
+  allow delete: if isPlatformAdmin()
+                || (hasSelfUser() && resource.data.tenantId == selfTenantId());
+}
+
+
+If you prefer not to expose any global roles, remove the “global” clause above and make sure your code never loads a role without tenantId.
+
+Deploy:
+
+firebase deploy --only firestore:rules
+
+2) Mark your default role docs as global (one-time data tweak)
+
+In Firestore console → /roles:
+
+For any tenant-agnostic role you read at login (e.g. tenant_admin, manager, employee templates), add:
+
+isGlobal: true (boolean)
+
+(optional) scope: "global" (string)
+
+Alternatively, duplicate those roles per tenant and set tenantId on each, then remove the global clause from the rule.
+
+3) Make the login flow robust (AuthContext)
+
+In AuthContext.tsx (or wherever you load role info after sign-in):
+
+First read the user document (/users/{uid}) — not a role.
+
+Get tenantId and the user’s role reference/roleId from the user doc.
+
+If you need the role document, then:
+
+If your roles are tenant-scoped, read it by id and make sure it has the same tenantId.
+
+If you list roles, query with where('tenantId','==', tenantId).
+
+This keeps every query compatible with your rules.
+
+4) If you still list roles anywhere, add the filter
+
+Anywhere you do getDocs(collection(db,'roles')), change to:
+
+const q = query(collection(db, 'roles'), where('tenantId', '==', tenantId));
+// or if you purposely use global roles:
+const q = query(collection(db, 'roles'),
+  where('isGlobal', '==', true)); // and/or tenant filter when needed

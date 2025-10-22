@@ -1,0 +1,153 @@
+File: firestore.rules
+
+Keep the helpers we added for /users.
+
+Replace every rule that compares resource.data.tenantId == getUserTenantId() (or checks claims) with the helpers below:
+
+// --- Put these once near the top (we already added them for /users) ---
+function selfUserDocPath() {
+  return "/databases/" + database + "/documents/users/" + request.auth.uid;
+}
+function selfUserDoc() {
+  return get(selfUserDocPath());
+}
+function hasSelfUser() {
+  return request.auth != null && exists(selfUserDocPath());
+}
+function selfTenantId() {
+  return hasSelfUser() ? selfUserDoc().data.tenantId : null;
+}
+function isTenantAdminByDoc() {
+  return hasSelfUser() &&
+    (
+      lower(selfUserDoc().data.roleName) == "admin" ||
+      lower(selfUserDoc().data.roleName) == "tenant admin" ||
+      lower(selfUserDoc().data.roleName) == "tenant_admin"
+    );
+}
+
+
+Now, for every collection that currently says:
+
+allow read: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+
+
+change to:
+
+allow read: if isPlatformAdmin() || (hasSelfUser() && resource.data.tenantId == selfTenantId());
+
+
+For create/update/delete rules, similarly replace getUserTenantId() with selfTenantId() and keep the invariant that tenantId can’t be changed on update:
+
+allow create: if isPlatformAdmin() || (hasSelfUser() && request.resource.data.tenantId == selfTenantId());
+allow update: if isPlatformAdmin() || (
+  hasSelfUser() &&
+  resource.data.tenantId == selfTenantId() &&
+  request.resource.data.tenantId == resource.data.tenantId
+);
+allow delete: if isPlatformAdmin() || (hasSelfUser() && resource.data.tenantId == selfTenantId());
+
+
+We already applied the stronger logic for /users. Leave the /tenants list restriction as is (platform-admin only).
+
+Deploy:
+
+firebase deploy --only firestore:rules
+
+B) Ensure every dashboard/user-management query is tenant-filtered
+
+File: AdminDashboard.tsx
+Anywhere you read counts/lists (tasks, reports, leaveRecords, meetings, etc.), make the query include tenantId:
+
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '@/firebase';
+
+async function fetchTenantCount(coll: string, tenantId: string) {
+  const q = query(
+    collection(db, coll),
+    where('tenantId', '==', tenantId)
+  );
+  const snap = await getDocs(q);
+  return snap.size;
+}
+
+
+Then in fetchStats():
+
+const tenantId = currentAdmin.tenantId; // from the admin’s user doc you loaded at login
+const [usersCount, tasksCount, reportsCount, leavesCount] = await Promise.all([
+  fetchTenantCount('users', tenantId),      // if you show users count
+  fetchTenantCount('tasks', tenantId),
+  fetchTenantCount('reports', tenantId),
+  fetchTenantCount('leaveRecords', tenantId),
+]);
+
+
+User list (if not already):
+
+const q = query(
+  collection(db, 'users'),
+  where('tenantId', '==', tenantId),
+  // comment this out if you don’t store it
+  // where('isDeleted', '==', false),
+  orderBy('createdAt', 'desc')
+);
+
+
+If any query doesn’t filter by tenantId, the rules will (correctly) deny it.
+
+C) Composite indexes (only if you actually use these filters/orderings)
+
+File: firestore.indexes.json
+Add/keep only what your queries need. Example for users:
+
+{
+  "indexes": [
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tenantId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
+
+
+If you also filter on isDeleted == false add it between tenantId and createdAt.
+
+Deploy:
+
+firebase deploy --only firestore:indexes
+
+D) Sanity-check the tenant admin’s user document
+
+In Firestore console → users/{<tenant admin uid>} confirm:
+
+tenantId: tenant_1760686473292_h4zi4y6nj (exact match to what your logs print)
+
+roleName: Admin or Tenant Admin (any case)
+
+createdAt: Firestore Timestamp
+
+(Optional) isDeleted: false if you filter on it
+
+If this doc is missing or roleName doesn’t match, the rules will treat them as a non-admin and block list queries.
+
+E) Add temporary diagnostics (helps pinpoint which query fails)
+
+Right before each Firestore call in AdminDashboard.tsx and UserManagementTable.tsx, log:
+
+console.log('[DBG] Querying', collName, 'for tenantId =', tenantId);
+
+
+And wrap calls:
+
+try {
+  // run query…
+} catch (e) {
+  console.error('[DBG] Firestore read failed for', collName, 'tenantId=', tenantId, e);
+  throw e;
+}

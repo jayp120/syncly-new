@@ -1,0 +1,53 @@
+{
+	"motd": {
+		"cloudBuildErrorAfter": 1594252800000,
+		"cloudBuildWarnAfter": 1590019200000,
+		"defaultNode10After": 1594252800000,
+		"minVersion": "3.0.5",
+		"node8DeploysDisabledAfter": 1613390400000,
+		"node8RuntimeDisabledAfter": 1615809600000,
+		"node8WarnAfter": 1600128000000,
+		"fetched": 1760769093275
+	},
+	"gemini": true,
+	"usage": true,
+	"analytics-uuid": "f4044eb6-44be-4c2b-8e95-26f310ce0cd4",
+	"user": {
+		"iss": "accounts.google.com",
+		"azp": "563584335869-fgrhgmd47bqnekij5i8b5pr03ho849e6.apps.googleusercontent.com",
+		"aud": "563584335869-fgrhgmd47bqnekij5i8b5pr03ho849e6.apps.googleusercontent.com",
+		"sub": "105759547345801602928",
+		"email": "jaypathade5291@gmail.com",
+		"email_verified": true,
+		"at_hash": "2mIpt_MuCYm8RBqljdMXVg",
+		"iat": 1760433435,
+		"exp": 1760437035
+	},
+	"tokens": {
+		"expires_at": 1760507859279,
+		"refresh_token": "1//0g1oiGjHrb6MwCgYIARAAGBASNwF-L9IrSh48ME3opklek6SirpFgk30Q_ZaLxr2yQn_rcdKIXgBggYXs86U7fAd4EwKooa5j_3A",
+		"scopes": [],
+		"access_token": "ya29.a0AQQ_BDTR1znT_6h8C5_ECnDGcfbaZo3zyxAV-B3QwtHlU8vv3d7QP1v1RA6J0aUmpm90ryHggfinFamv-Uc8FR_oOhClN-pbrYVxf_q4haViFkeGbnMof1AkgTdvXROikRpkm8cjcjWX8MSXPQm8LKGkHjpmSm1pSb9-maJeVFAROjqSyADru1IP4NjwTaDm58ojfBrNmS9xHQaCgYKAaUSARISFQHGX2MiGu_Z_4Alaj7Mzv3-rj8WiA0213",
+		"expires_in": 3599,
+		"scope": "https://www.googleapis.com/auth/cloud-platform openid https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/cloudplatformprojects.readonly https://www.googleapis.com/auth/firebase",
+		"token_type": "Bearer",
+		"id_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImM4YWI3MTUzMDk3MmJiYTIwYjQ5Zjc4YTA5Yzk4NTJjNDNmZjkxMTgiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJhY2NvdW50cy5nb29nbGUuY29tIiwiYXpwIjoiNTYzNTg0MzM1ODY5LWZncmhnbWQ0N2JxbmVraWo1aThiNXByMDNobzg0OWU2LmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwiYXVkIjoiNTYzNTg0MzM1ODY5LWZncmhnbWQ0N2JxbmVraWo1aThiNXByMDNobzg0OWU2LmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiMTA1NzU5NTQ3MzQ1ODAxNjAyOTI4IiwiZW1haWwiOiJqYXlwYXRoYWRlNTI5MUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiYXRfaGFzaCI6IlF5MWZFQ01KOUtIdmdmY2sxbkFONmciLCJpYXQiOjE3NjA1MDQyNjAsImV4cCI6MTc2MDUwNzg2MH0.Ay3NyCNJJ3XpiT5Uy6PJkHlvJknqc2azVPB7ZijhfoEyfciPaio3a18BkwT350HD_OukHaDJVz1fzW5GHk7PamGiWw7vhV5A7voIyAQpuOo5u3mCbeBG0u2PFhWY5e1fZL2DAmAKqhZZZMgt6WwHgUpQtQqx8xGboyU5QHD0DNj5itWxuQ9V6gHclTLZwFnB5HhNJAA5YgDsYMXHh1FLsH7BJi2Vu5xbybTxe5hjJOmSqpsuIkB7iRpa4DijpiHoxhzyIg5FoxImnjX1zfnoNvg66j6q5PB0qrmNQ_dOcTACQjbBKt5wxsIzstxzEtIqcFXB3NypdoTuQ1VWYJnvXw"
+	},
+	"loginScopes": [
+		"email",
+		"openid",
+		"https://www.googleapis.com/auth/cloudplatformprojects.readonly",
+		"https://www.googleapis.com/auth/firebase",
+		"https://www.googleapis.com/auth/cloud-platform"
+	],
+	"apiEnablementCache": {
+		"syncly-473404": {
+			"firestore.googleapis.com": true,
+			"cloudresourcemanager.googleapis.com": true,
+			"artifactregistry.googleapis.com": true,
+			"runtimeconfig.googleapis.com": true,
+			"cloudbuild.googleapis.com": true,
+			"cloudfunctions.googleapis.com": true
+		}
+	}
+}

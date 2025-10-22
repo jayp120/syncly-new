@@ -1,0 +1,118 @@
+Pasted-2notificationScheduler-ts-328-Uncaught-in-promise-FirebaseError-Missing-or-insufficient-permissio-1760762987997_1760762988008.txt
+2notificationScheduler.ts:328 Uncaught (in promise) FirebaseError: Missing or insufficient permissions.
+Promise.then
+cc @ firebase_firestore.js?v=40a180b1:16087
+enqueue @ firebase_firestore.js?v=40a180b1:16056
+enqueueAndForget @ firebase_firestore.js?v=40a180b1:16038
+(anonymous) @ firebase_firestore.js?v=40a180b1:12965
+(anonymous) @ firebase_firestore.js?v=40a180b1:12945
+u_ @ firebase_firestore.js?v=40a180b1:12558
+(anonymous) @ firebase_firestore.js?v=40a180b1:12698
+(anonymous) @ firebase_firestore.js?v=40a180b1:12661
+ab @ firebase_firestore.js?v=40a180b1:950
+F2 @ firebase_firestore.js?v=40a180b1:920
+Z2.ta @ firebase_firestore.js?v=40a180b1:2540
+Rb @ firebase_firestore.js?v=40a180b1:1419
+M2.Y @ firebase_firestore.js?v=40a180b1:1284
+M2.ca @ firebase_firestore.js?v=40a180b1:1215
+ab @ firebase_firestore.js?v=40a180b1:950
+F2 @ firebase_firestore.js?v=40a180b1:920
+Wc @ firebase_firestore.js?v=40a180b1:1954
+h.bb @ firebase_firestore.js?v=40a180b1:1949
+h.Ea @ firebase_firestore.js?v=40a180b1:1946
+Lc @ firebase_firestore.js?v=40a180b1:1846
+h.Pa @ firebase_firestore.js?v=40a180b1:1813
+Promise.then
+Nc @ firebase_firestore.js?v=40a180b1:1804
+h.Pa @ firebase_firestore.js?v=40a180b1:1814
+Promise.then
+Nc @ firebase_firestore.js?v=40a180b1:1804
+h.Pa @ firebase_firestore.js?v=40a180b1:1814
+Promise.then
+Nc @ firebase_firestore.js?v=40a180b1:1804
+h.Pa @ firebase_firestore.js?v=40a180b1:1814
+Promise.then
+Nc @ firebase_firestore.js?v=40a180b1:1804
+h.Pa @ firebase_firestore.js?v=40a180b1:1814
+Promise.then
+Nc @ firebase_firestore.js?v=40a180b1:1804
+h.Pa @ firebase_firestore.js?v=40a180b1:1814
+Promise.then
+Nc @ firebase_firestore.js?v=40a180b1:1804
+h.Pa @ firebase_firestore.js?v=40a180b1:1814
+Promise.then
+Nc @ firebase_firestore.js?v=40a180b1:1804
+h.Pa @ firebase_firestore.js?v=40a180b1:1814
+Promise.then
+Nc @ firebase_firestore.js?v=40a180b1:1804
+h.Sa @ firebase_firestore.js?v=40a180b1:1800
+Promise.then
+h.send @ firebase_firestore.js?v=40a180b1:1781
+h.ea @ firebase_firestore.js?v=40a180b1:1922
+Jb @ firebase_firestore.js?v=40a180b1:1208
+fd @ firebase_firestore.js?v=40a180b1:2341
+h.Fa @ firebase_firestore.js?v=40a180b1:2308
+Da @ firebase_firestore.js?v=40a180b1:669
+Promise.then
+x2 @ firebase_firestore.js?v=40a180b1:663
+ec @ firebase_firestore.js?v=40a180b1:2294
+Rb @ firebase_firestore.js?v=40a180b1:1416
+M2.Y @ firebase_firestore.js?v=40a180b1:1284
+M2.ca @ firebase_firestore.js?v=40a180b1:1215
+ab @ firebase_firestore.js?v=40a180b1:950
+F2 @ firebase_firestore.js?v=40a180b1:920
+Wc @ firebase_firestore.js?v=40a180b1:1954
+h.bb @ firebase_firestore.js?v=40a180b1:1949
+h.Ea @ firebase_firestore.js?v=40a180b1:1946
+Lc @ firebase_firestore.js?v=40a180b1:1846
+h.Pa @ firebase_firestore.js?v=40a180b1:1813
+Promise.then
+Nc @ firebase_firestore.js?v=40a180b1:1804
+h.Sa @ firebase_firestore.js?v=40a180b1:1800
+Promise.then
+h.send @ firebase_firestore.js?v=40a180b1:1781
+h.ea @ firebase_firestore.js?v=40a180b1:1922
+Jb @ firebase_firestore.js?v=40a180b1:1203
+Hb @ firebase_firestore.js?v=40a180b1:1178
+h.Ga @ firebase_firestore.js?v=40a180b1:2228
+Da @ firebase_firestore.js?v=40a180b1:669
+Promise.then
+x2 @ firebase_firestore.js?v=40a180b1:663
+fc @ firebase_firestore.js?v=40a180b1:2172
+h.connect @ firebase_firestore.js?v=40a180b1:2132
+Y2.m @ firebase_firestore.js?v=40a180b1:2488
+Yo @ firebase_firestore.js?v=40a180b1:12655
+send @ firebase_firestore.js?v=40a180b1:12546
+q_ @ firebase_firestore.js?v=40a180b1:12863
+Y_ @ firebase_firestore.js?v=40a180b1:13015
+__PRIVATE_sendWatchRequest @ firebase_firestore.js?v=40a180b1:13271
+(anonymous) @ firebase_firestore.js?v=40a180b1:13300
+__PRIVATE_onWatchStreamOpen @ firebase_firestore.js?v=40a180b1:13299
+(anonymous) @ firebase_firestore.js?v=40a180b1:12941
+(anonymous) @ firebase_firestore.js?v=40a180b1:12965
+(anonymous) @ firebase_firestore.js?v=40a180b1:16056
+(anonymous) @ firebase_firestore.js?v=40a180b1:16087
+Promise.then
+cc @ firebase_firestore.js?v=40a180b1:16087
+enqueue @ firebase_firestore.js?v=40a180b1:16056
+enqueueAndForget @ firebase_firestore.js?v=40a180b1:16038
+(anonymous) @ firebase_firestore.js?v=40a180b1:12965
+(anonymous) @ firebase_firestore.js?v=40a180b1:12941
+__ @ firebase_firestore.js?v=40a180b1:12552
+(anonymous) @ firebase_firestore.js?v=40a180b1:12703
+setTimeout
+T_ @ firebase_firestore.js?v=40a180b1:12702
+j_ @ firebase_firestore.js?v=40a180b1:12974
+G_ @ firebase_firestore.js?v=40a180b1:12938
+(anonymous) @ firebase_firestore.js?v=40a180b1:12928
+Promise.then
+auth @ firebase_firestore.js?v=40a180b1:12924
+start @ firebase_firestore.js?v=40a180b1:12823
+__PRIVATE_startWatchStream @ firebase_firestore.js?v=40a180b1:13281
+(anonymous) @ firebase_firestore.js?v=40a180b1:13485
+__PRIVATE_enableNetworkInternal @ firebase_firestore.js?v=40a180b1:13237
+__PRIVATE_remoteStoreHandleCredentialChange @ firebase_firestore.js?v=40a180b1:13459
+await in __PRIVATE_remoteStoreHandleCredentialChange
+(anonymous) @ firebase_firestore.js?v=40a180b1:15423
+(anonymous) @ firebase_firestore.js?v=40a180b1:15371
+__PRIVATE_guardedChangeLi...

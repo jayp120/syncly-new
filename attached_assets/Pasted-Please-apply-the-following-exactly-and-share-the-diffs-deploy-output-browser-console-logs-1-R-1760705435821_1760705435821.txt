@@ -1,0 +1,198 @@
+Please apply the following exactly and share the diffs + deploy output + browser console logs.
+
+1) Replace ONLY the /users rules block (keep the rest of the file the same)
+
+File: firestore.rules
+Replace the entire match /users/{userId} block and add the helpers right above it.
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- NEW HELPERS (use user doc, not claims) ----
+    function selfUserDocPath() {
+      return "/databases/" + database + "/documents/users/" + request.auth.uid;
+    }
+    function selfUserDoc() {
+      return get(selfUserDocPath());
+    }
+    function hasSelfUser() {
+      return request.auth != null && exists(selfUserDocPath());
+    }
+    // NOTE: your schema uses roleName (not role). Keep it case-insensitive.
+    function isTenantAdminByDoc() {
+      return hasSelfUser() &&
+        (
+          lower(selfUserDoc().data.roleName) == "admin" ||
+          lower(selfUserDoc().data.roleName) == "tenant admin" ||
+          lower(selfUserDoc().data.roleName) == "tenant_admin"
+        );
+    }
+    function selfTenantId() {
+      return hasSelfUser() ? selfUserDoc().data.tenantId : null;
+    }
+
+    // Keep your existing isPlatformAdmin() (via custom claim) as-is
+    // function isPlatformAdmin() { return request.auth != null && request.auth.token.isPlatformAdmin == true; }
+
+    // ---- USERS collection ----
+    match /users/{userId} {
+      // READ (get + list/query)
+      // - Platform admin can read all
+      // - A user can read itself
+      // - Tenant admin (by user doc) can read only docs in their tenant
+      allow get, list: if
+        isPlatformAdmin() ||
+        (request.auth != null && request.auth.uid == userId) ||
+        (isTenantAdminByDoc() && resource.data.tenantId == selfTenantId());
+
+      // CREATE
+      // - Platform admin anywhere
+      // - Tenant admin may only create inside their tenant
+      // - Prevent setting platform flags
+      allow create: if
+        isPlatformAdmin() ||
+        (
+          isTenantAdminByDoc() &&
+          request.resource.data.tenantId == selfTenantId() &&
+          (
+            !('isPlatformAdmin' in request.resource.data) ||
+            request.resource.data.isPlatformAdmin == false
+          )
+        );
+
+      // UPDATE
+      // - Platform admin anywhere
+      // - Tenant admin only inside same tenant, cannot move tenants
+      allow update: if
+        isPlatformAdmin() ||
+        (
+          isTenantAdminByDoc() &&
+          resource.data.tenantId == selfTenantId() &&
+          request.resource.data.tenantId == resource.data.tenantId
+        );
+
+      // DELETE
+      allow delete: if
+        isPlatformAdmin() ||
+        (
+          isTenantAdminByDoc() &&
+          resource.data.tenantId == selfTenantId()
+        );
+    }
+
+    // (Leave all your other collection rules as they are)
+  }
+}
+
+
+Then deploy:
+
+firebase deploy --only firestore:rules
+
+
+Why this change?
+Your current rules require getUserTenantId() from custom claims even inside the “fallback by doc” path, so when claims are missing/stale the tenant admin fails list/query. The new rules use the user document (users/{auth.uid}) as the single source of truth for tenant scoping and role checks.
+
+2) Ensure the composite index matches your query
+
+If your client query filters by tenantId and isDeleted == false, and orders by createdAt desc, you need a composite.
+
+File: firestore.indexes.json
+
+Add (or ensure) this entry (keep others if present):
+
+{
+  "indexes": [
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tenantId", "order": "ASCENDING" },
+        { "fieldPath": "isDeleted", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
+
+
+Deploy:
+
+firebase deploy --only firestore:indexes
+
+
+If we don’t filter on isDeleted, remove that line from the query and from this index.
+
+3) Client: query strictly by tenant (and optional isDeleted) + createdAt
+
+File: firestoreService.ts (or wherever getUsersInCurrentTenant lives)
+
+Make sure we:
+
+Force a token refresh (harmless; keeps auth state fresh).
+
+Read the admin’s own user doc to get tenantId for logging certainty (rules use it anyway).
+
+Query: where('tenantId','==', adminTenantId) + optional where('isDeleted','==', false) + orderBy('createdAt','desc').
+
+Log diagnostics.
+
+import { auth, db } from '../firebase';
+import { collection, query, where, orderBy, getDocs, doc, getDoc } from 'firebase/firestore';
+
+export async function getUsersInCurrentTenant(tenantId: string) {
+  await auth.currentUser?.getIdToken(true);
+
+  const meRef = doc(db, 'users', auth.currentUser!.uid);
+  const meSnap = await getDoc(meRef);
+  console.log('[Users] ME exists:', meSnap.exists(), meSnap.data());
+  console.log('[Users] Using tenantId for query:', tenantId);
+
+  const q = query(
+    collection(db, 'users'),
+    where('tenantId', '==', tenantId),
+    // Remove this line if you don't store isDeleted:
+    where('isDeleted', '==', false),
+    orderBy('createdAt', 'desc')
+  );
+
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+
+Repository call:
+
+console.log('[UserRepository] Fetching fresh users for tenant:', tenantId);
+const users = await getUsersInCurrentTenant(tenantId);
+console.log('[UserRepository] Fetched users count:', users.length);
+return users;
+
+4) Data sanity for the admin’s own user doc
+
+Open Firestore console → users/{<tenant admin uid>} and confirm fields exist:
+
+tenantId → matches the tenant ID you pass to the query/logs.
+
+roleName → "Admin" or "Tenant Admin" (case-insensitive).
+
+createdAt → Firestore Timestamp.
+
+If you keep the filter: isDeleted → false.
+
+Patch older admin docs if any field is missing.
+
+5) Hard reload & capture logs
+
+Hard refresh the app, log in as the tenant admin (e.g., neeraj@syncly.com).
+
+Open the console, go to User Management, and paste the logs:
+
+[Users] ME exists: true { ... }
+
+[Users] Using tenantId for query: ...
+
+[UserRepository] Fetched users count: N

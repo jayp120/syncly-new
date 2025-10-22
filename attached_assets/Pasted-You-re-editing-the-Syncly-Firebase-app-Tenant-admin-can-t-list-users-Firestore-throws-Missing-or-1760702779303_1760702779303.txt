@@ -1,0 +1,118 @@
+You’re editing the Syncly Firebase app. Tenant admin can’t list /users; Firestore throws “Missing or insufficient permissions.” We must make rules NOT depend solely on custom claims and add some diagnostics.
+
+DO EXACTLY THE STEPS BELOW.
+
+────────────────────────────────────────
+1) Firestore rules: allow tenant-admin by USER DOC (fallback: claim)
+────────────────────────────────────────
+Open firestore.rules. Inside the top-level rules block, add these helpers (alongside existing ones):
+
+  function currentUserDoc() {
+    return get(/databases/$(database)/documents/users/$(request.auth.uid));
+  }
+
+  function isTenantAdminByDoc() {
+    return isAuthenticated()
+           && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+           && (lower(currentUserDoc().data.role) in ['admin','tenant admin','tenant_admin'])
+           && currentUserDoc().data.tenantId == getUserTenantId();
+  }
+
+  // keep the old one if present
+  function isTenantAdminByClaim() {
+    return isAuthenticated() && request.auth.token.isTenantAdmin == true;
+  }
+
+  function isTenantAdminAny() {
+    // allow either doc-based or claim-based
+    return isTenantAdminByDoc() || isTenantAdminByClaim();
+  }
+
+Now REPLACE the whole /users rule block with:
+
+  match /users/{userId} {
+    // READ (get & list):
+    // - platform admins read everything
+    // - the signed-in user can read their own doc
+    // - tenant admins (by doc OR claim) can read users in THEIR tenant
+    allow get, list: if isPlatformAdmin()
+                     || (isAuthenticated() && request.auth.uid == userId)
+                     || (isTenantAdminAny() && resource.data.tenantId == getUserTenantId());
+
+    // CREATE:
+    // - platform admin may create anywhere
+    // - tenant admin may create only within their own tenant and cannot set platform flags
+    allow create: if isPlatformAdmin()
+                  || ( isTenantAdminAny()
+                       && request.resource.data.tenantId == getUserTenantId()
+                       && (!('isPlatformAdmin' in request.resource.data) || request.resource.data.isPlatformAdmin == false) );
+
+    // UPDATE:
+    // - platform admin anywhere
+    // - tenant admin inside tenant, cannot change tenantId
+    allow update: if isPlatformAdmin()
+                  || ( isTenantAdminAny()
+                       && resource.data.tenantId == getUserTenantId()
+                       && request.resource.data.tenantId == resource.data.tenantId );
+
+    // DELETE:
+    allow delete: if isPlatformAdmin()
+                  || ( isTenantAdminAny() && resource.data.tenantId == getUserTenantId() );
+  }
+
+Deploy:
+  firebase deploy --only firestore:rules
+
+────────────────────────────────────────
+2) Verify queries are tenant-scoped (and won’t cross-deny)
+────────────────────────────────────────
+Open services/firestoreService.ts and confirm getUsersInCurrentTenant() uses:
+
+  query(
+    collection(db, 'users'),
+    where('tenantId', '==', tenantId),
+    orderBy('createdAt', 'desc')
+  )
+
+If orderBy uses 'fullName' or 'name', keep it but ensure a composite index exists for (tenantId ASC, fullName ASC) or (tenantId ASC, name ASC). If using createdAt, we already added the (tenantId, createdAt desc) index.
+
+If any code queries users WITHOUT tenantId == currentTenant, update it to include the where() filter.
+
+────────────────────────────────────────
+3) Add one-time diagnostics to confirm claims + doc values
+────────────────────────────────────────
+In getUsersInCurrentTenant() (firestoreService.ts), right before running the query, log both token claims and the caller’s user doc:
+
+  await auth.currentUser?.getIdToken(true);
+  const token = await auth.currentUser?.getIdTokenResult();
+  console.log('[Users] claims:', token?.claims);
+
+  try {
+    const meSnap = await getDoc(doc(db, 'users', auth.currentUser!.uid));
+    console.log('[Users] my user doc:', meSnap.exists() ? meSnap.data() : null);
+  } catch (e) {
+    console.warn('[Users] failed to read my user doc for diagnostics', e);
+  }
+
+This helps confirm role and tenantId are set as expected.
+
+────────────────────────────────────────
+4) Make sure created users have the right fields
+────────────────────────────────────────
+When creating a user (Cloud Function or client), ensure the user document includes:
+  - tenantId: string (== creator's tenant)
+  - role: 'Admin' | 'Manager' | 'Employee' (case-insensitive allowed by rules)
+  - createdAt: serverTimestamp()
+
+If any existing user docs in this tenant are missing tenantId, they will break the list query by causing PERMISSION_DENIED on those docs. Add a small maintenance script to set tenantId for legacy docs.
+
+────────────────────────────────────────
+5) Rebuild and test
+────────────────────────────────────────
+- Deploy rules
+- Restart dev server, hard refresh
+- Login as tenant admin
+- Open console; capture:
+  [Users] claims: ...
+  [Users] my user doc: { tenantId: '...', role: 'Admin', ... }
+- Confirm the User Management table now renders without PERMISSION_DENIED.

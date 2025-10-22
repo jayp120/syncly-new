@@ -1,0 +1,99 @@
+modules = ["nodejs-20", "web", "bash"]
+[agent]
+expertMode = true
+
+[nix]
+channel = "stable-25_05"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Frontend"
+
+[[workflows.workflow]]
+name = "Frontend"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "PORT=5000 npm run dev"
+waitForPort = 5000
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[[ports]]
+localPort = 5001
+externalPort = 5000
+
+[[ports]]
+localPort = 8040
+externalPort = 6800
+
+[[ports]]
+localPort = 8177
+externalPort = 6000
+
+[[ports]]
+localPort = 8178
+externalPort = 3002
+
+[[ports]]
+localPort = 8305
+externalPort = 3003
+
+[[ports]]
+localPort = 8372
+externalPort = 9000
+
+[[ports]]
+localPort = 8400
+externalPort = 8081
+
+[[ports]]
+localPort = 8474
+externalPort = 8008
+
+[[ports]]
+localPort = 8535
+externalPort = 4200
+
+[[ports]]
+localPort = 8723
+externalPort = 8000
+
+[[ports]]
+localPort = 8765
+externalPort = 8099
+
+[[ports]]
+localPort = 8869
+externalPort = 5173
+
+[[ports]]
+localPort = 8967
+externalPort = 8080
+
+[[ports]]
+localPort = 35873
+externalPort = 3000
+
+[[ports]]
+localPort = 43689
+externalPort = 3001
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["npx", "vite", "preview", "--host", "0.0.0.0", "--port", "5000"]
+build = ["npm", "run", "build"]

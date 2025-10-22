@@ -1,0 +1,136 @@
+You are editing a Vite + React + TypeScript Firebase project named Syncly.
+
+Goal: Allow Tenant Admins to create/read users IN THEIR OWN TENANT while preserving platform-wide security. We’ll enforce via a custom auth claim `isTenantAdmin`, and make client queries tenant-scoped.
+
+Make these changes EXACTLY:
+
+────────────────────────────────────────
+A) Update Firestore SECURITY RULES
+────────────────────────────────────────
+Open firestore.rules and replace the /users match block with this:
+
+    match /users/{userId} {
+      // Helpers for user rules only
+      function isTenantAdmin() {
+        return isAuthenticated() && request.auth.token.isTenantAdmin == true;
+      }
+
+      // READ: platform admins can read all; any authenticated user can read users in their own tenant
+      allow get: if isPlatformAdmin()
+                  || (isAuthenticated()
+                      && resource.data.tenantId == getUserTenantId());
+      // Listing users: platform admins OR tenant admins can list only their tenant users via a tenant-scoped query
+      allow list: if isPlatformAdmin()
+                   || (isTenantAdmin());
+
+      // CREATE: platform admins OR tenant admins may create users, but tenantId must match caller’s tenant
+      // and callers cannot set platform-only flags.
+      allow create: if isPlatformAdmin()
+                    || (isTenantAdmin()
+                        && request.resource.data.tenantId == getUserTenantId()
+                        // Forbid callers from creating platform admins
+                        && (request.resource.data.isPlatformAdmin == false
+                            || !('isPlatformAdmin' in request.resource.data)));
+
+      // UPDATE: platform admins OR tenant admins (same-tenant only); tenantId is immutable
+      allow update: if isPlatformAdmin()
+                    || (isTenantAdmin()
+                        && resource.data.tenantId == getUserTenantId()
+                        && request.resource.data.tenantId == resource.data.tenantId);
+
+      // DELETE: platform admins OR tenant admins (same-tenant only)
+      allow delete: if isPlatformAdmin()
+                    || (isTenantAdmin()
+                        && resource.data.tenantId == getUserTenantId());
+    }
+
+Notes:
+- Keep the helper functions you already have (isAuthenticated, isPlatformAdmin, getUserTenantId).
+- We rely on a custom claim `isTenantAdmin` for tenant admin ability.
+- This allows tenant-scoped listing/reading/creating while preventing cross-tenant access and preventing platform admin creation from the client.
+
+Deploy rules after edits:
+  firebase deploy --only firestore:rules
+
+────────────────────────────────────────
+B) Ensure Tenant Admin claim exists on the auth user
+────────────────────────────────────────
+In your user-creation flow (admin bootstrap), set custom claims via Admin SDK (Cloud Function or admin script):
+
+await auth.setCustomUserClaims(uid, { tenantId: "TENANT_ID", isTenantAdmin: true });
+
+Then force token refresh on client after sign-in:
+import { auth } from './services/firebase';
+await auth.currentUser?.getIdToken(true);
+
+────────────────────────────────────────
+C) Fix client code to be TENANT-SCOPED and not read other tenants’ docs
+────────────────────────────────────────
+1) Search for getUserById / users reads in add-user flow (UserForm.tsx, dataService.ts, repositories.ts, firestoreService.ts).
+   - If you are checking for duplicates, do it via a tenant-scoped query:
+     where('tenantId', '==', currentTenantId) AND where('loginEmail', '==', newLoginEmail)
+   - Do NOT read arbitrary user docs by ID outside the tenant.
+
+2) When you create a user document from the client, always include:
+   tenantId: getCurrentTenantId()
+   roleId/roleName as appropriate
+   NEVER set isPlatformAdmin from the client.
+
+3) Immediately before the first Firestore read after login, refresh the ID token:
+   await auth.currentUser?.getIdToken(true);
+
+────────────────────────────────────────
+D) OPTIONAL but RECOMMENDED: move user creation to a Callable Cloud Function
+────────────────────────────────────────
+- Create a callable function `createTenantUser` that:
+  1) Verifies caller has isTenantAdmin claim,
+  2) Creates Firebase Auth user (Admin SDK),
+  3) Sets custom claims { tenantId: callerTenantId, isTenantAdmin: false, ... } for the new user,
+  4) Writes the /users doc (with tenantId) using Admin SDK or Firestore Admin SDK (bypasses rules),
+  5) Returns the new user record.
+
+Client only calls the function; do NOT write /users from client in this path.
+
+If using this function, keep the updated rules (they still protect everything else and enable lists).
+
+────────────────────────────────────────
+E) Indexes for users lists (if you order/filter)
+────────────────────────────────────────
+Create or update firestore.indexes.json with a useful composite for listing users within a tenant:
+
+{
+  "indexes": [
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tenantId", "order": "ASCENDING" },
+        { "fieldPath": "role", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
+
+Deploy:
+  firebase deploy --only firestore:indexes
+
+────────────────────────────────────────
+F) Trigger Logs consistency (if not fixed yet)
+────────────────────────────────────────
+- Ensure all collection path literals use "triggerLogs" (plural).
+- Tenant-scope queries: where('tenantId','==', currentTenantId)
+- Add index if you order by timestamp:
+  {
+    "collectionGroup": "triggerLogs",
+    "queryScope": "COLLECTION",
+    "fields": [
+      { "fieldPath": "tenantId", "order": "ASCENDING" },
+      { "fieldPath": "timestamp", "order": "DESCENDING" }
+    ]
+  }
+
+Deploy indexes again if you add this.
+
+Make all edits above now, then run:
+  firebase deploy --only firestore:rules,firestore:indexes
