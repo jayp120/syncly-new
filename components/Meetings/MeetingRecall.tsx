@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Task, TaskStatus, MeetingInstance, User } from '../../types';
+import { Task, MeetingInstance, User } from '../../types';
 import Button from '../Common/Button';
 import { renderMentions } from '../../utils/mentionUtils';
 import { formatDateDDMonYYYY } from '../../utils/dateUtils';
@@ -30,6 +30,34 @@ const MeetingRecall: React.FC<MeetingRecallProps> = ({ previousSessionData, onCo
 
   const getAssigneeName = (id: string) => allUsers.find(u => u.id === id)?.name || 'Unknown';
 
+  const buildTaskCommand = (task: Task): string => {
+    let command = `/task ${task.title}`;
+    
+    // Add assignees as @mentions to preserve original assignments
+    if (task.assignedTo && task.assignedTo.length > 0) {
+      const mentions = task.assignedTo
+        .map(userId => {
+          const user = allUsers.find(u => u.id === userId);
+          return user ? ` @[${user.name}](${user.id})` : '';
+        })
+        .filter(mention => mention !== '')
+        .join('');
+      command += mentions;
+    }
+    
+    // Add due date if present
+    if (task.dueDate) {
+      command += ` due:${task.dueDate}`;
+    }
+    
+    // Add priority if not default (Medium)
+    if (task.priority && task.priority !== 'Medium') {
+      command += ` priority:${task.priority.toLowerCase()}`;
+    }
+    
+    return command;
+  };
+
   return (
     <div className="p-4 bg-indigo-50 dark:bg-indigo-900/40 border border-indigo-200 dark:border-indigo-800/50 rounded-lg h-full flex flex-col">
       <h4 className="text-md font-semibold text-indigo-800 dark:text-indigo-200 flex items-center mb-3 flex-shrink-0">
@@ -54,15 +82,14 @@ const MeetingRecall: React.FC<MeetingRecallProps> = ({ previousSessionData, onCo
                             </div>
                         </div>
                     </div>
-                    {/* FIX: Add button to copy task, which calls the onCopyTask prop */}
                     <Button 
                         variant="ghost" 
                         size="sm" 
-                        onClick={() => onCopyTask(`/task ${task.title}`)} 
+                        onClick={() => onCopyTask(buildTaskCommand(task))} 
                         icon={<i className="fas fa-plus-circle" />} 
                         className="!p-1 h-auto flex-shrink-0" 
-                        title="Add this task to current notes"
-                        aria-label="Add this pending task to the current session notes" 
+                        title="Carry over this task with original assignees"
+                        aria-label="Carry over this pending task to the current session with all metadata preserved" 
                     />
                 </div>
                 ))

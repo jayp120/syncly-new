@@ -7,7 +7,6 @@ import {
   Meeting,
   User,
   Task,
-  TaskStatus,
   MeetingInstance,
 } from '../../types';
 import * as DataService from '../../services/dataService';
@@ -78,7 +77,7 @@ const MeetingWorkspacePage: React.FC = () => {
     return allUsers.filter((u) => (meeting.attendeeIds || []).includes(u.id));
   }, [meeting, allUsers]);
 
-  const fetchData = useCallback(async (isInitialLoad = false) => {
+  const fetchData = useCallback(async () => {
     if (!meetingId || !currentUser) { navigate('/'); return; }
     try {
       const [fetchedMeeting, fetchedUsers, allTasks, fetchedInstances] = await Promise.all([
@@ -138,9 +137,9 @@ const MeetingWorkspacePage: React.FC = () => {
 
   useEffect(() => {
     let isMounted = true;
-    const loadInitialData = async () => { setIsLoading(true); await fetchData(true); if (isMounted) setIsLoading(false); };
+    const loadInitialData = async () => { setIsLoading(true); await fetchData(); if (isMounted) setIsLoading(false); };
     loadInitialData();
-    const handleDataChange = (data?: any) => { if (isMounted && data && (data.keyChanged === MEETINGS_KEY || data.keyChanged === TASKS_KEY)) { fetchData(false); } };
+    const handleDataChange = (data?: any) => { if (isMounted && data && (data.keyChanged === MEETINGS_KEY || data.keyChanged === TASKS_KEY)) { fetchData(); } };
     const unsubscribe = eventBus.on('appDataChanged', handleDataChange);
     return () => { isMounted = false; unsubscribe(); };
   }, [fetchData]);
@@ -179,7 +178,7 @@ const MeetingWorkspacePage: React.FC = () => {
         addToast(`An error occurred during finalization: ${err.message}`, 'error');
     } finally {
         setIsLoading(false);
-        await fetchData(true);
+        await fetchData();
     }
   }, [currentUser, meeting, addToast, fetchData]);
 
@@ -187,7 +186,7 @@ const MeetingWorkspacePage: React.FC = () => {
       // This effect resumes the finalization process after a successful Google Sign-In.
       if (isSignedIn && pendingAction) {
           addToast("Google Sign-In successful. Resuming action...", "success");
-          const { type, data } = pendingAction;
+          const { data } = pendingAction;
           executeFinalization(data.tasks, data.notes, data.date, data.isAsync);
           setPendingAction(null);
       }

@@ -37,7 +37,7 @@ const parsePriority = (priorityString: string): TaskPriority => {
   return TaskPriority.Medium;
 };
 
-export const parseLiveMemoText = (text: string, attendeesForMentions: User[], allMeetingAttendeeIds?: string[]): PendingTask[] => {
+export const parseLiveMemoText = (text: string, _attendeesForMentions: User[], allMeetingAttendeeIds?: string[]): PendingTask[] => {
   const pendingTasks: PendingTask[] = [];
   const lines = text.split('\n');
   const MENTION_REGEX = /@\[([^\]]+)\]\(([^)]+)\)/g;
