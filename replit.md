@@ -20,19 +20,26 @@ The application is built using **React 19.1** and **TypeScript**, with **Vite 6.
 -   **Real-time Features:** Implements real-time notifications and activity tracking using Firestore `onSnapshot` listeners.
 -   **Server-Side Logic:** Utilizes Firebase Cloud Functions for critical operations like tenant provisioning and status updates.
 -   **Comprehensive Security:** Firestore security rules enforce multi-tenant isolation, RBAC, and data immutability.
+-   **Firestore Composite Indexes:** 20 composite indexes configured for optimal query performance (see `firestore.indexes.json` and `FIRESTORE_INDEXES_DEPLOYMENT.md`).
 
 **Feature Specifications:**
 -   **EOD Reporting System:** Daily report submission and management, including multi-manager acknowledgment.
 -   **Task Management:** Personal, direct, and team tasks with Kanban boards. Includes employee mention/tagging system.
--   **Smart Meeting Assistant:** Live memo and meeting scheduling with Google Calendar sync.
+-   **Smart Meeting Assistant:** Live memo and meeting scheduling with Google Calendar sync. Google Calendar invitations sent to all attendees via `sendUpdates: 'all'` parameter.
 -   **Performance & Gamification:** Badge system and leaderboards.
--   **Notifications:** Production-ready notification system with 23 types (20 crucial). Includes real-time in-app bell icon, desktop/mobile push notifications, and 7 automated scheduled triggers. See NOTIFICATION_SYSTEM_VERIFICATION.md for complete details.
+-   **Notifications:** Production-ready notification system with 23 types (20 crucial). Includes real-time in-app bell icon, desktop/mobile push notifications, and 7 automated scheduled triggers. **REQUIRES Firestore composite indexes to be deployed.**
 
 **UI/UX Decisions:**
 -   Component-based architecture.
 -   Styling handled by Tailwind CSS for a utility-first approach.
 -   **Production-Ready Landing Page:** Clean, minimalistic design highlighting AI features (Consistency Tracker, Performance Hub, AI EOD Reports, AI Task Generation) and Google Calendar integration. Legal documentation (About, Privacy Policy, Terms of Service) are accessible via dedicated route pages, not inline on landing page.
 -   **Legal Pages Architecture:** About Us, Privacy Policy, and Terms of Service are standalone pages with dedicated routes (/about, /privacy, /terms) accessible from footer links. Each page features consistent design, navigation header, and embedded contact information.
+
+## Database Indexes
+**Critical:** Firestore composite indexes MUST be deployed for the app to function correctly. See `FIRESTORE_INDEXES_DEPLOYMENT.md` for detailed deployment instructions. Quickest method:
+```bash
+./deploy-firestore-indexes.sh
+```
 
 ## Contact Information
 -   **Email:** syncly19@gmail.com
@@ -41,7 +48,7 @@ The application is built using **React 19.1** and **TypeScript**, with **Vite 6.
 ## External Dependencies
 -   **Firebase:** Authentication, Firestore (NoSQL database), Cloud Functions.
 -   **Google Gemini API:** AI-powered insights and task generation.
--   **Google Calendar:** Two-way synchronization for meeting and scheduling.
+-   **Google Calendar:** Two-way synchronization for meeting and scheduling (scope: `calendar.events` or `calendar` recommended).
 -   **Vite:** Build tool.
 -   **React Router DOM:** Client-side routing.
 -   **Tailwind CSS (CDN):** Styling framework.
