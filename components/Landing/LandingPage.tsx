@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annually'>('monthly');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -78,8 +79,8 @@ const LandingPage: React.FC = () => {
   const plans = [
     {
       name: 'Starter',
-      price: '$19',
-      period: '/month',
+      monthlyPrice: 19,
+      annualPrice: 12,
       users: 'Up to 10 users',
       features: [
         'AI-Powered EOD Reports',
@@ -92,8 +93,8 @@ const LandingPage: React.FC = () => {
     },
     {
       name: 'Professional',
-      price: '$49',
-      period: '/month',
+      monthlyPrice: 49,
+      annualPrice: 35,
       users: 'Up to 50 users',
       features: [
         'Everything in Starter',
@@ -107,8 +108,8 @@ const LandingPage: React.FC = () => {
     },
     {
       name: 'Enterprise',
-      price: 'Custom',
-      period: '',
+      monthlyPrice: null,
+      annualPrice: null,
       users: 'Unlimited users',
       features: [
         'Everything in Professional',
@@ -549,58 +550,109 @@ const LandingPage: React.FC = () => {
             <h2 className="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-4">
               Production-Ready Pricing
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
               Choose the perfect plan for your team. All plans include 14-day free trial.
             </p>
+
+            {/* Billing Toggle */}
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <span className={`text-lg font-medium ${billingPeriod === 'monthly' ? 'text-gray-900' : 'text-gray-500'}`}>
+                Monthly
+              </span>
+              <button
+                onClick={() => setBillingPeriod(billingPeriod === 'monthly' ? 'annually' : 'monthly')}
+                className={`relative w-16 h-8 rounded-full transition-all duration-300 ${
+                  billingPeriod === 'annually' ? 'bg-gradient-to-r from-indigo-600 to-purple-600' : 'bg-gray-300'
+                }`}
+              >
+                <span
+                  className={`absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300 ${
+                    billingPeriod === 'annually' ? 'translate-x-8' : ''
+                  }`}
+                />
+              </button>
+              <span className={`text-lg font-medium ${billingPeriod === 'annually' ? 'text-gray-900' : 'text-gray-500'}`}>
+                Annually
+              </span>
+              {billingPeriod === 'annually' && (
+                <span className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg animate-pulse">
+                  Save up to 37%
+                </span>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {plans.map((plan, index) => (
-              <div 
-                key={index}
-                className={`relative bg-white rounded-2xl shadow-xl p-8 transition-all duration-500 hover:shadow-2xl hover:scale-105 fade-slide ${
-                  plan.highlighted ? 'ring-4 ring-indigo-600 scale-105' : ''
-                }`}
-                style={{ animationDelay: `${index * 150}ms` }}
-              >
-                {plan.highlighted && (
-                  <div className="absolute -top-5 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">
-                      MOST POPULAR
-                    </span>
-                  </div>
-                )}
-                
-                <div className="text-center mb-8">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                  <div className="mb-4">
-                    <span className="text-5xl font-extrabold text-gray-900">{plan.price}</span>
-                    <span className="text-gray-600 text-lg">{plan.period}</span>
-                  </div>
-                  <p className="text-gray-600 font-medium">{plan.users}</p>
-                </div>
+            {plans.map((plan, index) => {
+              const currentPrice = billingPeriod === 'monthly' ? plan.monthlyPrice : plan.annualPrice;
+              const monthlySavings = plan.monthlyPrice && plan.annualPrice ? plan.monthlyPrice - plan.annualPrice : 0;
+              const savingsPercent = plan.monthlyPrice && plan.annualPrice 
+                ? Math.round(((plan.monthlyPrice - plan.annualPrice) / plan.monthlyPrice) * 100) 
+                : 0;
 
-                <ul className="space-y-4 mb-8">
-                  {plan.features.map((feature, fIndex) => (
-                    <li key={fIndex} className="flex items-center text-gray-700">
-                      <i className="fas fa-check-circle text-indigo-600 mr-3"></i>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-
-                <button 
-                  onClick={() => navigate('/login')}
-                  className={`w-full py-3 px-6 rounded-xl font-bold transition-all duration-300 hover:scale-105 ${
-                    plan.highlighted
-                      ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg hover:shadow-xl'
-                      : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+              return (
+                <div 
+                  key={index}
+                  className={`relative bg-white rounded-2xl shadow-xl p-8 transition-all duration-500 hover:shadow-2xl hover:scale-105 fade-slide ${
+                    plan.highlighted ? 'ring-4 ring-indigo-600 scale-105' : ''
                   }`}
+                  style={{ animationDelay: `${index * 150}ms` }}
                 >
-                  {plan.highlighted ? 'Start Free Trial' : 'Get Started'}
-                </button>
-              </div>
-            ))}
+                  {plan.highlighted && (
+                    <div className="absolute -top-5 left-1/2 transform -translate-x-1/2">
+                      <span className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">
+                        MOST POPULAR
+                      </span>
+                    </div>
+                  )}
+                  
+                  <div className="text-center mb-8">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+                    <div className="mb-2">
+                      {currentPrice !== null ? (
+                        <>
+                          <span className="text-5xl font-extrabold text-gray-900">${currentPrice}</span>
+                          <span className="text-gray-600 text-lg">/month</span>
+                        </>
+                      ) : (
+                        <span className="text-5xl font-extrabold text-gray-900">Custom</span>
+                      )}
+                    </div>
+                    {billingPeriod === 'annually' && currentPrice !== null && (
+                      <div className="text-sm text-green-600 font-semibold mb-2">
+                        Save ${monthlySavings}/mo ({savingsPercent}% off)
+                      </div>
+                    )}
+                    {billingPeriod === 'annually' && currentPrice !== null && (
+                      <div className="text-xs text-gray-500">
+                        ${currentPrice * 12}/year billed annually
+                      </div>
+                    )}
+                    <p className="text-gray-600 font-medium mt-3">{plan.users}</p>
+                  </div>
+
+                  <ul className="space-y-4 mb-8">
+                    {plan.features.map((feature, fIndex) => (
+                      <li key={fIndex} className="flex items-center text-gray-700">
+                        <i className="fas fa-check-circle text-indigo-600 mr-3"></i>
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <button 
+                    onClick={() => navigate('/login')}
+                    className={`w-full py-3 px-6 rounded-xl font-bold transition-all duration-300 hover:scale-105 ${
+                      plan.highlighted
+                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg hover:shadow-xl'
+                        : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                    }`}
+                  >
+                    {plan.highlighted ? 'Start Free Trial' : 'Get Started'}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
