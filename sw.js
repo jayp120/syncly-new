@@ -1,6 +1,6 @@
 // sw.js - Service Worker
 
-const CACHE_NAME = 'mittaleod-cache-v3'; // Incremented cache version
+const CACHE_NAME = 'syncly-cache-v1-2025-10-23'; // Fresh cache for new deployment
 const urlsToCache = [
   './',
   './index.html',
