@@ -21,8 +21,6 @@ interface ScheduleMeetingFormProps {
   meetingToEdit?: Meeting | null;
 }
 
-const MAX_ATTACHMENTS = 5;
-
 const ScheduleMeetingForm: React.FC<ScheduleMeetingFormProps> = ({ manager, teamMembers, onSuccess, onCancel, meetingToEdit }) => {
   const { addToast } = useToast();
   const { isSignedIn: isGoogleSignedIn, createEvent } = useGoogleCalendar();
@@ -43,8 +41,6 @@ const ScheduleMeetingForm: React.FC<ScheduleMeetingFormProps> = ({ manager, team
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [timeError, setTimeError] = useState('');
-  
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const isEditMode = !!meetingToEdit;
 
@@ -164,7 +160,7 @@ const ScheduleMeetingForm: React.FC<ScheduleMeetingFormProps> = ({ manager, team
             addToast('Meeting updated successfully!', 'success');
             onSuccess(result);
         } else {
-            const payload = {
+            const payload: any = {
                 title,
                 meetingDateTime: new Date(meetingDateTime).getTime(),
                 attendeeIds: isExternalMeeting ? [] : attendeeIds,
@@ -172,11 +168,24 @@ const ScheduleMeetingForm: React.FC<ScheduleMeetingFormProps> = ({ manager, team
                 agenda,
                 attachments,
                 recurrenceRule,
-                recurrenceEndDate: recurrenceEndType === 'on' && recurrenceEndDate ? new Date(recurrenceEndDate).getTime() : undefined,
-                recurrenceCount: recurrenceEndType === 'after' ? recurrenceCount : undefined,
                 createdBy: manager.id,
-                googleEventId,
             };
+            
+            // Only include recurrenceEndDate if it's actually set
+            if (recurrenceEndType === 'on' && recurrenceEndDate) {
+                payload.recurrenceEndDate = new Date(recurrenceEndDate).getTime();
+            }
+            
+            // Only include recurrenceCount if it's actually set
+            if (recurrenceEndType === 'after' && recurrenceCount > 0) {
+                payload.recurrenceCount = recurrenceCount;
+            }
+            
+            // Only include googleEventId if it exists
+            if (googleEventId) {
+                payload.googleEventId = googleEventId;
+            }
+            
             const newMeeting = await DataService.addMeeting(payload, manager);
 
             // If a placeholder was used in the calendar link, update it now
@@ -194,10 +203,6 @@ const ScheduleMeetingForm: React.FC<ScheduleMeetingFormProps> = ({ manager, team
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    // File handling logic remains the same
   };
   
   const TabButton: React.FC<{isActive: boolean, onClick: () => void, icon: string, children: React.ReactNode}> = ({isActive, onClick, icon, children}) => (

@@ -104,8 +104,17 @@ export async function setDocument<T extends DocumentData>(
 ): Promise<void> {
   try {
     const docRef = doc(db, collectionName, docId);
+    
+    // Filter out undefined values (Firestore doesn't allow undefined field values)
+    const cleanedData = Object.entries(data).reduce((acc, [key, value]) => {
+      if (value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as Record<string, any>);
+    
     await setDoc(docRef, {
-      ...data,
+      ...cleanedData,
       updatedAt: firestoreServerTimestamp()
     });
   } catch (error) {
