@@ -31,7 +31,8 @@ The application is built using **React 19.1** and **TypeScript**, with **Vite 6.
 **UI/UX Decisions:**
 -   Component-based architecture.
 -   Styling handled by Tailwind CSS for a utility-first approach.
--   **Production-Ready Landing Page:** Redesigned with AI-focused features, Google Calendar integration highlights, About/Privacy/Terms sections, and real contact information.
+-   **Production-Ready Landing Page:** Clean, minimalistic design highlighting AI features (Consistency Tracker, Performance Hub, AI EOD Reports, AI Task Generation) and Google Calendar integration. Legal documentation (About, Privacy Policy, Terms of Service) are accessible via dedicated route pages, not inline on landing page.
+-   **Legal Pages Architecture:** About Us, Privacy Policy, and Terms of Service are standalone pages with dedicated routes (/about, /privacy, /terms) accessible from footer links. Each page features consistent design, navigation header, and embedded contact information.
 
 ## Contact Information
 -   **Email:** syncly19@gmail.com
