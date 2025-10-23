@@ -78,7 +78,7 @@ const LandingPage: React.FC = () => {
   const plans = [
     {
       name: 'Starter',
-      price: '$99',
+      price: '$19',
       period: '/month',
       users: 'Up to 10 users',
       features: [
@@ -92,7 +92,7 @@ const LandingPage: React.FC = () => {
     },
     {
       name: 'Professional',
-      price: '$299',
+      price: '$49',
       period: '/month',
       users: 'Up to 50 users',
       features: [
