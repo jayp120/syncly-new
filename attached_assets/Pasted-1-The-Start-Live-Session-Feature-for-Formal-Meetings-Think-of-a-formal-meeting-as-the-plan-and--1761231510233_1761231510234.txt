@@ -1,0 +1,36 @@
+1. The "Start Live Session" Feature for Formal Meetings
+Think of a formal meeting as the plan, and the "Live Session" as the execution. While a "Live Action Memo" is for spontaneous huddles, the "Start Live Session" feature is designed specifically for your scheduled, recurring meetings.
+How It Works:
+Accessing the Workspace: When you, as a manager, navigate to a scheduled formal meeting (e.g., "Weekly Sales Sync") from your calendar or meeting list, you land on the MeetingWorkspacePage. This page is the central hub for that specific meeting occurrence.
+Initiating the Session: Instead of just seeing a static agenda, you are presented with a prominent "Start Live Session" button. Clicking this button transforms the interface into an active workspace.
+The Live Environment: The screen now presents three key areas:
+A large Notes Area (Textarea component) where you can type the minutes of the meeting as it happens.
+An Action Items Preview section that intelligently scans your notes in real-time to identify tasks.
+The Meeting Recall panel, which shows you what was left unfinished from the last time this meeting was held.
+This "Live Session" bridges the gap between the planned agenda and the actual discussion, allowing you to capture decisions and create actionable tasks on the fly.
+2. Real-Time Task Creation & Tagging System
+This is the "magic" that happens inside the Live Session. It's powered by a command parser (utils/commandParser.ts) that understands simple instructions you type directly into your notes.
+How It Works:
+Creating a Task: To create a task, you simply start a new line with / or /task. Whatever you type after that becomes the task's title.
+Example: /task Prepare the Q4 sales forecast report
+Tagging & Assigning (@mention): To assign the task to one or more attendees, you use the @ symbol followed by their name. The system is smart and will show you a list of suggestions based on who is in the meeting.
+Example: /task Prepare the Q4 sales forecast report @Priya Mehta @Arjun Sharma
+Behind the scenes, the system resolves "@Priya Mehta" to her unique user ID. If you mention multiple people, it automatically becomes a "Team Task".
+Setting Due Dates: You can add a due date using natural language with the due: command.
+Example: /task Review competitor analysis **due:tomorrow** @Priya Mehta
+Example: /task Finalize budget **due:2024-10-28** @Arjun Sharma
+Live Preview: This is the most crucial part of the experience. As you type these commands, the "Action Items Preview" panel on the side of your screen instantly updates. You will see a "card" for each task you've defined, showing the title, who it's assigned to, and the due date. This live feedback ensures that you've captured the action item correctly without having to stop the flow of the meeting.
+Finalization: When the meeting is over, you click the "Finalize Session" button. The system takes the final text from your notes, runs the parser one last time, and then officially creates each of those previewed tasks in the main tasks collection. These new tasks are automatically linked to this specific meeting session, creating a permanent, traceable record.
+3. The "Recall" System: Continuity for Recurring Meetings
+The Recall feature is designed to solve a common problem with recurring meetings: "What did we talk about last week, and did we finish it?"
+How It Works:
+Automatic Activation: When you enter the MeetingWorkspacePage for a recurring meeting (like a weekly sync), the Recall system runs automatically.
+Finding the Last Session: The DataService.getPreviousMeetingInSeries function intelligently looks back in time. It finds the most recent finalized session (a MeetingInstance) for this specific meeting series.
+Identifying Unfinished Business: Once it finds the last session, it does two things:
+It retrieves the list of all tasks that were created during that session.
+It filters that list to find only the tasks that are still pending (i.e., not marked as "Completed").
+Displaying the Information: The MeetingRecall.tsx component then displays this crucial context in the sidebar of your Live Session view:
+Pending Action Items: It shows a clear list of the unfinished tasks from the previous meeting, including who they were assigned to.
+Previous Minutes: It also shows the complete notes from the last session, usually in a collapsible section for easy reference.
+"Carry Over" Functionality: Next to each pending task from the previous session, there is a "Carry Over" button. Clicking this button is a powerful shortcut: it automatically copies the command for that task (e.g., /task Review competitor analysis @Priya Mehta) into your current meeting's notes. This makes it effortless to re-discuss, re-assign, or follow up on anything that wasn't completed.
+Together, these features create a seamless workflow. You start a live session for your formal meeting, get reminded of last week's pending items, capture new tasks and decisions using simple text commands with live feedback, and finalize the session to distribute those tasks and create a historical record, all within a single, intuitive interface
