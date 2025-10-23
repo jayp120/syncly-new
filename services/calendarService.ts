@@ -142,7 +142,7 @@ export const createEvent = (event: Record<string, any>) => {
   return gapi.client.calendar.events.insert({
     calendarId: "primary",
     resource: event,
-    sendNotifications: true,
+    sendUpdates: 'all',
   });
 };
 
@@ -197,6 +197,6 @@ export const updateEvent = (
     calendarId: "primary",
     eventId: eventId,
     resource: eventPatch,
-    sendNotifications: true, // Crucial for notifying attendees
+    sendUpdates: 'all',
   });
 };
