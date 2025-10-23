@@ -27,7 +27,7 @@ The application is built using **React 19.1** and **TypeScript**, with **Vite 6.
 -   **Task Management:** Personal, direct, and team tasks with Kanban boards. Includes employee mention/tagging system.
 -   **Smart Meeting Assistant:** Live memo and meeting scheduling with Google Calendar sync. Google Calendar invitations sent to all attendees via `sendUpdates: 'all'` parameter.
 -   **Performance & Gamification:** Badge system and leaderboards.
--   **Notifications:** Production-ready notification system with 23 types (20 crucial). Includes real-time in-app bell icon, desktop/mobile push notifications, and 7 automated scheduled triggers. **REQUIRES Firestore composite indexes to be deployed.**
+-   **Notifications:** ✅ **PRODUCTION READY** - Real-time notification system with 23 types (20 crucial). Includes real-time in-app bell icon, desktop/mobile push notifications, and 7 automated scheduled triggers. Firestore composite indexes deployed successfully (October 23, 2025).
 
 **UI/UX Decisions:**
 -   Component-based architecture.
@@ -36,9 +36,23 @@ The application is built using **React 19.1** and **TypeScript**, with **Vite 6.
 -   **Legal Pages Architecture:** About Us, Privacy Policy, and Terms of Service are standalone pages with dedicated routes (/about, /privacy, /terms) accessible from footer links. Each page features consistent design, navigation header, and embedded contact information.
 
 ## Database Indexes
-**Critical:** Firestore composite indexes MUST be deployed for the app to function correctly. See `FIRESTORE_INDEXES_DEPLOYMENT.md` for detailed deployment instructions. Quickest method:
-```bash
-./deploy-firestore-indexes.sh
+**Status:** ✅ **DEPLOYED** (October 23, 2025)
+- **Project:** syncly-473404
+- **Indexes:** 20 composite indexes
+- **Verification:** All indexes show "ENABLED" in Firebase Console
+- **Deployment Guide:** See `FIRESTORE_INDEXES_DEPLOYMENT.md`
+- **Quick Deploy:** `./deploy-firestore-indexes.sh`
+
+**Critical Notification Index:**
+```json
+{
+  "collectionGroup": "notifications",
+  "fields": [
+    { "fieldPath": "tenantId", "order": "ASCENDING" },
+    { "fieldPath": "userId", "order": "ASCENDING" },
+    { "fieldPath": "timestamp", "order": "DESCENDING" }
+  ]
+}
 ```
 
 ## Contact Information
