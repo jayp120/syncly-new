@@ -555,30 +555,48 @@ const LandingPage: React.FC = () => {
             </p>
 
             {/* Billing Toggle */}
-            <div className="flex items-center justify-center gap-4 mb-4">
-              <span className={`text-lg font-medium ${billingPeriod === 'monthly' ? 'text-gray-900' : 'text-gray-500'}`}>
+            <div className="flex items-center justify-center gap-4 mb-8">
+              <span 
+                className={`text-lg font-semibold transition-all duration-300 ${
+                  billingPeriod === 'monthly' 
+                    ? 'text-gray-900 scale-105' 
+                    : 'text-gray-500'
+                }`}
+              >
                 Monthly
               </span>
               <button
                 onClick={() => setBillingPeriod(billingPeriod === 'monthly' ? 'annually' : 'monthly')}
-                className={`relative w-16 h-8 rounded-full transition-all duration-300 ${
-                  billingPeriod === 'annually' ? 'bg-gradient-to-r from-indigo-600 to-purple-600' : 'bg-gray-300'
+                className={`relative w-16 h-8 rounded-full transition-all duration-500 ease-out focus:outline-none focus:ring-4 focus:ring-indigo-200 ${
+                  billingPeriod === 'annually' 
+                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg' 
+                    : 'bg-gray-300'
                 }`}
               >
                 <span
-                  className={`absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300 ${
-                    billingPeriod === 'annually' ? 'translate-x-8' : ''
+                  className={`absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-lg transition-all duration-500 ease-out ${
+                    billingPeriod === 'annually' 
+                      ? 'translate-x-8 shadow-indigo-300' 
+                      : ''
                   }`}
                 />
               </button>
-              <span className={`text-lg font-medium ${billingPeriod === 'annually' ? 'text-gray-900' : 'text-gray-500'}`}>
+              <span 
+                className={`text-lg font-semibold transition-all duration-300 ${
+                  billingPeriod === 'annually' 
+                    ? 'text-gray-900 scale-105' 
+                    : 'text-gray-500'
+                }`}
+              >
                 Annually
               </span>
-              {billingPeriod === 'annually' && (
-                <span className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg animate-pulse">
-                  Save up to 37%
-                </span>
-              )}
+              <div className="w-32 flex justify-start">
+                {billingPeriod === 'annually' && (
+                  <span className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-1.5 rounded-full text-sm font-bold shadow-lg animate-fade-in">
+                    Save up to 37%
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -607,13 +625,14 @@ const LandingPage: React.FC = () => {
                   )}
                   
                   <div className="text-center mb-8">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                    <div className="mb-2 transition-all duration-500 ease-out">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4">{plan.name}</h3>
+                    
+                    {/* Price Display - Fixed Height */}
+                    <div className="h-20 flex items-center justify-center mb-3">
                       {currentPrice !== null ? (
                         <div className="inline-block" key={`${billingPeriod}-${currentPrice}`}>
                           <span 
                             className="text-5xl font-extrabold text-gray-900 inline-block transition-all duration-500 ease-out animate-fade-scale"
-                            style={{ animationDelay: '50ms' }}
                           >
                             ${currentPrice}
                           </span>
@@ -623,25 +642,31 @@ const LandingPage: React.FC = () => {
                         <span className="text-5xl font-extrabold text-gray-900">Custom</span>
                       )}
                     </div>
-                    <div className="relative h-12 overflow-hidden">
-                      {billingPeriod === 'annually' && currentPrice !== null && (
-                        <div 
-                          className="absolute inset-x-0 transition-all duration-500 ease-out animate-slide-up"
-                          key="annual-savings"
-                        >
-                          <div className="text-sm text-green-600 font-semibold mb-2 animate-fade-in">
-                            Save ${monthlySavings}/mo ({savingsPercent}% off)
+
+                    {/* Savings Display - Fixed Height to prevent layout shift */}
+                    <div className="h-16 flex items-center justify-center relative overflow-hidden mb-3">
+                      {currentPrice !== null ? (
+                        billingPeriod === 'annually' ? (
+                          <div 
+                            className="absolute inset-x-0 flex flex-col items-center justify-center transition-all duration-500 ease-out animate-slide-up"
+                            key="annual-savings"
+                          >
+                            <div className="text-sm text-green-600 font-semibold mb-1 animate-fade-in">
+                              Save ${monthlySavings}/mo ({savingsPercent}% off)
+                            </div>
+                            <div className="text-xs text-gray-500 animate-fade-in" style={{ animationDelay: '100ms' }}>
+                              ${currentPrice * 12}/year billed annually
+                            </div>
                           </div>
-                          <div className="text-xs text-gray-500 animate-fade-in" style={{ animationDelay: '100ms' }}>
-                            ${currentPrice * 12}/year billed annually
-                          </div>
-                        </div>
-                      )}
-                      {billingPeriod === 'monthly' && (
-                        <div className="absolute inset-x-0 h-full transition-opacity duration-300"></div>
+                        ) : (
+                          <div className="opacity-0 h-full"></div>
+                        )
+                      ) : (
+                        <div className="opacity-0 h-full"></div>
                       )}
                     </div>
-                    <p className="text-gray-600 font-medium mt-3">{plan.users}</p>
+                    
+                    <p className="text-gray-600 font-medium">{plan.users}</p>
                   </div>
 
                   <ul className="space-y-4 mb-8">
