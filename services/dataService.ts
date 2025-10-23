@@ -1448,7 +1448,40 @@ export const addMeeting = async (meetingData: Omit<Meeting, 'id' | 'createdAt' |
         tenantId,
     };
     await meetingRepository.create(meetingId, newMeeting);
-    // Add logging and notifications
+    
+    // Notify all internal attendees
+    if (meetingData.attendeeIds && meetingData.attendeeIds.length > 0) {
+        const meetingDate = new Date(meetingData.meetingDateTime);
+        const formattedDate = formatDateTimeDDMonYYYYHHMM(meetingData.meetingDateTime);
+        
+        for (const attendeeId of meetingData.attendeeIds) {
+            // Don't notify the creator
+            if (attendeeId !== actor.id) {
+                await addNotification({
+                    userId: attendeeId,
+                    message: `${actor.name} scheduled you for a meeting: "${meetingData.title}" on ${formattedDate}`,
+                    type: 'info',
+                    isCrucial: true,
+                    link: `/meetings/${meetingId}`,
+                    actionType: 'MEETING_SCHEDULED',
+                    targetId: meetingId,
+                    actors: [{ id: actor.id, name: actor.name }]
+                });
+            }
+        }
+    }
+    
+    // Add activity log
+    await addActivityLog({
+        timestamp: now,
+        actorId: actor.id,
+        actorName: actor.name,
+        type: ActivityLogActionType.MEETING_SCHEDULED,
+        description: `scheduled a meeting`,
+        targetId: meetingId,
+        targetName: meetingData.title
+    });
+    
     return newMeeting;
 };
 

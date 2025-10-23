@@ -335,11 +335,11 @@ const MeetingWorkspacePage: React.FC = () => {
             <div className="flex justify-between items-start">
               <div>
                 <h2 className="text-2xl font-bold text-darktext dark:text-slate-200">{safeText(meeting.title)}</h2>
-                <p className="text-slate-500 dark:text-slate-400">Series started: {formatDateTimeDDMonYYYYHHMM(meeting.meetingDateTime)}</p>
+                <p className="text-slate-500 dark:text-slate-400">{isRecurring ? 'Series started:' : 'Scheduled:'} {formatDateTimeDDMonYYYYHHMM(meeting.meetingDateTime)}</p>
                  {isRecurring && nextOccurrenceDate && !meeting.recurrenceEndDate && <p className="text-sm text-indigo-600 dark:text-indigo-400 font-semibold mt-1">Next: {formatDateTimeDDMonYYYYHHMM(nextOccurrenceDate)}</p>}
                  {meeting.recurrenceEndDate && <p className="text-sm text-red-500 font-semibold mt-1">Series Ended on: {formatDateDDMonYYYY(meeting.recurrenceEndDate)}</p>}
               </div>
-              {isManager && isRecurring && !meeting.recurrenceEndDate && (<Button onClick={handleStartLiveSession} variant="secondary" icon={<i className="fas fa-bolt" />}>Start Live Session</Button>)}
+              {isManager && (!meeting.recurrenceEndDate || !isRecurring) && (<Button onClick={handleStartLiveSession} variant="secondary" icon={<i className="fas fa-bolt" />}>Start Live Session</Button>)}
             </div>
           </Card>
           {renderCatchUpUI()}
