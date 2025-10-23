@@ -630,59 +630,389 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
+      {/* About Section */}
+      <section id="about" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-4xl font-extrabold text-gray-900 mb-8 text-center">About Syncly</h2>
+          <div className="prose prose-lg max-w-none">
+            <p className="text-gray-700 leading-relaxed mb-6">
+              Syncly is a cutting-edge, AI-powered team collaboration platform designed to revolutionize how 
+              modern teams work together. Founded with a vision to make productivity tools intelligent and 
+              intuitive, we combine advanced artificial intelligence with beautiful, minimalistic design.
+            </p>
+            
+            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">Our Mission</h3>
+            <p className="text-gray-700 leading-relaxed mb-6">
+              To empower teams worldwide with intelligent tools that enhance productivity, foster collaboration, 
+              and provide actionable insights through AI. We believe work should be smarter, not harder.
+            </p>
+            
+            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">What We Offer</h3>
+            <ul className="space-y-3 text-gray-700 mb-6">
+              <li className="flex items-start">
+                <i className="fas fa-check-circle text-indigo-600 mt-1 mr-3"></i>
+                <span><strong>AI-Powered EOD Reports:</strong> Intelligent end-of-day reporting with automated summaries and insights</span>
+              </li>
+              <li className="flex items-start">
+                <i className="fas fa-check-circle text-indigo-600 mt-1 mr-3"></i>
+                <span><strong>Smart Meeting Assistant:</strong> Seamless Google Calendar integration with live memos and action item tracking</span>
+              </li>
+              <li className="flex items-start">
+                <i className="fas fa-check-circle text-indigo-600 mt-1 mr-3"></i>
+                <span><strong>Consistency Tracker:</strong> AI-driven habit tracking that helps teams maintain productivity streaks</span>
+              </li>
+              <li className="flex items-start">
+                <i className="fas fa-check-circle text-indigo-600 mt-1 mr-3"></i>
+                <span><strong>Performance Hub:</strong> Gamification with intelligent badges, leaderboards, and performance analytics</span>
+              </li>
+            </ul>
+            
+            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">Why Choose Syncly?</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-xl border border-indigo-100">
+                <h4 className="font-bold text-gray-900 mb-2">🔒 Enterprise-Grade Security</h4>
+                <p className="text-sm text-gray-600">Multi-tenant architecture with complete data isolation and RBAC</p>
+              </div>
+              <div className="bg-gradient-to-br from-cyan-50 to-blue-50 p-6 rounded-xl border border-cyan-100">
+                <h4 className="font-bold text-gray-900 mb-2">🤖 Real AI Integration</h4>
+                <p className="text-sm text-gray-600">Not just buzzwords—actual machine learning that learns from your team</p>
+              </div>
+              <div className="bg-gradient-to-br from-emerald-50 to-teal-50 p-6 rounded-xl border border-emerald-100">
+                <h4 className="font-bold text-gray-900 mb-2">📱 Mobile-First Design</h4>
+                <p className="text-sm text-gray-600">Progressive Web App that works seamlessly across all devices</p>
+              </div>
+              <div className="bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-xl border border-orange-100">
+                <h4 className="font-bold text-gray-900 mb-2">🌍 Built for Scale</h4>
+                <p className="text-sm text-gray-600">From startups to enterprises—our platform grows with you</p>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-8 rounded-2xl mt-8 text-center">
+              <p className="text-lg mb-4">
+                <strong>Have questions or want to learn more?</strong>
+              </p>
+              <p className="mb-2">📧 Email: <a href="mailto:syncly19@gmail.com" className="underline hover:text-indigo-200">syncly19@gmail.com</a></p>
+              <p>📞 Phone: <a href="tel:+919270279703" className="underline hover:text-indigo-200">+91 92702 79703</a></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Privacy Policy Section */}
+      <section id="privacy" className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-50">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-4xl font-extrabold text-gray-900 mb-4 text-center">Privacy Policy</h2>
+          <p className="text-center text-gray-600 mb-8">Last Updated: October 23, 2025</p>
+          
+          <div className="bg-white rounded-2xl shadow-lg p-8 prose prose-lg max-w-none">
+            <h3 className="text-2xl font-bold text-gray-900 mt-0 mb-4">1. Information We Collect</h3>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              Syncly collects information to provide, maintain, and improve our services. We collect:
+            </p>
+            <ul className="text-gray-700 mb-6">
+              <li><strong>Account Information:</strong> Name, email address, company name, and phone number</li>
+              <li><strong>Usage Data:</strong> EOD reports, tasks, meeting notes, and performance metrics</li>
+              <li><strong>Technical Data:</strong> IP address, browser type, device information, and access logs</li>
+              <li><strong>Google Calendar Data:</strong> Calendar events and meeting schedules (with your explicit permission)</li>
+            </ul>
+
+            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">2. How We Use Your Information</h3>
+            <ul className="text-gray-700 mb-6">
+              <li>To provide and maintain our AI-powered collaboration services</li>
+              <li>To analyze usage patterns and improve our AI algorithms</li>
+              <li>To send you service updates and important notifications</li>
+              <li>To provide customer support and respond to your inquiries</li>
+              <li>To detect and prevent fraud, abuse, or security issues</li>
+            </ul>
+
+            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">3. Data Security</h3>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              We implement industry-standard security measures to protect your data:
+            </p>
+            <ul className="text-gray-700 mb-6">
+              <li>End-to-end encryption for data transmission</li>
+              <li>Multi-tenant architecture with complete data isolation</li>
+              <li>Regular security audits and penetration testing</li>
+              <li>Role-based access control (RBAC) for team members</li>
+              <li>Secure cloud infrastructure with Firebase and Google Cloud</li>
+            </ul>
+
+            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">4. Data Sharing</h3>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              We do not sell your personal information. We may share data only in these circumstances:
+            </p>
+            <ul className="text-gray-700 mb-6">
+              <li><strong>With Your Consent:</strong> When you explicitly authorize data sharing</li>
+              <li><strong>Service Providers:</strong> Third-party services that help us operate (Google Cloud, Firebase)</li>
+              <li><strong>Legal Requirements:</strong> When required by law or to protect our rights</li>
+              <li><strong>Business Transfers:</strong> In case of merger, acquisition, or asset sale</li>
+            </ul>
+
+            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">5. Your Rights</h3>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              You have the right to:
+            </p>
+            <ul className="text-gray-700 mb-6">
+              <li>Access your personal data and download a copy</li>
+              <li>Request correction of inaccurate or incomplete data</li>
+              <li>Request deletion of your account and associated data</li>
+              <li>Opt-out of marketing communications</li>
+              <li>Withdraw consent for Google Calendar integration</li>
+            </ul>
+
+            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">6. Data Retention</h3>
+            <p className="text-gray-700 leading-relaxed mb-6">
+              We retain your data for as long as your account is active or as needed to provide services. 
+              Upon account deletion, we permanently remove your data within 30 days, except where required 
+              by law to retain certain information.
+            </p>
+
+            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">7. Cookies and Tracking</h3>
+            <p className="text-gray-700 leading-relaxed mb-6">
+              We use cookies and similar technologies to enhance user experience, analyze usage patterns, 
+              and maintain session security. You can control cookie preferences through your browser settings.
+            </p>
+
+            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">8. Contact Us</h3>
+            <p className="text-gray-700 leading-relaxed mb-2">
+              For privacy-related questions or to exercise your rights:
+            </p>
+            <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200 mt-4">
+              <p className="text-gray-700 mb-2">📧 Email: <a href="mailto:syncly19@gmail.com" className="text-indigo-600 hover:underline">syncly19@gmail.com</a></p>
+              <p className="text-gray-700">📞 Phone: <a href="tel:+919270279703" className="text-indigo-600 hover:underline">+91 92702 79703</a></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Terms of Service Section */}
+      <section id="terms" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-4xl font-extrabold text-gray-900 mb-4 text-center">Terms of Service</h2>
+          <p className="text-center text-gray-600 mb-8">Last Updated: October 23, 2025</p>
+          
+          <div className="bg-white rounded-2xl shadow-lg p-8 prose prose-lg max-w-none border border-gray-200">
+            <h3 className="text-2xl font-bold text-gray-900 mt-0 mb-4">1. Acceptance of Terms</h3>
+            <p className="text-gray-700 leading-relaxed mb-6">
+              By accessing or using Syncly's services, you agree to be bound by these Terms of Service. 
+              If you do not agree to these terms, please do not use our services.
+            </p>
+
+            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">2. Service Description</h3>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              Syncly provides an AI-powered team collaboration platform that includes:
+            </p>
+            <ul className="text-gray-700 mb-6">
+              <li>End-of-Day (EOD) reporting with AI summaries</li>
+              <li>Task management and Kanban boards</li>
+              <li>Smart meeting assistant with Google Calendar integration</li>
+              <li>Performance tracking and gamification</li>
+              <li>AI-powered consistency tracking</li>
+            </ul>
+
+            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">3. Account Registration</h3>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              To use Syncly, you must:
+            </p>
+            <ul className="text-gray-700 mb-6">
+              <li>Provide accurate and complete registration information</li>
+              <li>Maintain the security of your account credentials</li>
+              <li>Be at least 18 years old or have parental consent</li>
+              <li>Notify us immediately of any unauthorized account access</li>
+              <li>Accept responsibility for all activities under your account</li>
+            </ul>
+
+            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">4. Subscription and Payment</h3>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              <strong>Free Trial:</strong> New users receive a 14-day free trial with full access to all features.
+            </p>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              <strong>Paid Plans:</strong> After the trial, you may subscribe to our Starter, Professional, or Enterprise plans.
+            </p>
+            <ul className="text-gray-700 mb-6">
+              <li>Subscriptions are billed monthly or annually</li>
+              <li>Payments are non-refundable except as required by law</li>
+              <li>You may cancel your subscription at any time</li>
+              <li>Price changes will be communicated 30 days in advance</li>
+            </ul>
+
+            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">5. Acceptable Use Policy</h3>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              You agree NOT to:
+            </p>
+            <ul className="text-gray-700 mb-6">
+              <li>Use the service for any illegal or unauthorized purpose</li>
+              <li>Violate any laws or regulations</li>
+              <li>Impersonate any person or entity</li>
+              <li>Transmit viruses, malware, or harmful code</li>
+              <li>Attempt to gain unauthorized access to our systems</li>
+              <li>Scrape, spider, or data mine our platform</li>
+              <li>Interfere with other users' access to the service</li>
+            </ul>
+
+            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">6. Intellectual Property</h3>
+            <p className="text-gray-700 leading-relaxed mb-6">
+              All content, features, and functionality of Syncly are owned by us and are protected by 
+              copyright, trademark, and other intellectual property laws. You may not copy, modify, 
+              distribute, or reverse engineer any part of our services.
+            </p>
+
+            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">7. Data Ownership</h3>
+            <p className="text-gray-700 leading-relaxed mb-6">
+              You retain all rights to your data (reports, tasks, meeting notes, etc.). We do not claim 
+              ownership of your content. However, you grant us a license to use, store, and process your 
+              data to provide our services and improve our AI algorithms.
+            </p>
+
+            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">8. Service Availability</h3>
+            <p className="text-gray-700 leading-relaxed mb-6">
+              We strive for 99.9% uptime but do not guarantee uninterrupted service. We may perform 
+              maintenance, updates, or experience downtime. We are not liable for any losses resulting 
+              from service interruptions.
+            </p>
+
+            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">9. Limitation of Liability</h3>
+            <p className="text-gray-700 leading-relaxed mb-6">
+              Syncly is provided "as is" without warranties of any kind. We are not liable for any indirect, 
+              incidental, or consequential damages arising from your use of our services. Our total liability 
+              shall not exceed the amount you paid us in the past 12 months.
+            </p>
+
+            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">10. Termination</h3>
+            <p className="text-gray-700 leading-relaxed mb-6">
+              We reserve the right to suspend or terminate your account if you violate these terms. 
+              You may terminate your account at any time through your account settings. Upon termination, 
+              your data will be deleted within 30 days.
+            </p>
+
+            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">11. Changes to Terms</h3>
+            <p className="text-gray-700 leading-relaxed mb-6">
+              We may update these Terms of Service from time to time. We will notify you of material 
+              changes via email or in-app notification. Continued use of our services after changes 
+              constitutes acceptance of the new terms.
+            </p>
+
+            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">12. Governing Law</h3>
+            <p className="text-gray-700 leading-relaxed mb-6">
+              These Terms are governed by the laws of India. Any disputes shall be resolved in the courts 
+              of the appropriate jurisdiction.
+            </p>
+
+            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">13. Contact Information</h3>
+            <p className="text-gray-700 leading-relaxed mb-2">
+              For questions about these Terms of Service:
+            </p>
+            <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200 mt-4">
+              <p className="text-gray-700 mb-2">📧 Email: <a href="mailto:syncly19@gmail.com" className="text-indigo-600 hover:underline">syncly19@gmail.com</a></p>
+              <p className="text-gray-700">📞 Phone: <a href="tel:+919270279703" className="text-indigo-600 hover:underline">+91 92702 79703</a></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-400 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            <div>
+            {/* Company Info */}
+            <div className="md:col-span-2">
               <div className="flex items-center space-x-2 mb-4">
                 <div className="bg-gradient-to-br from-indigo-600 to-purple-600 text-white p-2 rounded-lg">
                   <i className="fas fa-infinity text-xl"></i>
                 </div>
                 <span className="text-xl font-bold text-white">Syncly</span>
               </div>
-              <p className="text-sm">AI-Powered Team Collaboration</p>
+              <p className="text-sm mb-4 max-w-md">
+                AI-Powered Team Collaboration Platform. Transform your team's productivity with intelligent 
+                EOD reports, smart meetings, and performance insights.
+              </p>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center space-x-2">
+                  <i className="fas fa-envelope text-indigo-400"></i>
+                  <a href="mailto:syncly19@gmail.com" className="hover:text-indigo-400 transition-colors">
+                    syncly19@gmail.com
+                  </a>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <i className="fas fa-phone text-indigo-400"></i>
+                  <a href="tel:+919270279703" className="hover:text-indigo-400 transition-colors">
+                    +91 92702 79703
+                  </a>
+                </div>
+              </div>
             </div>
             
+            {/* Product Links */}
             <div>
               <h4 className="text-white font-bold mb-4">Product</h4>
               <ul className="space-y-2 text-sm">
-                <li><button onClick={() => scrollToSection('ai-features')} className="hover:text-indigo-400 transition-colors">AI Features</button></li>
-                <li><button onClick={() => scrollToSection('meetings')} className="hover:text-indigo-400 transition-colors">Meetings</button></li>
-                <li><button onClick={() => scrollToSection('pricing')} className="hover:text-indigo-400 transition-colors">Pricing</button></li>
+                <li>
+                  <button onClick={() => scrollToSection('ai-features')} className="hover:text-indigo-400 transition-colors text-left">
+                    AI Features
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => scrollToSection('meetings')} className="hover:text-indigo-400 transition-colors text-left">
+                    Smart Meetings
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => scrollToSection('pricing')} className="hover:text-indigo-400 transition-colors text-left">
+                    Pricing
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('/login')} className="hover:text-indigo-400 transition-colors text-left">
+                    Sign In
+                  </button>
+                </li>
               </ul>
             </div>
             
+            {/* Company & Legal */}
             <div>
-              <h4 className="text-white font-bold mb-4">Company</h4>
+              <h4 className="text-white font-bold mb-4">Company & Legal</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-indigo-400 transition-colors">About</a></li>
-                <li><a href="#" className="hover:text-indigo-400 transition-colors">Careers</a></li>
-                <li><a href="#" className="hover:text-indigo-400 transition-colors">Contact</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="text-white font-bold mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-indigo-400 transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-indigo-400 transition-colors">Terms of Service</a></li>
+                <li>
+                  <button onClick={() => scrollToSection('about')} className="hover:text-indigo-400 transition-colors text-left">
+                    About Us
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => scrollToSection('privacy')} className="hover:text-indigo-400 transition-colors text-left">
+                    Privacy Policy
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => scrollToSection('terms')} className="hover:text-indigo-400 transition-colors text-left">
+                    Terms of Service
+                  </button>
+                </li>
+                <li>
+                  <a href="mailto:syncly19@gmail.com" className="hover:text-indigo-400 transition-colors">
+                    Contact Support
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
           
-          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-sm mb-4 md:mb-0">© 2025 Syncly. All rights reserved.</p>
-            <div className="flex space-x-6">
-              <a href="#" className="hover:text-indigo-400 transition-colors">
-                <i className="fab fa-twitter text-xl"></i>
-              </a>
-              <a href="#" className="hover:text-indigo-400 transition-colors">
-                <i className="fab fa-linkedin text-xl"></i>
-              </a>
-              <a href="#" className="hover:text-indigo-400 transition-colors">
-                <i className="fab fa-github text-xl"></i>
-              </a>
+          <div className="border-t border-gray-800 pt-8">
+            <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+              <p className="text-sm text-center md:text-left">
+                © 2025 Syncly. All rights reserved. Built with ❤️ for teams worldwide.
+              </p>
+              <div className="flex items-center space-x-6">
+                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-400 transition-colors" aria-label="Twitter">
+                  <i className="fab fa-twitter text-xl"></i>
+                </a>
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-400 transition-colors" aria-label="LinkedIn">
+                  <i className="fab fa-linkedin text-xl"></i>
+                </a>
+                <a href="mailto:syncly19@gmail.com" className="hover:text-indigo-400 transition-colors" aria-label="Email">
+                  <i className="fas fa-envelope text-xl"></i>
+                </a>
+              </div>
             </div>
           </div>
         </div>

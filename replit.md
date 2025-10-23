@@ -31,6 +31,11 @@ The application is built using **React 19.1** and **TypeScript**, with **Vite 6.
 **UI/UX Decisions:**
 -   Component-based architecture.
 -   Styling handled by Tailwind CSS for a utility-first approach.
+-   **Production-Ready Landing Page:** Redesigned with AI-focused features, Google Calendar integration highlights, About/Privacy/Terms sections, and real contact information.
+
+## Contact Information
+-   **Email:** syncly19@gmail.com
+-   **Phone:** +91 92702 79703
 
 ## External Dependencies
 -   **Firebase:** Authentication, Firestore (NoSQL database), Cloud Functions.
