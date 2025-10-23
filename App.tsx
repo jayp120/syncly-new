@@ -27,6 +27,8 @@ import MeetingWorkspacePage from './components/Meetings/MeetingWorkspacePage';
 import { GoogleCalendarProvider } from './contexts/GoogleCalendarContext';
 import IntegrationsPage from './components/Integrations/IntegrationsPage';
 import TermsOfServicePage from './components/Legal/TermsOfServicePage';
+import PrivacyPolicyPage from './components/Legal/PrivacyPolicyPage';
+import AboutPage from './components/Legal/AboutPage';
 import ErrorBoundary from './components/Common/ErrorBoundary';
 import FixUsers from './src/pages/FixUsers';
 import LandingPage from './components/Landing/LandingPage';
@@ -136,7 +138,9 @@ const MainAppContent = () => {
         <Routes>
             <Route path="/" element={!currentUser ? <LandingPage /> : <Navigate to="/dashboard" replace />} />
             <Route path="/login" element={!currentUser ? <LoginForm /> : <Navigate to="/dashboard" replace />} />
-            <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/privacy" element={<PrivacyPolicyPage />} />
+            <Route path="/terms" element={<TermsOfServicePage />} />
             <Route path="/*" element={currentUser ? <AppLayout><AppContent /></AppLayout> : <Navigate to="/" replace />} />
         </Routes>
     );
