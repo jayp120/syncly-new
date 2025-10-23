@@ -1,107 +1,201 @@
 import React from 'react';
-import PageContainer from '../Layout/PageContainer';
-import Card from '../Common/Card';
+import { useNavigate } from 'react-router-dom';
 
 const TermsOfServicePage: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
-    <PageContainer title="Terms of Service">
-      <Card>
-        <div className="prose dark:prose-invert max-w-none text-text-primary dark:text-dark-text">
-          <h2>Welcome to Syncly!</h2>
-          <p>Last updated: {new Date().toLocaleDateString()}</p>
-          <p>
-            Please read these Terms of Service ("Terms", "Terms of Service") carefully before using the
-            Syncly application (the "Service") operated by us. Your access to and use of the Service is
-            conditioned on your acceptance of and compliance with these Terms. These Terms apply to all
-            visitors, users, and others who access or use the Service.
-          </p>
-
-          <h3>1. Acceptance of Terms</h3>
-          <p>
-            By accessing or using the Service, you agree to be bound by these Terms. If you disagree
-            with any part of the terms, then you may not access the Service.
-          </p>
-
-          <h3>2. License to Use</h3>
-          <p>
-            We grant you a revocable, non-exclusive, non-transferable, limited license to use the Service
-            strictly in accordance with these Terms. You are not permitted to copy, modify, distribute, sell,
-            or lease any part of our Service or included software, nor may you reverse-engineer or attempt
-            to extract the source code of that software.
-          </p>
-
-          <h3>3. Intellectual Property</h3>
-          <p>
-            The Service and its original content (excluding content provided by users), features, and
-            functionality are and will remain the exclusive property of Syncly and its licensors. The Service is
-            protected by copyright, trademark, and other laws. Our code, branding, and trademarks may not be
-            used in connection with any product or service without the prior written consent of Syncly.
-          </p>
-          
-          <h3>4. Prohibited Conduct</h3>
-          <p>
-            You agree not to use the Service for any unlawful purpose or to engage in any activity that
-            interferes with or disrupts the Service. Prohibited activities include, but are not limited to:
-            (a) attempting to gain unauthorized access to the Service or its related systems; (b) uploading or
-            transmitting viruses or any other type of malicious code; (c) engaging in any automated use of
-            the system, such as using scripts to send comments or messages.
-          </p>
-
-          <h3>5. Disclaimer of Warranties</h3>
-          <p>
-            The Service is provided on an "AS IS" and "AS AVAILABLE" basis. We disclaim all warranties of any
-            kind, whether express or implied, including, but not limited to, implied warranties of
-            merchantability, fitness for a particular purpose, and non-infringement.
-          </p>
-
-          <h3>6. Limitation of Liability</h3>
-          <p>
-            In no event shall Syncly, nor its directors, employees, partners, agents, suppliers, or affiliates,
-            be liable for any indirect, incidental, special, consequential or punitive damages, including without
-            limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your
-            access to or use of or inability to access or use the Service.
-          </p>
-
-          <h3>7. Changes to Terms</h3>
-          <p>
-            We reserve the right, at our sole discretion, to modify or replace these Terms at any time. We will
-            try to provide at least 30 days' notice prior to any new terms taking effect. What constitutes a
-            material change will be determined at our sole discretion.
-          </p>
-
-          <h3>8. Contact Us</h3>
-          <p>
-            If you have any questions about these Terms, please contact us at{' '}
-            <a href="mailto:syncly19@gmail.com" className="text-primary hover:underline">syncly19@gmail.com</a> or call us at{' '}
-            <a href="tel:+919270279703" className="text-primary hover:underline">9270279703</a>.
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <button 
+              onClick={() => navigate('/')}
+              className="flex items-center space-x-3 group"
+            >
+              <div className="bg-gradient-to-br from-indigo-600 to-purple-600 text-white p-2.5 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <i className="fas fa-infinity text-2xl"></i>
+              </div>
+              <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                Syncly
+              </span>
+            </button>
+            <button
+              onClick={() => navigate('/')}
+              className="text-gray-600 hover:text-indigo-600 transition-colors"
+            >
+              <i className="fas fa-arrow-left mr-2"></i>
+              Back to Home
+            </button>
+          </div>
         </div>
-        <style>{`
-          .prose h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #1e293b; /* slate-800 */
-          }
-          .dark .prose h2 {
-            color: #f1f5f9; /* slate-100 */
-          }
-          .prose h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #334152; /* slate-700 */
-            margin-top: 1.5em;
-            margin-bottom: 0.5em;
-          }
-          .dark .prose h3 {
-            color: #cbd5e1; /* slate-300 */
-          }
-          .prose p {
-            line-height: 1.6;
-            margin-bottom: 1em;
-          }
-        `}</style>
-      </Card>
-    </PageContainer>
+      </header>
+
+      {/* Content */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <h1 className="text-5xl font-extrabold text-gray-900 mb-4 text-center">Terms of Service</h1>
+        <p className="text-center text-gray-600 mb-12 text-lg">Last Updated: October 23, 2025</p>
+        
+        <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 space-y-8">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Acceptance of Terms</h2>
+            <p className="text-gray-700 leading-relaxed">
+              By accessing or using Syncly's services, you agree to be bound by these Terms of Service. 
+              If you do not agree to these terms, please do not use our services.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Service Description</h2>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              Syncly provides an AI-powered team collaboration platform that includes:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-700 ml-4">
+              <li>End-of-Day (EOD) reporting with AI summaries</li>
+              <li>Task management and Kanban boards</li>
+              <li>Smart meeting assistant with Google Calendar integration</li>
+              <li>Performance tracking and gamification</li>
+              <li>AI-powered consistency tracking</li>
+            </ul>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">3. Account Registration</h2>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              To use Syncly, you must:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-700 ml-4">
+              <li>Provide accurate and complete registration information</li>
+              <li>Maintain the security of your account credentials</li>
+              <li>Be at least 18 years old or have parental consent</li>
+              <li>Notify us immediately of any unauthorized account access</li>
+              <li>Accept responsibility for all activities under your account</li>
+            </ul>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">4. Subscription and Payment</h2>
+            <p className="text-gray-700 leading-relaxed mb-3">
+              <strong>Free Trial:</strong> New users receive a 14-day free trial with full access to all features.
+            </p>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              <strong>Paid Plans:</strong> After the trial, you may subscribe to our Starter, Professional, or Enterprise plans.
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-700 ml-4">
+              <li>Subscriptions are billed monthly or annually</li>
+              <li>Payments are non-refundable except as required by law</li>
+              <li>You may cancel your subscription at any time</li>
+              <li>Price changes will be communicated 30 days in advance</li>
+            </ul>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">5. Acceptable Use Policy</h2>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              You agree NOT to:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-700 ml-4">
+              <li>Use the service for any illegal or unauthorized purpose</li>
+              <li>Violate any laws or regulations</li>
+              <li>Impersonate any person or entity</li>
+              <li>Transmit viruses, malware, or harmful code</li>
+              <li>Attempt to gain unauthorized access to our systems</li>
+              <li>Scrape, spider, or data mine our platform</li>
+              <li>Interfere with other users' access to the service</li>
+            </ul>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">6. Intellectual Property</h2>
+            <p className="text-gray-700 leading-relaxed">
+              All content, features, and functionality of Syncly are owned by us and are protected by 
+              copyright, trademark, and other intellectual property laws. You may not copy, modify, 
+              distribute, or reverse engineer any part of our services.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">7. Data Ownership</h2>
+            <p className="text-gray-700 leading-relaxed">
+              You retain all rights to your data (reports, tasks, meeting notes, etc.). We do not claim 
+              ownership of your content. However, you grant us a license to use, store, and process your 
+              data to provide our services and improve our AI algorithms.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">8. Service Availability</h2>
+            <p className="text-gray-700 leading-relaxed">
+              We strive for 99.9% uptime but do not guarantee uninterrupted service. We may perform 
+              maintenance, updates, or experience downtime. We are not liable for any losses resulting 
+              from service interruptions.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">9. Limitation of Liability</h2>
+            <p className="text-gray-700 leading-relaxed">
+              Syncly is provided "as is" without warranties of any kind. We are not liable for any indirect, 
+              incidental, or consequential damages arising from your use of our services. Our total liability 
+              shall not exceed the amount you paid us in the past 12 months.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">10. Termination</h2>
+            <p className="text-gray-700 leading-relaxed">
+              We reserve the right to suspend or terminate your account if you violate these terms. 
+              You may terminate your account at any time through your account settings. Upon termination, 
+              your data will be deleted within 30 days.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">11. Changes to Terms</h2>
+            <p className="text-gray-700 leading-relaxed">
+              We may update these Terms of Service from time to time. We will notify you of material 
+              changes via email or in-app notification. Continued use of our services after changes 
+              constitutes acceptance of the new terms.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">12. Governing Law</h2>
+            <p className="text-gray-700 leading-relaxed">
+              These Terms are governed by the laws of India. Any disputes shall be resolved in the courts 
+              of the appropriate jurisdiction.
+            </p>
+          </div>
+
+          <div className="border-t border-gray-200 pt-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">13. Contact Information</h2>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              For questions about these Terms of Service:
+            </p>
+            <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-200">
+              <div className="space-y-2">
+                <div className="flex items-center space-x-3">
+                  <i className="fas fa-envelope text-indigo-600"></i>
+                  <span className="text-gray-700">Email: <a href="mailto:syncly19@gmail.com" className="text-indigo-600 hover:underline font-semibold">syncly19@gmail.com</a></span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <i className="fas fa-phone text-indigo-600"></i>
+                  <span className="text-gray-700">Phone: <a href="tel:+919270279703" className="text-indigo-600 hover:underline font-semibold">+91 92702 79703</a></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-gray-400 py-8 px-4">
+        <div className="max-w-7xl mx-auto text-center">
+          <p className="text-sm">© 2025 Syncly. All rights reserved.</p>
+        </div>
+      </footer>
+    </div>
   );
 };
 
