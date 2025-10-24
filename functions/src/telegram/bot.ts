@@ -8,7 +8,6 @@ import { Telegraf } from 'telegraf';
 import * as functions from 'firebase-functions';
 import { registerCommands } from './commands';
 import { unlinkTelegramUser } from './auth';
-import { storeIncomingMessage } from './chatService';
 
 /**
  * Create and configure bot instance
@@ -61,25 +60,11 @@ export function createBot(): Telegraf {
     await ctx.answerCbQuery();
   });
   
-  // Handle regular messages
+  // Handle regular messages (for conversational features in Phase 2)
   bot.on('text', async (ctx) => {
-    const chatId = ctx.chat.id.toString();
-    const messageId = ctx.message.message_id.toString();
-    const text = ctx.message.text;
-    const from = ctx.from;
-    
-    if (!from) {
-      console.warn('Received message without sender info');
-      return;
-    }
-    
-    try {
-      // Store the message and update chat metadata
-      await storeIncomingMessage(chatId, messageId, text, from);
-      console.log(`✅ Stored message from ${from.id} in chat ${chatId}`);
-    } catch (error) {
-      console.error('Error storing message:', error);
-    }
+    // For now, just log
+    // In Phase 2, we'll handle EOD submission, task creation, etc.
+    console.log(`Message from ${ctx.from?.id}: ${ctx.message.text}`);
   });
   
   // Error handling

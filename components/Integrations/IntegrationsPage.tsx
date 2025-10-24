@@ -10,7 +10,6 @@ import { useAuth } from '../Auth/AuthContext';
 import { callGenerateTelegramLinkingCode } from '../../services/cloudFunctions';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../services/firebase';
-import { subscribeTelegramChats, TelegramChat } from '../../services/telegramService';
 
 const IntegrationsPage: React.FC = () => {
   const { isSignedIn, isGapiReady, signIn, signOut, googleUser, initializationError } = useGoogleCalendar();
@@ -21,8 +20,6 @@ const IntegrationsPage: React.FC = () => {
   const [isLinking, setIsLinking] = useState(false);
   const [telegramError, setTelegramError] = useState<string | null>(null);
   const [checkingStatus, setCheckingStatus] = useState(true);
-  const [telegramChats, setTelegramChats] = useState<TelegramChat[]>([]);
-  const [loadingChats, setLoadingChats] = useState(true);
 
   useEffect(() => {
     const checkTelegramStatus = async () => {
@@ -48,27 +45,6 @@ const IntegrationsPage: React.FC = () => {
     
     checkTelegramStatus();
   }, [user]);
-
-  useEffect(() => {
-    if (!user?.tenantId) {
-      setLoadingChats(false);
-      return;
-    }
-
-    const unsubscribe = subscribeTelegramChats(
-      user.tenantId,
-      (chats) => {
-        setTelegramChats(chats);
-        setLoadingChats(false);
-      },
-      (error) => {
-        console.error('Error loading Telegram chats:', error);
-        setLoadingChats(false);
-      }
-    );
-
-    return () => unsubscribe();
-  }, [user?.tenantId]);
 
   const connectTelegram = async () => {
     setIsLinking(true);
@@ -252,91 +228,6 @@ const IntegrationsPage: React.FC = () => {
     </Card>
   );
 
-  const formatTimestamp = (timestamp: number) => {
-    const now = Date.now();
-    const diff = now - timestamp;
-    const seconds = Math.floor(diff / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-
-    if (seconds < 60) return 'Just now';
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}h ago`;
-    if (days < 7) return `${days}d ago`;
-    return new Date(timestamp).toLocaleDateString();
-  };
-
-  const renderTelegramChatsSection = () => {
-    if (telegramChats.length === 0) return null;
-
-    return (
-      <div className="mt-6">
-        <h2 className="text-xl font-semibold text-darktext dark:text-slate-200 mb-4">
-          Telegram Conversations ({telegramChats.length})
-        </h2>
-        <Card>
-          {loadingChats ? (
-            <div className="py-8">
-              <Spinner message="Loading conversations..." />
-            </div>
-          ) : (
-            <div className="divide-y divide-border-primary dark:divide-dark-border">
-              {telegramChats.map((chat) => {
-                const displayName = chat.username 
-                  ? `@${chat.username}` 
-                  : chat.firstName 
-                  ? `${chat.firstName}${chat.lastName ? ' ' + chat.lastName : ''}` 
-                  : `User ${chat.telegramUserId}`;
-
-                return (
-                  <div key={chat.chatId} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-3 flex-1 min-w-0">
-                        <div className="flex-shrink-0">
-                          <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                            <i className="fab fa-telegram-plane"></i>
-                          </div>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-2">
-                            <p className="font-medium text-darktext dark:text-slate-200 truncate">
-                              {displayName}
-                            </p>
-                            {chat.isLinked ? (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">
-                                <i className="fas fa-link mr-1"></i> Linked
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">
-                                Unlinked
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-sm text-mediumtext dark:text-slate-400 truncate mt-0.5">
-                            {chat.lastMessageText}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex-shrink-0 ml-4 text-right">
-                        <p className="text-xs text-mediumtext dark:text-slate-500">
-                          {formatTimestamp(chat.lastMessageAt)}
-                        </p>
-                        <p className="text-xs text-mediumtext dark:text-slate-500 mt-1">
-                          {chat.messageCount} {chat.messageCount === 1 ? 'message' : 'messages'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </Card>
-      </div>
-    );
-  };
-
   return (
     <PageContainer title="Syncly Integrations">
       <p className="mb-6 text-mediumtext dark:text-slate-400">
@@ -348,7 +239,6 @@ const IntegrationsPage: React.FC = () => {
         {renderPlaceholderCard('Slack', 'https://a.slack-edge.com/80588/marketing/img/meta/slack_hash_256.png', 'Get task notifications and reminders in Slack.')}
         {renderPlaceholderCard('Jira', 'https://cdn.worldvectorlogo.com/logos/jira-1.svg', 'Sync tasks and issues between Syncly and Jira.')}
       </div>
-      {renderTelegramChatsSection()}
     </PageContainer>
   );
 };
