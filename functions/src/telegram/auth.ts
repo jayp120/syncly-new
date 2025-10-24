@@ -80,23 +80,26 @@ export async function linkTelegramUser(
 ): Promise<TelegramUser> {
   const db = admin.firestore();
   
-  const telegramUser: TelegramUser = {
+  // Build telegram user object, omitting undefined fields for Firestore compatibility
+  const telegramUser: any = {
     telegramId: telegramId.toString(),
-    telegramUsername,
-    telegramFirstName,
-    telegramLastName,
     synclyUserId,
     tenantId,
     linkedAt: Date.now(),
     isActive: true
   };
   
+  // Only add optional fields if they exist
+  if (telegramUsername) telegramUser.telegramUsername = telegramUsername;
+  if (telegramFirstName) telegramUser.telegramFirstName = telegramFirstName;
+  if (telegramLastName) telegramUser.telegramLastName = telegramLastName;
+  
   // Store in Firestore with telegramId as document ID
   await db.collection(TELEGRAM_USERS_COLLECTION).doc(telegramId.toString()).set(telegramUser);
   
   console.log(`Telegram user ${telegramId} linked to Syncly user ${synclyUserId}`);
   
-  return telegramUser;
+  return telegramUser as TelegramUser;
 }
 
 /**
