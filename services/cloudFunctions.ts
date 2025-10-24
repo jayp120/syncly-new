@@ -272,3 +272,29 @@ export const callMigrateExistingData = async (): Promise<MigrateDataResponse> =>
     throw new Error(error.message || 'Failed to migrate data');
   }
 };
+
+/**
+ * Telegram Integration Functions
+ */
+
+export interface GenerateTelegramLinkingCodeResponse {
+  success: boolean;
+  code: string;
+  deepLink: string;
+  expiresAt: number;
+}
+
+export const callGenerateTelegramLinkingCode = async (): Promise<GenerateTelegramLinkingCodeResponse> => {
+  try {
+    const generateCodeFunction = httpsCallable<{}, GenerateTelegramLinkingCodeResponse>(
+      functions,
+      'generateTelegramLinkingCode'
+    );
+    
+    const result = await generateCodeFunction({});
+    return result.data;
+  } catch (error: any) {
+    console.error('Error calling generateTelegramLinkingCode function:', error);
+    throw new Error(error.message || 'Failed to generate Telegram linking code');
+  }
+};
