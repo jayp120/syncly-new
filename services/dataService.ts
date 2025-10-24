@@ -1303,6 +1303,7 @@ export const addTaskComment = async (taskId: string, text: string, actor: User):
     const commentId = generateId('comment');
     const newComment: TaskComment = {
         id: commentId,
+        tenantId: actor.tenantId,
         taskId,
         text,
         createdBy: actor.id,
