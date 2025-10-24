@@ -39,10 +39,14 @@ export async function handleStartCommand(ctx: Context): Promise<void> {
     : undefined;
   
   if (startPayload) {
+    console.log(`[/start] Processing linking code: ${startPayload}`);
+    
     // Verify linking code
     const linkData = await verifyLinkingCode(startPayload);
     
     if (linkData) {
+      console.log(`[/start] Linking code verified for user: ${linkData.userId}`);
+      
       // Link the account
       await linkTelegramUser(
         telegramId,
@@ -53,11 +57,21 @@ export async function handleStartCommand(ctx: Context): Promise<void> {
         linkData.tenantId
       );
       
-      await ctx.reply(
-        `✅ <b>Account Linked Successfully!</b>\n\nYour Telegram is now connected to your Syncly account.\n\nYou'll receive notifications here and can use commands to interact with Syncly.\n\nTry /help to see what you can do!`,
-        { parse_mode: 'HTML' }
-      );
+      console.log(`[/start] Account linked successfully. Sending confirmation...`);
+      
+      try {
+        await ctx.reply(
+          `✅ <b>Account Linked Successfully!</b>\n\nYour Telegram is now connected to your Syncly account.\n\nYou'll receive notifications here and can use commands to interact with Syncly.\n\nTry /help to see what you can do!`,
+          { parse_mode: 'HTML' }
+        );
+        console.log(`[/start] Confirmation message sent successfully`);
+      } catch (error) {
+        console.error(`[/start] Error sending confirmation message:`, error);
+        throw error;
+      }
       return;
+    } else {
+      console.log(`[/start] Linking code verification failed: ${startPayload}`);
     }
   }
   

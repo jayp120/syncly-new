@@ -1830,13 +1830,18 @@ export const telegramWebhook = functions.https.onRequest(async (req, res) => {
   }
   
   try {
+    console.log('[Webhook] Received update:', JSON.stringify(req.body));
+    
     // Process the webhook update
     await handleWebhook(req.body);
+    
+    console.log('[Webhook] Update processed successfully');
     
     // Respond with 200 OK
     res.status(200).send('OK');
   } catch (error: any) {
-    console.error('Telegram webhook error:', error);
+    console.error('[Webhook] ERROR processing update:', error);
+    console.error('[Webhook] Error stack:', error.stack);
     // Still return 200 to Telegram to avoid retries
     res.status(200).send('OK');
   }
