@@ -1807,3 +1807,102 @@ export const migrateExistingData = functions.https.onCall(async (data, context) 
     throw new functions.https.HttpsError('internal', `Migration failed: ${error.message}`);
   }
 });
+
+/**
+ * ============================================
+ * TELEGRAM BOT INTEGRATION
+ * ============================================
+ */
+
+import { handleWebhook } from './telegram/bot';
+
+/**
+ * Cloud Function: Telegram Bot Webhook
+ * 
+ * Receives updates from Telegram and processes them
+ * Webhook URL: https://<region>-<project>.cloudfunctions.net/telegramWebhook
+ */
+export const telegramWebhook = functions.https.onRequest(async (req, res) => {
+  // Only accept POST requests
+  if (req.method !== 'POST') {
+    res.status(405).send('Method Not Allowed');
+    return;
+  }
+  
+  try {
+    // Process the webhook update
+    await handleWebhook(req.body);
+    
+    // Respond with 200 OK
+    res.status(200).send('OK');
+  } catch (error: any) {
+    console.error('Telegram webhook error:', error);
+    // Still return 200 to Telegram to avoid retries
+    res.status(200).send('OK');
+  }
+});
+
+/**
+ * Cloud Function: Send Telegram Notification
+ * 
+ * Callable function to send notifications to users via Telegram
+ * Used by the notification scheduler
+ */
+export const sendTelegramNotification = functions.https.onCall(async (data, context) => {
+  // Import here to avoid circular dependency issues
+  const { sendNotificationToUser } = await import('./telegram/notifications');
+  
+  try {
+    const success = await sendNotificationToUser(data);
+    return { success };
+  } catch (error: any) {
+    console.error('Error sending Telegram notification:', error);
+    throw new functions.https.HttpsError('internal', error.message);
+  }
+});
+
+/**
+ * Cloud Function: Generate Telegram Linking Code
+ * 
+ * Creates a one-time code for linking Telegram accounts
+ */
+export const generateTelegramLinkingCode = functions.https.onCall(async (data, context) => {
+  // Security: Must be authenticated
+  if (!context.auth) {
+    throw new functions.https.HttpsError('unauthenticated', 'Must be authenticated');
+  }
+  
+  const { generateLinkingCode, storeLinkingCode } = await import('./telegram/auth');
+  
+  try {
+    // Get user data
+    const userDoc = await admin.firestore()
+      .collection('users')
+      .doc(context.auth.uid)
+      .get();
+    
+    if (!userDoc.exists) {
+      throw new functions.https.HttpsError('not-found', 'User not found');
+    }
+    
+    const userData = userDoc.data()!;
+    
+    // Generate and store code
+    const code = generateLinkingCode();
+    await storeLinkingCode(context.auth.uid, userData.tenantId, code);
+    
+    // Return code and bot link
+    const botUsername = 'syncly_bot'; // Update with your actual bot username
+    const deepLink = `https://t.me/${botUsername}?start=${code}`;
+    
+    return {
+      success: true,
+      code,
+      deepLink,
+      expiresIn: 300 // 5 minutes
+    };
+  } catch (error: any) {
+    console.error('Error generating linking code:', error);
+    throw new functions.https.HttpsError('internal', error.message);
+  }
+});
