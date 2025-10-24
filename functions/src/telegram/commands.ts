@@ -87,18 +87,11 @@ export async function handleHelpCommand(ctx: Context): Promise<void> {
   const helpText = `
 <b>📚 Syncly Bot Commands</b>
 
-<b>Daily Tasks:</b>
-/eod - Submit your End-of-Day report
-/tasks - View your tasks for today
-/today - See today's agenda (tasks + meetings)
+<b>Available Commands:</b>
+/tasks - View your pending tasks
+/today - Today's agenda (tasks + meetings)
 /streak - Check your consistency streak
-
-<b>Team & Performance:</b>
-/status - Team status overview (Managers only)
-/leaderboard - Current team rankings
-
-<b>Account:</b>
-/settings - Notification preferences
+/leaderboard - Team rankings
 /unlink - Disconnect Telegram account
 /help - Show this help message
 
@@ -236,17 +229,95 @@ export async function handleTodayCommand(ctx: Context): Promise<void> {
     return;
   }
   
-  await ctx.reply(
-    `📅 <b>Today's Agenda</b>\n\nFetching your tasks and meetings...\n\nThis feature will show:\n• Pending tasks\n• Scheduled meetings\n• EOD reminder status`,
-    { 
+  try {
+    const db = admin.firestore();
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Calculate today's start and end timestamps for meeting queries
+    const todayStart = new Date(today + 'T00:00:00Z').getTime();
+    const todayEnd = new Date(today + 'T23:59:59Z').getTime();
+    
+    // Get today's tasks
+    const tasksSnapshot = await db.collection('tasks')
+      .where('tenantId', '==', linkedUser.tenantId)
+      .where('assignedTo', '==', linkedUser.synclyUserId)
+      .where('status', 'in', ['To Do', 'In Progress'])
+      .limit(5)
+      .get();
+    
+    // Get today's meetings (using meetingDateTime timestamp)
+    const meetingsSnapshot = await db.collection('meetings')
+      .where('tenantId', '==', linkedUser.tenantId)
+      .where('participants', 'array-contains', linkedUser.synclyUserId)
+      .where('meetingDateTime', '>=', todayStart)
+      .where('meetingDateTime', '<=', todayEnd)
+      .get();
+    
+    // Get user's EOD status for today
+    const eodSnapshot = await db.collection('eodReports')
+      .where('tenantId', '==', linkedUser.tenantId)
+      .where('userId', '==', linkedUser.synclyUserId)
+      .where('date', '==', today)
+      .limit(1)
+      .get();
+    
+    const hasSubmittedEOD = !eodSnapshot.empty;
+    
+    // Build agenda message
+    let message = `📅 <b>Your Agenda for Today</b>\n\n`;
+    
+    // Tasks section
+    if (!tasksSnapshot.empty) {
+      message += `<b>📋 Tasks (${tasksSnapshot.size}):</b>\n`;
+      tasksSnapshot.docs.slice(0, 3).forEach((doc) => {
+        const task = doc.data();
+        const priority = task.priority === 'high' ? '🔴' : task.priority === 'medium' ? '🟡' : '🟢';
+        message += `  ${priority} ${task.title}\n`;
+      });
+      if (tasksSnapshot.size > 3) {
+        message += `  ... and ${tasksSnapshot.size - 3} more\n`;
+      }
+      message += '\n';
+    } else {
+      message += `<b>📋 Tasks:</b> No pending tasks ✅\n\n`;
+    }
+    
+    // Meetings section
+    if (!meetingsSnapshot.empty) {
+      message += `<b>📅 Meetings (${meetingsSnapshot.size}):</b>\n`;
+      meetingsSnapshot.docs.forEach((doc) => {
+        const meeting = doc.data();
+        const meetingTime = new Date(meeting.meetingDateTime).toLocaleTimeString('en-US', { 
+          hour: '2-digit', 
+          minute: '2-digit',
+          hour12: true 
+        });
+        message += `  🕐 ${meetingTime} - ${meeting.title}\n`;
+      });
+      message += '\n';
+    } else {
+      message += `<b>📅 Meetings:</b> No meetings scheduled\n\n`;
+    }
+    
+    // EOD status
+    if (hasSubmittedEOD) {
+      message += `<b>📝 EOD Report:</b> ✅ Submitted`;
+    } else {
+      message += `<b>📝 EOD Report:</b> ⏳ Pending (Deadline: 6:00 PM)`;
+    }
+    
+    await ctx.reply(message, {
       parse_mode: 'HTML',
       reply_markup: {
         inline_keyboard: [[
           { text: '📊 Open Dashboard', url: 'https://syncly.one' }
         ]]
       }
-    }
-  );
+    });
+  } catch (error) {
+    console.error('Error fetching today\'s agenda:', error);
+    await ctx.reply('❌ Error fetching your agenda. Please try again later.');
+  }
 }
 
 /**
