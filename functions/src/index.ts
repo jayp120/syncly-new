@@ -1815,6 +1815,7 @@ export const migrateExistingData = functions.https.onCall(async (data, context) 
  */
 
 // Telegram bot imports handled dynamically in webhook function
+export { syncTelegramToUsers } from './sync-telegram';
 
 /**
  * Cloud Function: Telegram Bot Webhook
