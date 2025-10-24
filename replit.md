@@ -28,6 +28,7 @@ The application is built using **React 19.1** and **TypeScript**, with **Vite 6.
 -   **Smart Meeting Assistant:** Live memo and meeting scheduling with Google Calendar sync. Google Calendar invitations sent to all attendees via `sendUpdates: 'all'` parameter.
 -   **Performance & Gamification:** Badge system and leaderboards.
 -   **Notifications:** ✅ **PRODUCTION READY** - Real-time notification system with 23 types (20 crucial). Includes real-time in-app bell icon, desktop/mobile push notifications, and 7 automated scheduled triggers. Firestore composite indexes deployed successfully (October 23, 2025).
+-   **Telegram Bot Integration:** ✅ **LIVE IN PRODUCTION** - Complete Telegram bot (@syncly_superbot) with 7 commands (/start, /help, /tasks, /today, /streak, /leaderboard, /unlink) and 5 notification types. Deployed October 24, 2025 with 3 Firebase Cloud Functions (telegramWebhook, sendTelegramNotification, generateTelegramLinkingCode). Webhook active at us-central1. See `TELEGRAM_DEPLOYMENT_SUCCESS.md`.
 
 **UI/UX Decisions:**
 -   Component-based architecture.
@@ -63,6 +64,7 @@ The application is built using **React 19.1** and **TypeScript**, with **Vite 6.
 -   **Firebase:** Authentication, Firestore (NoSQL database), Cloud Functions.
 -   **Google Gemini API:** AI-powered insights and task generation.
 -   **Google Calendar:** Two-way synchronization for meeting and scheduling (scope: `calendar.events` or `calendar` recommended).
+-   **Telegram Bot API:** Real-time messaging and notifications via @syncly_superbot (100% FREE, no rate limits).
 -   **Vite:** Build tool.
 -   **React Router DOM:** Client-side routing.
 -   **Tailwind CSS (CDN):** Styling framework.
