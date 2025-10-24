@@ -17,7 +17,10 @@ export function createBot(): Telegraf {
     throw new Error('TELEGRAM_BOT_TOKEN environment variable is not set');
   }
   
-  const bot = new Telegraf(token);
+  // Create bot with webhook configuration
+  const bot = new Telegraf(token, {
+    telegram: { webhookReply: true }
+  });
   
   // Register all commands
   registerCommands(bot);

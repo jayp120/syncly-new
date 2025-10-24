@@ -1814,7 +1814,7 @@ export const migrateExistingData = functions.https.onCall(async (data, context) 
  * ============================================
  */
 
-import { handleWebhook } from './telegram/bot';
+import { createBot } from './telegram/bot';
 
 /**
  * Cloud Function: Telegram Bot Webhook
@@ -1823,27 +1823,36 @@ import { handleWebhook } from './telegram/bot';
  * Webhook URL: https://<region>-<project>.cloudfunctions.net/telegramWebhook
  */
 export const telegramWebhook = functions.https.onRequest(async (req, res) => {
-  // Only accept POST requests
+  // Handle health checks and non-POST requests
   if (req.method !== 'POST') {
-    res.status(405).send('Method Not Allowed');
+    res.status(200).send('OK');
+    return;
+  }
+  
+  // Handle empty or invalid updates (health checks)
+  if (!req.body || !req.body.update_id) {
+    console.log('[Webhook] Health check or invalid update, responding with OK');
+    res.status(200).send('OK');
     return;
   }
   
   try {
     console.log('[Webhook] Received update:', JSON.stringify(req.body));
     
-    // Process the webhook update
-    await handleWebhook(req.body);
+    // Create bot instance
+    const bot = createBot();
+    
+    // Process the webhook update and pass response object
+    await bot.handleUpdate(req.body, res);
     
     console.log('[Webhook] Update processed successfully');
-    
-    // Respond with 200 OK
-    res.status(200).send('OK');
   } catch (error: any) {
     console.error('[Webhook] ERROR processing update:', error);
     console.error('[Webhook] Error stack:', error.stack);
     // Still return 200 to Telegram to avoid retries
-    res.status(200).send('OK');
+    if (!res.headersSent) {
+      res.status(200).send('OK');
+    }
   }
 });
 
