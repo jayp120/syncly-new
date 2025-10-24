@@ -19,6 +19,17 @@ export async function handleStartCommand(ctx: Context): Promise<void> {
   const linkedUser = await getSynclyUserFromTelegram(telegramId);
   
   if (linkedUser) {
+    // User is already linked - sync to user document to ensure UI shows connection
+    const db = admin.firestore();
+    const userUpdate: any = { telegramChatId: telegramId };
+    
+    if (ctx.from?.username) userUpdate.telegramUsername = ctx.from.username;
+    if (ctx.from?.first_name) userUpdate.telegramFirstName = ctx.from.first_name;
+    if (ctx.from?.last_name) userUpdate.telegramLastName = ctx.from.last_name;
+    
+    await db.collection('users').doc(linkedUser.synclyUserId).update(userUpdate);
+    console.log(`[/start] Synced existing link to user document: ${linkedUser.synclyUserId}`);
+    
     await ctx.reply(
       `✅ Welcome back!\n\nYour Telegram is already linked to your Syncly account.\n\nUse /help to see available commands.`,
       {
