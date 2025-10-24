@@ -6,6 +6,7 @@
 
 import * as admin from 'firebase-admin';
 import { TelegramUser } from './types';
+import { updateChatLinkage } from './chatService';
 
 const TELEGRAM_USERS_COLLECTION = 'telegramUsers';
 
@@ -98,6 +99,9 @@ export async function linkTelegramUser(
   await db.collection(TELEGRAM_USERS_COLLECTION).doc(telegramId.toString()).set(telegramUser);
   
   console.log(`Telegram user ${telegramId} linked to Syncly user ${synclyUserId}`);
+  
+  // Update all existing chats for this user with the linkage
+  await updateChatLinkage(telegramId.toString(), synclyUserId, tenantId);
   
   return telegramUser as TelegramUser;
 }
