@@ -77,7 +77,7 @@ export async function handleStartCommand(ctx: Context): Promise<void> {
   
   // New user - guide them to link account
   await ctx.reply(
-    `👋 <b>Welcome to Syncly!</b>\n\nTo get started, you need to link your Telegram to your Syncly account.\n\n<b>How to link:</b>\n1. Go to syncly.one/settings\n2. Click "Connect Telegram"\n3. Follow the instructions\n\nOnce linked, you'll receive notifications and can use commands here!`,
+    `👋 <b>Welcome to Syncly!</b>\n\nTo get started, you need to link your Telegram to your Syncly account.\n\n<b>How to link:</b>\n1. Open Syncly web app (syncly.one)\n2. Go to Integrations page\n3. Click "Connect Telegram"\n4. You'll be redirected here automatically\n\nOnce linked, you'll receive notifications and can use commands here!`,
     { 
       parse_mode: 'HTML'
     }
