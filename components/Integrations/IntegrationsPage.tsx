@@ -13,7 +13,7 @@ import { db } from '../../services/firebase';
 
 const IntegrationsPage: React.FC = () => {
   const { isSignedIn, isGapiReady, signIn, signOut, googleUser, initializationError } = useGoogleCalendar();
-  const { user } = useAuth();
+  const { currentUser: user } = useAuth();
   
   const [telegramLinked, setTelegramLinked] = useState(false);
   const [telegramUsername, setTelegramUsername] = useState<string | null>(null);
@@ -29,7 +29,7 @@ const IntegrationsPage: React.FC = () => {
       }
       
       try {
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const userDoc = await getDoc(doc(db, 'users', user.id));
         const userData = userDoc.data();
         
         if (userData?.telegramChatId) {
@@ -72,7 +72,7 @@ const IntegrationsPage: React.FC = () => {
     }
     
     try {
-      await updateDoc(doc(db, 'users', user.uid), {
+      await updateDoc(doc(db, 'users', user.id), {
         telegramChatId: null,
         telegramUsername: null,
         telegramFirstName: null,
