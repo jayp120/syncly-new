@@ -94,8 +94,18 @@ export async function linkTelegramUser(
   if (telegramFirstName) telegramUser.telegramFirstName = telegramFirstName;
   if (telegramLastName) telegramUser.telegramLastName = telegramLastName;
   
-  // Store in Firestore with telegramId as document ID
+  // Store in telegramUsers collection (for reverse lookup: telegramId -> userId)
   await db.collection(TELEGRAM_USERS_COLLECTION).doc(telegramId.toString()).set(telegramUser);
+  
+  // Also update the user document with Telegram info (for UI to check connection status)
+  const userUpdate: any = {
+    telegramChatId: telegramId.toString()
+  };
+  if (telegramUsername) userUpdate.telegramUsername = telegramUsername;
+  if (telegramFirstName) userUpdate.telegramFirstName = telegramFirstName;
+  if (telegramLastName) userUpdate.telegramLastName = telegramLastName;
+  
+  await db.collection('users').doc(synclyUserId).update(userUpdate);
   
   console.log(`Telegram user ${telegramId} linked to Syncly user ${synclyUserId}`);
   
@@ -143,10 +153,26 @@ export async function getTelegramIdFromSynclyUser(
  */
 export async function unlinkTelegramUser(telegramId: string): Promise<void> {
   const db = admin.firestore();
+  
+  // Get the linked user info first
+  const telegramDoc = await db.collection(TELEGRAM_USERS_COLLECTION).doc(telegramId.toString()).get();
+  const telegramData = telegramDoc.data();
+  
+  // Mark as inactive in telegramUsers collection
   await db.collection(TELEGRAM_USERS_COLLECTION).doc(telegramId.toString()).update({
     isActive: false,
     unlinkedAt: Date.now()
   });
+  
+  // Also remove from user document
+  if (telegramData?.synclyUserId) {
+    await db.collection('users').doc(telegramData.synclyUserId).update({
+      telegramChatId: null,
+      telegramUsername: null,
+      telegramFirstName: null,
+      telegramLastName: null
+    });
+  }
   
   console.log(`Telegram user ${telegramId} unlinked`);
 }
