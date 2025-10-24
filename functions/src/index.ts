@@ -1892,7 +1892,7 @@ export const generateTelegramLinkingCode = functions.https.onCall(async (data, c
     await storeLinkingCode(context.auth.uid, userData.tenantId, code);
     
     // Return code and bot link
-    const botUsername = 'syncly_bot'; // Update with your actual bot username
+    const botUsername = 'syncly_superbot';
     const deepLink = `https://t.me/${botUsername}?start=${code}`;
     
     return {
