@@ -84,9 +84,16 @@ export async function handleWebhook(update: any, res: any): Promise<void> {
   const bot = createBot();
   
   try {
+    console.log('[handleWebhook] Processing update type:', Object.keys(update));
+    if (update.message) {
+      console.log('[handleWebhook] Message text:', update.message.text);
+    }
+    
     await bot.handleUpdate(update, res);
+    
+    console.log('[handleWebhook] Update handled successfully');
   } catch (error) {
-    console.error('Error handling webhook update:', error);
+    console.error('[handleWebhook] Error handling webhook update:', error);
     throw error;
   }
 }
