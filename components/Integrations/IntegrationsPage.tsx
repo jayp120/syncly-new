@@ -35,6 +35,15 @@ const IntegrationsPage: React.FC = () => {
         if (userData?.telegramChatId) {
           setTelegramLinked(true);
           setTelegramUsername(userData.telegramUsername || null);
+          
+          // If we were linking and now detected connection, stop polling
+          if (isLinking) {
+            setIsLinking(false);
+            setTelegramError('✅ Telegram connected successfully!');
+          }
+        } else {
+          setTelegramLinked(false);
+          setTelegramUsername(null);
         }
       } catch (error) {
         console.error('Error checking Telegram status:', error);
@@ -44,7 +53,17 @@ const IntegrationsPage: React.FC = () => {
     };
     
     checkTelegramStatus();
-  }, [user]);
+    
+    // Auto-refresh status every 2 seconds when linking is in progress
+    let intervalId: NodeJS.Timeout | null = null;
+    if (isLinking) {
+      intervalId = setInterval(checkTelegramStatus, 2000);
+    }
+    
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [user, isLinking]);
 
   const connectTelegram = async () => {
     setIsLinking(true);
@@ -56,10 +75,14 @@ const IntegrationsPage: React.FC = () => {
       window.open(result.deepLink, '_blank');
       
       setTelegramError('Opening Telegram... Follow the instructions in the bot to complete linking.');
+      
+      // Keep polling for 30 seconds to auto-detect successful linking
+      setTimeout(() => {
+        setIsLinking(false);
+      }, 30000);
     } catch (error: any) {
       console.error('Error generating linking code:', error);
       setTelegramError(error.message || 'Failed to generate linking code. Please try again.');
-    } finally {
       setIsLinking(false);
     }
   };
