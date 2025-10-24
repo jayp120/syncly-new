@@ -60,7 +60,7 @@ export function createBot(): Telegraf {
   
   // Handle regular messages (for conversational features in Phase 2)
   bot.on('text', async (ctx) => {
-    // For now, just acknowledge
+    // For now, just log
     // In Phase 2, we'll handle EOD submission, task creation, etc.
     console.log(`Message from ${ctx.from?.id}: ${ctx.message.text}`);
   });
@@ -78,11 +78,11 @@ export function createBot(): Telegraf {
 /**
  * Handle webhook updates
  */
-export async function handleWebhook(update: any): Promise<void> {
+export async function handleWebhook(update: any, res: any): Promise<void> {
   const bot = createBot();
   
   try {
-    await bot.handleUpdate(update);
+    await bot.handleUpdate(update, res);
   } catch (error) {
     console.error('Error handling webhook update:', error);
     throw error;

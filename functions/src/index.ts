@@ -1814,7 +1814,7 @@ export const migrateExistingData = functions.https.onCall(async (data, context) 
  * ============================================
  */
 
-import { createBot } from './telegram/bot';
+// Telegram bot imports handled dynamically in webhook function
 
 /**
  * Cloud Function: Telegram Bot Webhook
@@ -1839,11 +1839,11 @@ export const telegramWebhook = functions.https.onRequest(async (req, res) => {
   try {
     console.log('[Webhook] Received update:', JSON.stringify(req.body));
     
-    // Create bot instance
-    const bot = createBot();
+    // Import and use handleWebhook helper (passes response to Telegraf)
+    const { handleWebhook } = await import('./telegram/bot');
     
-    // Process the webhook update and pass response object
-    await bot.handleUpdate(req.body, res);
+    // Process the webhook update - Telegraf will send response automatically
+    await handleWebhook(req.body, res);
     
     console.log('[Webhook] Update processed successfully');
   } catch (error: any) {
