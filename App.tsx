@@ -75,7 +75,7 @@ const AppContent: React.FC = () => {
       {hasPermission(Permission.CAN_MANAGE_TEAM_REPORTS) && <Route path="/delinquent-reports" element={<ManagerDelinquentPage />} />}
       {hasPermission(Permission.CAN_MANAGE_TEAM_TASKS) && <Route path="/team-tasks" element={<TeamTasksPage />} />}
       {hasPermission(Permission.CAN_USE_PERFORMANCE_HUB) && <Route path="/performance-hub" element={<ManagerPerformanceHubPage />} />}
-      {hasPermission(Permission.CAN_USE_INTEGRATIONS) && <Route path="/integrations" element={<IntegrationsPage />} />}
+      {(hasPermission(Permission.CAN_MANAGE_TEAM_MEETINGS) || hasPermission(Permission.CAN_MANAGE_USERS)) && <Route path="/integrations" element={<IntegrationsPage />} />}
 
       {/* Director Routes */}
       {currentUser?.roleName === 'Director' && <Route path="/director-dashboard" element={<DirectorDashboard />} />}

@@ -14,10 +14,9 @@ const PERMISSION_GROUPS = {
     'User Management': [Permission.CAN_MANAGE_USERS, Permission.CAN_CREATE_USER, Permission.CAN_EDIT_USER, Permission.CAN_ARCHIVE_USER, Permission.CAN_DELETE_ARCHIVED_USER],
     'Role Management': [Permission.CAN_MANAGE_ROLES],
     'Report Management': [Permission.CAN_VIEW_ALL_REPORTS, Permission.CAN_MANAGE_TEAM_REPORTS, Permission.CAN_ACKNOWLEDGE_REPORTS, Permission.CAN_SUBMIT_OWN_EOD, Permission.CAN_VIEW_OWN_REPORTS],
-    'Task Management': [Permission.CAN_MANAGE_TEAM_TASKS, Permission.CAN_CREATE_PERSONAL_TASKS, Permission.CAN_EDIT_ANY_TASK_STATUS],
+    'Task Management': [Permission.CAN_MANAGE_TEAM_TASKS, Permission.CAN_CREATE_PERSONAL_TASKS],
     'Leave Management': [Permission.CAN_MANAGE_ALL_LEAVES, Permission.CAN_SUBMIT_OWN_LEAVE],
     'Meeting Management': [Permission.CAN_MANAGE_TEAM_MEETINGS, Permission.CAN_VIEW_OWN_MEETINGS],
-    'Integration Access': [Permission.CAN_USE_INTEGRATIONS],
     'Feature Access': [Permission.CAN_VIEW_LEADERBOARD, Permission.CAN_VIEW_TEAM_CALENDAR, Permission.CAN_VIEW_OWN_CALENDAR, Permission.CAN_VIEW_TRIGGER_LOG, Permission.CAN_USE_PERFORMANCE_HUB],
     'System Management': [Permission.CAN_MANAGE_BUSINESS_UNITS],
 };

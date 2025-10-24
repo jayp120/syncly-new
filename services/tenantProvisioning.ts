@@ -58,7 +58,6 @@ const createDefaultRoles = async (tenantId: string): Promise<Role[]> => {
         Permission.CAN_SUBMIT_OWN_LEAVE,
         Permission.CAN_MANAGE_TEAM_MEETINGS,
         Permission.CAN_VIEW_OWN_MEETINGS,
-        Permission.CAN_USE_INTEGRATIONS,
         Permission.CAN_VIEW_LEADERBOARD,
         Permission.CAN_VIEW_TEAM_CALENDAR,
         Permission.CAN_VIEW_OWN_CALENDAR,
@@ -83,7 +82,6 @@ const createDefaultRoles = async (tenantId: string): Promise<Role[]> => {
         Permission.CAN_SUBMIT_OWN_LEAVE,
         Permission.CAN_MANAGE_TEAM_MEETINGS,
         Permission.CAN_VIEW_OWN_MEETINGS,
-        Permission.CAN_USE_INTEGRATIONS,
         Permission.CAN_VIEW_LEADERBOARD,
         Permission.CAN_VIEW_TEAM_CALENDAR,
         Permission.CAN_VIEW_OWN_CALENDAR,
@@ -101,7 +99,6 @@ const createDefaultRoles = async (tenantId: string): Promise<Role[]> => {
         Permission.CAN_CREATE_PERSONAL_TASKS,
         Permission.CAN_SUBMIT_OWN_LEAVE,
         Permission.CAN_VIEW_OWN_MEETINGS,
-        Permission.CAN_USE_INTEGRATIONS,
         Permission.CAN_VIEW_LEADERBOARD,
         Permission.CAN_VIEW_OWN_CALENDAR
       ]

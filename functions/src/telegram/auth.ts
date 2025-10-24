@@ -97,12 +97,6 @@ export async function linkTelegramUser(
   // Store in Firestore with telegramId as document ID
   await db.collection(TELEGRAM_USERS_COLLECTION).doc(telegramId.toString()).set(telegramUser);
   
-  // ALSO update the user's document to include telegramChatId for UI status check
-  await db.collection('users').doc(synclyUserId).update({
-    telegramChatId: telegramId.toString(),
-    telegramUsername: telegramUsername || null
-  });
-  
   console.log(`Telegram user ${telegramId} linked to Syncly user ${synclyUserId}`);
   
   return telegramUser as TelegramUser;
@@ -149,24 +143,10 @@ export async function getTelegramIdFromSynclyUser(
  */
 export async function unlinkTelegramUser(telegramId: string): Promise<void> {
   const db = admin.firestore();
-  
-  // Get the user data first to find their synclyUserId
-  const telegramUserDoc = await db.collection(TELEGRAM_USERS_COLLECTION).doc(telegramId.toString()).get();
-  const telegramUserData = telegramUserDoc.data();
-  
-  // Deactivate in telegramUsers collection
   await db.collection(TELEGRAM_USERS_COLLECTION).doc(telegramId.toString()).update({
     isActive: false,
     unlinkedAt: Date.now()
   });
-  
-  // ALSO remove from user's document for UI status update
-  if (telegramUserData?.synclyUserId) {
-    await db.collection('users').doc(telegramUserData.synclyUserId).update({
-      telegramChatId: admin.firestore.FieldValue.delete(),
-      telegramUsername: admin.firestore.FieldValue.delete()
-    });
-  }
   
   console.log(`Telegram user ${telegramId} unlinked`);
 }
