@@ -125,23 +125,15 @@ const MainAppContent = () => {
             unsubscribe();
         };
     }, [addToast]);
-
-    if (isLoading) {
-        return (
-            <div className="w-screen h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-950">
-                <Spinner message="Initializing Application..." />
-            </div>
-        );
-    }
     
     return (
         <Routes>
-            <Route path="/" element={!currentUser ? <LandingPage /> : <Navigate to="/dashboard" replace />} />
-            <Route path="/login" element={!currentUser ? <LoginForm /> : <Navigate to="/dashboard" replace />} />
+            <Route path="/" element={!currentUser ? <LandingPage /> : (isLoading ? <div className="w-screen h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-950"><Spinner message="Loading..." /></div> : <Navigate to="/dashboard" replace />)} />
+            <Route path="/login" element={!currentUser ? <LoginForm /> : (isLoading ? <div className="w-screen h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-950"><Spinner message="Loading..." /></div> : <Navigate to="/dashboard" replace />)} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/privacy" element={<PrivacyPolicyPage />} />
             <Route path="/terms" element={<TermsOfServicePage />} />
-            <Route path="/*" element={currentUser ? <AppLayout><AppContent /></AppLayout> : <Navigate to="/" replace />} />
+            <Route path="/*" element={currentUser ? <AppLayout><AppContent /></AppLayout> : (isLoading ? <div className="w-screen h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-950"><Spinner message="Loading..." /></div> : <Navigate to="/" replace />)} />
         </Routes>
     );
 };
