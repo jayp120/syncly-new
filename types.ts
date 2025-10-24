@@ -34,6 +34,9 @@ export enum Permission {
   CAN_MANAGE_TEAM_MEETINGS = 'CAN_MANAGE_TEAM_MEETINGS', // Create/edit team meetings
   CAN_VIEW_OWN_MEETINGS = 'CAN_VIEW_OWN_MEETINGS',       // View meeting workspace
 
+  // --- Integration Access ---
+  CAN_USE_INTEGRATIONS = 'CAN_USE_INTEGRATIONS',         // Access integrations page (Telegram, Google Calendar, etc.)
+
   // --- Other Features ---
   CAN_VIEW_LEADERBOARD = 'CAN_VIEW_LEADERBOARD',
   CAN_VIEW_TEAM_CALENDAR = 'CAN_VIEW_TEAM_CALENDAR',

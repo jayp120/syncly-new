@@ -58,7 +58,7 @@ const navItems: NavItem[] = [
   { path: '/team-tasks', label: 'Team Tasks', icon: KanbanSquare, permission: Permission.CAN_MANAGE_TEAM_TASKS },
   { path: '/performance-hub', label: 'Performance Hub', icon: LineChart, permission: Permission.CAN_USE_PERFORMANCE_HUB },
   { path: '/delinquent-reports', label: 'Consistency Tracker', icon: Bell, permission: Permission.CAN_MANAGE_TEAM_REPORTS },
-  { path: '/integrations', label: 'Integrations', icon: Puzzle, permission: 'integrations' },
+  { path: '/integrations', label: 'Integrations', icon: Puzzle, permission: Permission.CAN_USE_INTEGRATIONS },
 
   // Shared
   { path: '/calendar-view', label: 'Calendar View', icon: Calendar, permission: Permission.CAN_VIEW_OWN_CALENDAR },
@@ -77,8 +77,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed, onToggl
   const filteredNavItems = navItems.filter(item => {
     if (item.permission === 'dashboard') return true; 
     if (item.permission === 'super_admin') return currentUser?.roleName === 'Super Admin';
-    if (item.permission === 'integrations') return hasPermission(Permission.CAN_MANAGE_TEAM_MEETINGS) || hasPermission(Permission.CAN_MANAGE_USERS);
-    return hasPermission(item.permission);
+    // TypeScript narrowing: at this point, permission must be a Permission enum value
+    return hasPermission(item.permission as Permission);
   });
 
   return (
