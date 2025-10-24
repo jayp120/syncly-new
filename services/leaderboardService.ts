@@ -73,13 +73,13 @@ export const calculateLeaderboardData = (
 
     // 3. Sort and Rank
     const sortedEntries = leaderboardEntries.sort((a, b) => {
-        // Primary sort: by streak, descending
-        if (b.currentReportingStreak !== a.currentReportingStreak) {
-            return b.currentReportingStreak - a.currentReportingStreak;
-        }
-        // Secondary sort (tie-breaker): by reports this month, descending
+        // Primary sort: by reports this month, descending
         if (b.reportsSubmittedThisMonth !== a.reportsSubmittedThisMonth) {
             return b.reportsSubmittedThisMonth - a.reportsSubmittedThisMonth;
+        }
+        // Secondary sort (tie-breaker): by streak, descending
+        if (b.currentReportingStreak !== a.currentReportingStreak) {
+            return b.currentReportingStreak - a.currentReportingStreak;
         }
         // Tertiary sort (another tie-breaker): alphabetically by name
         return a.employeeName.localeCompare(b.employeeName);
