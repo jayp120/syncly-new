@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Role, Permission } from '../../types';
 import * as DataService from '../../services/dataService';
 import Card from '../Common/Card';
@@ -9,18 +9,7 @@ import { useAuth } from '../Auth/AuthContext';
 import Input from '../Common/Input';
 import Textarea from '../Common/Textarea';
 import ConfirmationModal from '../Common/ConfirmationModal';
-import { PERMISSIONS } from '../../constants';
-
-const PERMISSION_GROUPS = {
-    'User Management': [Permission.CAN_MANAGE_USERS, Permission.CAN_CREATE_USER, Permission.CAN_EDIT_USER, Permission.CAN_ARCHIVE_USER, Permission.CAN_DELETE_ARCHIVED_USER],
-    'Role Management': [Permission.CAN_MANAGE_ROLES],
-    'Report Management': [Permission.CAN_VIEW_ALL_REPORTS, Permission.CAN_MANAGE_TEAM_REPORTS, Permission.CAN_ACKNOWLEDGE_REPORTS, Permission.CAN_SUBMIT_OWN_EOD, Permission.CAN_VIEW_OWN_REPORTS],
-    'Task Management': [Permission.CAN_MANAGE_TEAM_TASKS, Permission.CAN_CREATE_PERSONAL_TASKS],
-    'Leave Management': [Permission.CAN_MANAGE_ALL_LEAVES, Permission.CAN_SUBMIT_OWN_LEAVE],
-    'Meeting Management': [Permission.CAN_MANAGE_TEAM_MEETINGS, Permission.CAN_VIEW_OWN_MEETINGS],
-    'Feature Access': [Permission.CAN_VIEW_LEADERBOARD, Permission.CAN_VIEW_TEAM_CALENDAR, Permission.CAN_VIEW_OWN_CALENDAR, Permission.CAN_VIEW_TRIGGER_LOG, Permission.CAN_USE_PERFORMANCE_HUB],
-    'System Management': [Permission.CAN_MANAGE_BUSINESS_UNITS],
-};
+import { PERMISSION_GROUPS, SYSTEM_ROLE_IDS } from '../../constants';
 
 const RolesPermissionsPage: React.FC = () => {
     const [roles, setRoles] = useState<Role[]>([]);
@@ -113,7 +102,7 @@ const RolesPermissionsPage: React.FC = () => {
         }
     };
     
-    const isDefaultRole = (roleName: string) => ['Super Admin', 'Director', 'Manager', 'Employee'].includes(roleName);
+    const isSystemRole = (roleId: string) => SYSTEM_ROLE_IDS.includes(roleId);
 
     if (isLoading) {
         return <Spinner message="Loading roles and permissions..." />;
@@ -129,7 +118,7 @@ const RolesPermissionsPage: React.FC = () => {
                                 onClick={() => handleSelectRole(role)}
                                 className={`w-full text-left p-3 rounded-lg transition-colors ${selectedRole?.id === role.id ? 'bg-primary text-white' : 'hover:bg-primary-light dark:hover:bg-slate-700'}`}
                             >
-                                <div className="font-semibold">{role.name} {isDefaultRole(role.name) && <span className="text-xs opacity-70">(Default)</span>}</div>
+                                <div className="font-semibold">{role.name} {isSystemRole(role.id) && <span className="text-xs opacity-70">(System Role)</span>}</div>
                                 <div className="text-xs opacity-80">{role.description}</div>
                             </button>
                         </li>
@@ -145,8 +134,14 @@ const RolesPermissionsPage: React.FC = () => {
                                 label="Role Name"
                                 value={selectedRole.name}
                                 onChange={e => setSelectedRole({ ...selectedRole, name: e.target.value })}
-                                disabled={isSaving || isDefaultRole(selectedRole.id)}
+                                disabled={isSaving || isSystemRole(selectedRole.id)}
                             />
+                            {isSystemRole(selectedRole.id) && (
+                                <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                                    <i className="fas fa-info-circle mr-1"></i>
+                                    System role names cannot be changed. You can modify permissions only.
+                                </p>
+                            )}
                              <Textarea 
                                 label="Description"
                                 value={selectedRole.description}
@@ -169,9 +164,11 @@ const RolesPermissionsPage: React.FC = () => {
                                                         checked={selectedRole.permissions.includes(permission)}
                                                         onChange={e => handlePermissionChange(permission, e.target.checked)}
                                                         className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                                                        disabled={isSaving || (selectedRole.id === 'super_admin')}
+                                                        disabled={isSaving || (selectedRole.id === 'tenant_admin')}
                                                     />
-                                                    <label htmlFor={permission} className="ml-2 text-sm text-gray-700 dark:text-slate-300">{permission.replace(/CAN_|_/g, ' ').toLowerCase()}</label>
+                                                    <label htmlFor={permission} className="ml-2 text-sm text-gray-700 dark:text-slate-300 capitalize cursor-pointer" style={{textTransform: 'capitalize'}}>
+                                                        {permission.replace(/CAN_/g, '').replace(/_/g, ' ').toLowerCase()}
+                                                    </label>
                                                 </div>
                                             ))}
                                         </div>
@@ -181,16 +178,24 @@ const RolesPermissionsPage: React.FC = () => {
 
                             <div className="flex justify-between items-center pt-4 border-t dark:border-slate-700">
                                 <div>
-                                    {selectedRole.id && !isDefaultRole(selectedRole.id) && (
+                                    {selectedRole.id && !isSystemRole(selectedRole.id) && (
                                         <Button variant="danger" onClick={() => setRoleToDelete(selectedRole)} disabled={isSaving}>
-                                            Delete Role
+                                            <i className="fas fa-trash mr-2"></i>Delete Role
                                         </Button>
+                                    )}
+                                    {selectedRole.id && isSystemRole(selectedRole.id) && (
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                            <i className="fas fa-lock mr-1"></i>
+                                            System roles cannot be deleted
+                                        </p>
                                     )}
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <Button variant="ghost" onClick={() => setSelectedRole(null)} disabled={isSaving}>Cancel</Button>
-                                    <Button variant="primary" onClick={handleSaveRole} isLoading={isSaving} disabled={selectedRole.id === 'super_admin'}>
-                                        {isSaving ? 'Saving...' : 'Save Role'}
+                                    <Button variant="ghost" onClick={() => setSelectedRole(null)} disabled={isSaving}>
+                                        <i className="fas fa-times mr-2"></i>Cancel
+                                    </Button>
+                                    <Button variant="primary" onClick={handleSaveRole} isLoading={isSaving}>
+                                        <i className="fas fa-save mr-2"></i>{isSaving ? 'Saving...' : 'Save Role'}
                                     </Button>
                                 </div>
                             </div>
