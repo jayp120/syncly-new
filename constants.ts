@@ -30,6 +30,135 @@ export const MAX_PINNED_TASKS = 5; // Maximum number of tasks a user can pin
 export const PERMISSIONS = Object.values(Permission);
 export const LATE_SUBMISSION_HOUR = 19; // 7 PM
 
+// ========== Permission Groups for UI Organization ==========
+export const PERMISSION_GROUPS = {
+  platformAdmin: {
+    label: 'Platform Administration (Syncly Owner Only)',
+    permissions: [
+      Permission.PLATFORM_ADMIN,
+      Permission.CAN_MANAGE_TENANTS,
+      Permission.CAN_VIEW_ALL_TENANTS,
+    ],
+  },
+  userManagement: {
+    label: 'User Management',
+    permissions: [
+      Permission.CAN_VIEW_ALL_USERS,
+      Permission.CAN_CREATE_USER,
+      Permission.CAN_EDIT_USER,
+      Permission.CAN_INVITE_USER,
+      Permission.CAN_SUSPEND_USER,
+      Permission.CAN_RESTORE_USER,
+      Permission.CAN_ARCHIVE_USER,
+      Permission.CAN_DELETE_ARCHIVED_USER,
+      Permission.CAN_RESET_USER_PASSWORD,
+      Permission.CAN_RESET_USER_MFA,
+      Permission.CAN_ASSIGN_ROLE,
+      Permission.CAN_VIEW_USER_ACTIVITY,
+    ],
+  },
+  roleManagement: {
+    label: 'Role & Permission Management',
+    permissions: [
+      Permission.CAN_VIEW_ROLES,
+      Permission.CAN_CREATE_ROLE,
+      Permission.CAN_EDIT_ROLE,
+      Permission.CAN_DELETE_ROLE,
+      Permission.CAN_ASSIGN_PERMISSIONS,
+    ],
+  },
+  businessUnitManagement: {
+    label: 'Business Unit Management',
+    permissions: [
+      Permission.CAN_VIEW_BUSINESS_UNITS,
+      Permission.CAN_CREATE_BUSINESS_UNIT,
+      Permission.CAN_EDIT_BUSINESS_UNIT,
+      Permission.CAN_ARCHIVE_BUSINESS_UNIT,
+      Permission.CAN_DELETE_BUSINESS_UNIT,
+      Permission.CAN_ASSIGN_BUSINESS_UNIT,
+    ],
+  },
+  taskManagement: {
+    label: 'Task Management',
+    permissions: [
+      Permission.CAN_VIEW_TEAM_TASKS,
+      Permission.CAN_CREATE_TEAM_TASK,
+      Permission.CAN_EDIT_TEAM_TASK,
+      Permission.CAN_DELETE_ANY_TASK,
+      Permission.CAN_ASSIGN_TASK,
+      Permission.CAN_EDIT_ANY_TASK_STATUS,
+      Permission.CAN_COMMENT_ON_TEAM_TASK,
+      Permission.CAN_CREATE_PERSONAL_TASKS,
+      Permission.CAN_VIEW_OWN_TASKS,
+    ],
+  },
+  eodReportManagement: {
+    label: 'EOD Report Management',
+    permissions: [
+      Permission.CAN_VIEW_ALL_REPORTS,
+      Permission.CAN_VIEW_TEAM_REPORTS,
+      Permission.CAN_VIEW_OWN_REPORTS,
+      Permission.CAN_ACKNOWLEDGE_REPORTS,
+      Permission.CAN_ACKNOWLEDGE_ANY_EOD,
+      Permission.CAN_REQUIRE_EOD_SUBMISSION,
+      Permission.CAN_MARK_EOD_LATE,
+      Permission.CAN_SUBMIT_OWN_EOD,
+      Permission.CAN_EXPORT_EODS,
+    ],
+  },
+  leaveManagement: {
+    label: 'Leave Management',
+    permissions: [
+      Permission.CAN_VIEW_ALL_LEAVES,
+      Permission.CAN_VIEW_TEAM_LEAVES,
+      Permission.CAN_APPROVE_LEAVE,
+      Permission.CAN_REJECT_LEAVE,
+      Permission.CAN_OVERRIDE_LEAVE_BALANCE,
+      Permission.CAN_SUBMIT_OWN_LEAVE,
+    ],
+  },
+  meetingManagement: {
+    label: 'Meeting & Calendar Management',
+    permissions: [
+      Permission.CAN_MANAGE_TEAM_MEETINGS,
+      Permission.CAN_VIEW_TEAM_MEETINGS,
+      Permission.CAN_VIEW_OWN_MEETINGS,
+      Permission.CAN_SCHEDULE_MEETING,
+      Permission.CAN_VIEW_TEAM_CALENDAR,
+      Permission.CAN_VIEW_OWN_CALENDAR,
+      Permission.CAN_MANAGE_TEAM_CALENDAR,
+    ],
+  },
+  settingsAndConfiguration: {
+    label: 'Settings & Configuration',
+    permissions: [
+      Permission.CAN_MANAGE_TENANT_SETTINGS,
+      Permission.CAN_VIEW_TENANT_SETTINGS,
+      Permission.CAN_MANAGE_INTEGRATIONS,
+      Permission.CAN_MANAGE_NOTIFICATIONS,
+      Permission.CAN_VIEW_BILLING,
+    ],
+  },
+  auditAndActivityLog: {
+    label: 'Audit & Activity Logs',
+    permissions: [
+      Permission.CAN_VIEW_ACTIVITY_LOG,
+      Permission.CAN_EXPORT_ACTIVITY_LOG,
+      Permission.CAN_VIEW_AUDIT_TRAIL,
+    ],
+  },
+  analyticsAndReporting: {
+    label: 'Analytics & Reporting',
+    permissions: [
+      Permission.CAN_VIEW_ANALYTICS_DASHBOARD,
+      Permission.CAN_EXPORT_DATA,
+      Permission.CAN_VIEW_LEADERBOARD,
+      Permission.CAN_USE_PERFORMANCE_HUB,
+      Permission.CAN_VIEW_TRIGGER_LOG,
+    ],
+  },
+};
+
 
 const todayDayIndex = new Date().getDay();
 const todayDayName = WEEK_DAYS[todayDayIndex];
@@ -55,47 +184,213 @@ export const DEFAULT_BUSINESS_UNITS: BusinessUnit[] = [
   { id: 'bu_finance', name: 'Finance & Accounts', status: 'active' },
 ];
 
+// ========== System Roles (Cannot be deleted or renamed) ==========
+export const SYSTEM_ROLE_IDS = ['tenant_admin', 'manager', 'team_lead', 'employee'];
+
 export const DEFAULT_ROLES: Role[] = [
   {
-    id: 'super_admin',
-    name: 'Super Admin',
-    description: 'Has all permissions and can manage roles.',
-    permissions: Object.values(Permission), // All permissions
+    id: 'tenant_admin',
+    tenantId: '', // Will be set during tenant creation
+    name: 'Tenant Admin',
+    description: 'Full control over tenant settings, users, roles, and all features. Cannot manage other tenants.',
+    permissions: [
+      // User Management - Full Control
+      Permission.CAN_VIEW_ALL_USERS,
+      Permission.CAN_CREATE_USER,
+      Permission.CAN_EDIT_USER,
+      Permission.CAN_INVITE_USER,
+      Permission.CAN_SUSPEND_USER,
+      Permission.CAN_RESTORE_USER,
+      Permission.CAN_ARCHIVE_USER,
+      Permission.CAN_DELETE_ARCHIVED_USER,
+      Permission.CAN_RESET_USER_PASSWORD,
+      Permission.CAN_RESET_USER_MFA,
+      Permission.CAN_ASSIGN_ROLE,
+      Permission.CAN_VIEW_USER_ACTIVITY,
+      
+      // Role Management - Full Control
+      Permission.CAN_VIEW_ROLES,
+      Permission.CAN_CREATE_ROLE,
+      Permission.CAN_EDIT_ROLE,
+      Permission.CAN_DELETE_ROLE,
+      Permission.CAN_ASSIGN_PERMISSIONS,
+      
+      // Business Unit Management - Full Control
+      Permission.CAN_VIEW_BUSINESS_UNITS,
+      Permission.CAN_CREATE_BUSINESS_UNIT,
+      Permission.CAN_EDIT_BUSINESS_UNIT,
+      Permission.CAN_ARCHIVE_BUSINESS_UNIT,
+      Permission.CAN_DELETE_BUSINESS_UNIT,
+      Permission.CAN_ASSIGN_BUSINESS_UNIT,
+      
+      // Task Management - Full Control
+      Permission.CAN_VIEW_TEAM_TASKS,
+      Permission.CAN_CREATE_TEAM_TASK,
+      Permission.CAN_EDIT_TEAM_TASK,
+      Permission.CAN_DELETE_ANY_TASK,
+      Permission.CAN_ASSIGN_TASK,
+      Permission.CAN_EDIT_ANY_TASK_STATUS,
+      Permission.CAN_COMMENT_ON_TEAM_TASK,
+      Permission.CAN_CREATE_PERSONAL_TASKS,
+      Permission.CAN_VIEW_OWN_TASKS,
+      
+      // EOD Reports - Full Control
+      Permission.CAN_VIEW_ALL_REPORTS,
+      Permission.CAN_ACKNOWLEDGE_ANY_EOD,
+      Permission.CAN_REQUIRE_EOD_SUBMISSION,
+      Permission.CAN_MARK_EOD_LATE,
+      Permission.CAN_SUBMIT_OWN_EOD,
+      Permission.CAN_VIEW_OWN_REPORTS,
+      Permission.CAN_EXPORT_EODS,
+      
+      // Leave Management - Full Control
+      Permission.CAN_VIEW_ALL_LEAVES,
+      Permission.CAN_APPROVE_LEAVE,
+      Permission.CAN_REJECT_LEAVE,
+      Permission.CAN_OVERRIDE_LEAVE_BALANCE,
+      Permission.CAN_SUBMIT_OWN_LEAVE,
+      
+      // Meetings & Calendar - Full Control
+      Permission.CAN_MANAGE_TEAM_MEETINGS,
+      Permission.CAN_VIEW_TEAM_MEETINGS,
+      Permission.CAN_VIEW_OWN_MEETINGS,
+      Permission.CAN_SCHEDULE_MEETING,
+      Permission.CAN_VIEW_TEAM_CALENDAR,
+      Permission.CAN_VIEW_OWN_CALENDAR,
+      Permission.CAN_MANAGE_TEAM_CALENDAR,
+      
+      // Settings - Full Control
+      Permission.CAN_MANAGE_TENANT_SETTINGS,
+      Permission.CAN_VIEW_TENANT_SETTINGS,
+      Permission.CAN_MANAGE_INTEGRATIONS,
+      Permission.CAN_MANAGE_NOTIFICATIONS,
+      Permission.CAN_VIEW_BILLING,
+      
+      // Audit & Activity - Full Control
+      Permission.CAN_VIEW_ACTIVITY_LOG,
+      Permission.CAN_EXPORT_ACTIVITY_LOG,
+      Permission.CAN_VIEW_AUDIT_TRAIL,
+      
+      // Analytics & Reporting - Full Control
+      Permission.CAN_VIEW_ANALYTICS_DASHBOARD,
+      Permission.CAN_EXPORT_DATA,
+      Permission.CAN_VIEW_LEADERBOARD,
+      Permission.CAN_USE_PERFORMANCE_HUB,
+      Permission.CAN_VIEW_TRIGGER_LOG,
+    ],
   },
   {
     id: 'manager',
+    tenantId: '', // Will be set during tenant creation
     name: 'Manager',
-    description: 'Manages a team, their reports, tasks, and meetings.',
+    description: 'Manages team members, approves leaves, acknowledges EODs, and oversees team tasks and meetings.',
     permissions: [
-      Permission.CAN_MANAGE_TEAM_REPORTS,
-      Permission.CAN_ACKNOWLEDGE_REPORTS,
-      Permission.CAN_MANAGE_TEAM_TASKS,
+      // User Management - View Only
+      Permission.CAN_VIEW_USER_ACTIVITY,
+      
+      // Business Units - View Only
+      Permission.CAN_VIEW_BUSINESS_UNITS,
+      
+      // Task Management - Team Level
+      Permission.CAN_VIEW_TEAM_TASKS,
+      Permission.CAN_CREATE_TEAM_TASK,
+      Permission.CAN_EDIT_TEAM_TASK,
+      Permission.CAN_ASSIGN_TASK,
       Permission.CAN_EDIT_ANY_TASK_STATUS,
-      Permission.CAN_VIEW_LEADERBOARD,
-      Permission.CAN_VIEW_TEAM_CALENDAR,
-      Permission.CAN_MANAGE_TEAM_MEETINGS,
-      Permission.CAN_VIEW_OWN_MEETINGS,
-      Permission.CAN_USE_PERFORMANCE_HUB,
-      Permission.CAN_VIEW_TRIGGER_LOG, // For delinquent reports feature
-      Permission.CAN_CREATE_PERSONAL_TASKS, // Managers can have personal tasks too
-      Permission.CAN_SUBMIT_OWN_LEAVE,
-      Permission.CAN_VIEW_OWN_REPORTS,
+      Permission.CAN_COMMENT_ON_TEAM_TASK,
+      Permission.CAN_CREATE_PERSONAL_TASKS,
+      Permission.CAN_VIEW_OWN_TASKS,
+      
+      // EOD Reports - Team Management
+      Permission.CAN_VIEW_TEAM_REPORTS,
+      Permission.CAN_ACKNOWLEDGE_REPORTS,
       Permission.CAN_SUBMIT_OWN_EOD,
+      Permission.CAN_VIEW_OWN_REPORTS,
+      Permission.CAN_REQUIRE_EOD_SUBMISSION,
+      
+      // Leave Management - Approval Authority
+      Permission.CAN_VIEW_TEAM_LEAVES,
+      Permission.CAN_APPROVE_LEAVE,
+      Permission.CAN_REJECT_LEAVE,
+      Permission.CAN_SUBMIT_OWN_LEAVE,
+      
+      // Meetings & Calendar - Team Level
+      Permission.CAN_MANAGE_TEAM_MEETINGS,
+      Permission.CAN_VIEW_TEAM_MEETINGS,
+      Permission.CAN_VIEW_OWN_MEETINGS,
+      Permission.CAN_SCHEDULE_MEETING,
+      Permission.CAN_VIEW_TEAM_CALENDAR,
       Permission.CAN_VIEW_OWN_CALENDAR,
+      Permission.CAN_MANAGE_TEAM_CALENDAR,
+      
+      // Analytics & Reporting
+      Permission.CAN_VIEW_ANALYTICS_DASHBOARD,
+      Permission.CAN_VIEW_LEADERBOARD,
+      Permission.CAN_USE_PERFORMANCE_HUB,
+      Permission.CAN_VIEW_TRIGGER_LOG,
+    ],
+  },
+  {
+    id: 'team_lead',
+    tenantId: '', // Will be set during tenant creation
+    name: 'Team Lead',
+    description: 'Coordinates team tasks and meetings, reviews EODs, but cannot approve leaves or manage users.',
+    permissions: [
+      // Business Units - View Only
+      Permission.CAN_VIEW_BUSINESS_UNITS,
+      
+      // Task Management - Team Coordination
+      Permission.CAN_VIEW_TEAM_TASKS,
+      Permission.CAN_CREATE_TEAM_TASK,
+      Permission.CAN_ASSIGN_TASK,
+      Permission.CAN_COMMENT_ON_TEAM_TASK,
+      Permission.CAN_CREATE_PERSONAL_TASKS,
+      Permission.CAN_VIEW_OWN_TASKS,
+      
+      // EOD Reports - Team Visibility
+      Permission.CAN_VIEW_TEAM_REPORTS,
+      Permission.CAN_SUBMIT_OWN_EOD,
+      Permission.CAN_VIEW_OWN_REPORTS,
+      
+      // Leave Management - View Only
+      Permission.CAN_VIEW_TEAM_LEAVES,
+      Permission.CAN_SUBMIT_OWN_LEAVE,
+      
+      // Meetings & Calendar - Team Level
+      Permission.CAN_VIEW_TEAM_MEETINGS,
+      Permission.CAN_VIEW_OWN_MEETINGS,
+      Permission.CAN_SCHEDULE_MEETING,
+      Permission.CAN_VIEW_TEAM_CALENDAR,
+      Permission.CAN_VIEW_OWN_CALENDAR,
+      
+      // Analytics - Basic Access
+      Permission.CAN_VIEW_LEADERBOARD,
+      Permission.CAN_VIEW_TRIGGER_LOG,
     ],
   },
   {
     id: 'employee',
+    tenantId: '', // Will be set during tenant creation
     name: 'Employee',
-    description: 'Submits EOD reports and manages personal tasks.',
+    description: 'Standard employee with self-service capabilities for tasks, EODs, leave, and calendar.',
     permissions: [
+      // Task Management - Personal Only
       Permission.CAN_CREATE_PERSONAL_TASKS,
-      Permission.CAN_SUBMIT_OWN_LEAVE,
-      Permission.CAN_VIEW_OWN_REPORTS,
+      Permission.CAN_VIEW_OWN_TASKS,
+      
+      // EOD Reports - Self-Service
       Permission.CAN_SUBMIT_OWN_EOD,
-      Permission.CAN_VIEW_LEADERBOARD,
-      Permission.CAN_VIEW_OWN_CALENDAR,
+      Permission.CAN_VIEW_OWN_REPORTS,
+      
+      // Leave Management - Self-Service
+      Permission.CAN_SUBMIT_OWN_LEAVE,
+      
+      // Meetings & Calendar - Personal Only
       Permission.CAN_VIEW_OWN_MEETINGS,
+      Permission.CAN_VIEW_OWN_CALENDAR,
+      
+      // Analytics - Basic Access
+      Permission.CAN_VIEW_LEADERBOARD,
     ],
   },
 ];
@@ -104,8 +399,8 @@ export const DEFAULT_ROLES: Role[] = [
 const manager001TeamWeeklyOffDay = todayDayName;
 
 export const DEFAULT_USERS: Omit<User, 'businessUnitName' | 'id' | 'roleName'>[] = [
-  { email: 'superadmin@mittaleod.com', notificationEmail: 'superadmin@example.com', name: 'Super Admin', roleId: 'super_admin', status: UserStatus.ACTIVE },
-  { email: 'admin@mittaleod.com', notificationEmail: 'raj.chauhan.admin@example.com', name: 'Raj Chauhan (Admin)', roleId: 'super_admin', status: UserStatus.ACTIVE },
+  { email: 'superadmin@mittaleod.com', notificationEmail: 'superadmin@example.com', name: 'Super Admin', roleId: 'tenant_admin', status: UserStatus.ACTIVE },
+  { email: 'admin@mittaleod.com', notificationEmail: 'raj.chauhan.admin@example.com', name: 'Raj Chauhan (Admin)', roleId: 'tenant_admin', status: UserStatus.ACTIVE },
   { email: 'manager.sales@mittaleod.com', notificationEmail: 'rajesh.k.manager@example.com', name: 'Rajesh K.', roleId: 'manager', designation: 'Sales Manager', businessUnitId: 'bu_sales', status: UserStatus.ACTIVE },
   { email: 'manager.tech@mittaleod.com', notificationEmail: 'anita.s.manager@example.com', name: 'Anita S.', roleId: 'manager', designation: 'Tech Lead', businessUnitId: 'bu_tech', status: UserStatus.ACTIVE },
   { email: 'manager.ops@mittaleod.com', notificationEmail: 'vikram.r.manager@example.com', name: 'Vikram R.', roleId: 'manager', designation: 'Operations Head', businessUnitId: 'bu_ops', status: UserStatus.ACTIVE },
