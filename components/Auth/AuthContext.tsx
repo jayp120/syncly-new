@@ -65,6 +65,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // User is authenticated, load their profile from Firestore
             if (currentUser) {
               try {
+                // ✅ CRITICAL: Get custom claims from Firebase Auth token
+                const tokenResult = await firebaseUser.getIdTokenResult();
+                const isTenantAdmin = tokenResult.claims.isTenantAdmin === true;
+                setIsTenantAdminClaim(isTenantAdmin);
+                setIsPlatformAdmin(tokenResult.claims.isPlatformAdmin === true);
+                
                 const freshUser = await DataService.getUserById(currentUser.id);
                 if(freshUser && freshUser.status === UserStatus.ACTIVE) {
                     setCurrentUser(freshUser);
@@ -75,12 +81,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     setCurrentUser(null);
                     setCurrentUserRole(null);
                     updateTenantContext(null);
+                    setIsTenantAdminClaim(false);
                 }
               } catch (error) {
                 console.error('Error loading user data:', error);
                 setCurrentUser(null);
                 setCurrentUserRole(null);
                 updateTenantContext(null);
+                setIsTenantAdminClaim(false);
               }
             }
           } else {
@@ -88,6 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (currentUser) {
               setCurrentUser(null);
               setCurrentUserRole(null);
+              setIsTenantAdminClaim(false);
             }
           }
           setIsLoading(false);
