@@ -151,17 +151,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           updateTenantContext(userProfile.tenantId || null);
           setIsPlatformAdmin(userProfile.isPlatformAdmin || false);
           
+          // ✅ CRITICAL: Set tenant admin claim BEFORE setting currentUser
+          // This ensures routes have the claim when they check permissions
+          const isTenantAdmin = tokenResult.claims.isTenantAdmin === true;
+          setIsTenantAdminClaim(isTenantAdmin);
+          
           await fetchUserRole(userProfile); // Fetch role before setting user
           setCurrentUser(userProfile);
 
           // ✨ AUTO-MIGRATION: Automatically update role permissions if needed
           // Runs silently in background, doesn't block login
-          // Check custom claims from token (more reliable than roleName)
-          const isTenantAdmin = tokenResult.claims.isTenantAdmin === true;
-          
-          // ✅ CRITICAL: Set tenant admin claim state for permission checks
-          setIsTenantAdminClaim(isTenantAdmin);
-          console.log('[Auth] Tenant Admin claim set:', isTenantAdmin);
           
           if ((userProfile.isPlatformAdmin || isTenantAdmin) && userProfile.tenantId) {
             console.log('[AutoMigration] Triggering auto-migration for admin user...');
@@ -249,10 +248,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [currentUser, setCurrentUser, fetchUserRole]);
 
   const hasPermission = useCallback((permission: Permission): boolean => {
-    console.log('[hasPermission] Checking permission:', permission);
-    console.log('[hasPermission] isTenantAdminClaim:', isTenantAdminClaim);
-    console.log('[hasPermission] isPlatformAdmin:', currentUser?.isPlatformAdmin);
-    
     // Platform admins have all permissions except tenant-specific ones
     if (currentUser?.isPlatformAdmin) {
       return true;
@@ -262,7 +257,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // This bypasses outdated role permissions during migration
     // Uses isTenantAdminClaim which is set from Firebase Auth token (secure, not mutable)
     if (isTenantAdminClaim) {
-      console.log('[hasPermission] Tenant Admin claim detected! Granting access...');
       // Grant all tenant admin permissions based on verified custom claim
       const tenantAdminPermissions = [
         Permission.CAN_MANAGE_ROLES,
