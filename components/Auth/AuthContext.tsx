@@ -158,6 +158,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Runs silently in background, doesn't block login
           // Check custom claims from token (more reliable than roleName)
           const isTenantAdmin = tokenResult.claims.isTenantAdmin === true;
+          
+          // ✅ CRITICAL: Set tenant admin claim state for permission checks
+          setIsTenantAdminClaim(isTenantAdmin);
+          console.log('[Auth] Tenant Admin claim set:', isTenantAdmin);
+          
           if ((userProfile.isPlatformAdmin || isTenantAdmin) && userProfile.tenantId) {
             console.log('[AutoMigration] Triggering auto-migration for admin user...');
             autoMigrateRoles(userProfile.tenantId).catch(err => {
