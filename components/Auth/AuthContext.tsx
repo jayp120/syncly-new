@@ -266,7 +266,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // This bypasses outdated role permissions during migration
     // Uses isTenantAdminClaim which is set from Firebase Auth token (secure, not mutable)
     if (isTenantAdminClaim) {
-      // Grant ALL tenant admin permissions based on verified custom claim (65 total)
+      // Grant ALL tenant admin permissions based on verified custom claim (68 total)
       const tenantAdminPermissions = [
         // Role Management (6)
         Permission.CAN_MANAGE_ROLES,
@@ -342,14 +342,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         Permission.CAN_VIEW_OWN_CALENDAR,
         Permission.CAN_MANAGE_TEAM_CALENDAR,
         
-        // Settings & Integration (5)
+        // Settings & Integration (7)
         Permission.CAN_MANAGE_INTEGRATIONS,
         Permission.CAN_VIEW_ACTIVITY_LOG,
         Permission.CAN_VIEW_TRIGGER_LOG,
         Permission.CAN_VIEW_LEADERBOARD,
         Permission.CAN_USE_PERFORMANCE_HUB,
         Permission.CAN_VIEW_ANALYTICS_DASHBOARD,
-        Permission.CAN_EXPORT_DATA
+        Permission.CAN_EXPORT_DATA,
+        
+        // Integration Access (3)
+        Permission.CAN_USE_GOOGLE_CALENDAR,
+        Permission.CAN_USE_TELEGRAM_BOT,
+        Permission.CAN_USE_GEMINI_AI
       ];
       if (tenantAdminPermissions.includes(permission)) {
         return true;

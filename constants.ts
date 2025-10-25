@@ -157,6 +157,14 @@ export const PERMISSION_GROUPS = {
       Permission.CAN_VIEW_TRIGGER_LOG,
     ],
   },
+  integrationAccess: {
+    label: 'Integration Access',
+    permissions: [
+      Permission.CAN_USE_GOOGLE_CALENDAR,
+      Permission.CAN_USE_TELEGRAM_BOT,
+      Permission.CAN_USE_GEMINI_AI,
+    ],
+  },
 };
 
 
@@ -281,6 +289,11 @@ export const DEFAULT_ROLES: Role[] = [
       Permission.CAN_VIEW_LEADERBOARD,
       Permission.CAN_USE_PERFORMANCE_HUB,
       Permission.CAN_VIEW_TRIGGER_LOG,
+      
+      // Integration Access - Full Control
+      Permission.CAN_USE_GOOGLE_CALENDAR,
+      Permission.CAN_USE_TELEGRAM_BOT,
+      Permission.CAN_USE_GEMINI_AI,
     ],
   },
   {
