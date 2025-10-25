@@ -36,8 +36,14 @@ The application is built using **React 19.1** and **TypeScript**, with **Vite 6.
 -   **Production-Ready Landing Page:** Clean, minimalistic design highlighting AI features (Consistency Tracker, Performance Hub, AI EOD Reports, AI Task Generation) and Google Calendar integration. Legal documentation (About, Privacy Policy, Terms of Service) are accessible via dedicated route pages, not inline on landing page.
 -   **Legal Pages Architecture:** About Us, Privacy Policy, and Terms of Service are standalone pages with dedicated routes (/about, /privacy, /terms) accessible from footer links. Each page features consistent design, navigation header, and embedded contact information.
 
-## Database Indexes
-**Status:** ✅ **DEPLOYED** (October 23, 2025)
+## Database Configuration
+**Firestore Security Rules:** ✅ **DEPLOYED** (October 25, 2025)
+- **Status:** Production-ready with multi-tenant isolation and RBAC
+- **Key Features:** Login fix, Tenant Admin permissions, immutable audit logs
+- **Deployment Guide:** See `FIRESTORE_RULES_DEPLOYMENT.md`
+- **Quick Deploy:** `firebase deploy --only firestore:rules`
+
+**Firestore Indexes:** ✅ **DEPLOYED** (October 23, 2025)
 - **Project:** syncly-473404
 - **Indexes:** 20 composite indexes
 - **Verification:** All indexes show "ENABLED" in Firebase Console
