@@ -15,7 +15,7 @@ let migrationAttempted = false;
  * Automatically migrates system roles if needed
  * Runs silently in the background on app startup
  */
-export async function autoMigrateRoles(): Promise<void> {
+export async function autoMigrateRoles(tenantId?: string): Promise<void> {
   // Only attempt migration once per session
   if (migrationAttempted) {
     return;
@@ -26,8 +26,22 @@ export async function autoMigrateRoles(): Promise<void> {
   try {
     console.log('[AutoMigration] Checking if role migration is needed...');
     
+    // CRITICAL FIX: Only query roles for the current tenant
+    // Platform admins can migrate all tenants, but tenant admins can only migrate their own
     const rolesRef = collection(db, 'roles');
-    const snapshot = await getDocs(rolesRef);
+    let snapshot;
+    
+    if (tenantId) {
+      // Tenant admin: only get roles for their tenant
+      const { query, where } = await import('firebase/firestore');
+      const tenantQuery = query(rolesRef, where('tenantId', '==', tenantId));
+      snapshot = await getDocs(tenantQuery);
+      console.log(`[AutoMigration] Checking roles for tenant: ${tenantId}`);
+    } else {
+      // Platform admin: get all roles
+      snapshot = await getDocs(rolesRef);
+      console.log('[AutoMigration] Checking all roles (Platform Admin)');
+    }
     
     if (snapshot.empty) {
       console.log('[AutoMigration] No roles found, skipping migration');

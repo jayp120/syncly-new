@@ -156,7 +156,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const isTenantAdmin = tokenResult.claims.isTenantAdmin === true;
           if (userProfile.isPlatformAdmin || isTenantAdmin) {
             console.log('[AutoMigration] Triggering auto-migration for admin user...');
-            autoMigrateRoles().catch(err => {
+            // Pass tenantId for tenant admins (null for platform admins to migrate all)
+            const migrationTenantId = userProfile.isPlatformAdmin ? undefined : userProfile.tenantId;
+            autoMigrateRoles(migrationTenantId).catch(err => {
               console.warn('Auto-migration failed (non-critical):', err);
             });
           }
