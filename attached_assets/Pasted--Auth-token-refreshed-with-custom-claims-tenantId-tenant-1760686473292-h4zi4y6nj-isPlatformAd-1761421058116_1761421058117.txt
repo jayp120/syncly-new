@@ -1,0 +1,37 @@
+✅ Auth token refreshed with custom claims: {tenantId: 'tenant_1760686473292_h4zi4y6nj', isPlatformAdmin: false, isTenantAdmin: true}
+repositories.ts:175 [UserRepository] Fetching fresh users for tenant: tenant_1760686473292_h4zi4y6nj 
+repositories.ts:175 [UserRepository] Fetching fresh users for tenant: tenant_1760686473292_h4zi4y6nj 
+repositories.ts:175 [UserRepository] Fetching fresh users for tenant: tenant_1760686473292_h4zi4y6nj 
+repositories.ts:175 [UserRepository] Fetching fresh users for tenant: tenant_1760686473292_h4zi4y6nj 
+firestoreService.ts:249 [Users] Token claims: {name: 'neeraj mittal', tenantId: 'tenant_1760686473292_h4zi4y6nj', isPlatformAdmin: false, isTenantAdmin: true, iss: 'https://securetoken.google.com/syncly-473404', …}
+firestoreService.ts:249 [Users] Token claims: {name: 'neeraj mittal', tenantId: 'tenant_1760686473292_h4zi4y6nj', isPlatformAdmin: false, isTenantAdmin: true, iss: 'https://securetoken.google.com/syncly-473404', …}
+firestoreService.ts:249 [Users] Token claims: {name: 'neeraj mittal', tenantId: 'tenant_1760686473292_h4zi4y6nj', isPlatformAdmin: false, isTenantAdmin: true, iss: 'https://securetoken.google.com/syncly-473404', …}
+firestoreService.ts:249 [Users] Token claims: {name: 'neeraj mittal', tenantId: 'tenant_1760686473292_h4zi4y6nj', isPlatformAdmin: false, isTenantAdmin: true, iss: 'https://securetoken.google.com/syncly-473404', …}
+firestoreService.ts:254 [Users] My user doc: {isActive: true, name: 'neeraj mittal', email: 'neeraj@syncly.com', businessUnitId: 'bu_1760686476245_wwjsfcuxy', roleId: 'role_1760686474673_say1a6pil', …}
+firestoreService.ts:265 [Users] Querying users for tenant: tenant_1760686473292_h4zi4y6nj
+firestoreService.ts:254 [Users] My user doc: {isActive: true, name: 'neeraj mittal', email: 'neeraj@syncly.com', businessUnitId: 'bu_1760686476245_wwjsfcuxy', roleId: 'role_1760686474673_say1a6pil', …}
+firestoreService.ts:265 [Users] Querying users for tenant: tenant_1760686473292_h4zi4y6nj
+firestoreService.ts:254 [Users] My user doc: {isActive: true, name: 'neeraj mittal', email: 'neeraj@syncly.com', businessUnitId: 'bu_1760686476245_wwjsfcuxy', roleId: 'role_1760686474673_say1a6pil', …}
+firestoreService.ts:265 [Users] Querying users for tenant: tenant_1760686473292_h4zi4y6nj
+firestoreService.ts:254 [Users] My user doc: {isActive: true, name: 'neeraj mittal', email: 'neeraj@syncly.com', businessUnitId: 'bu_1760686476245_wwjsfcuxy', roleId: 'role_1760686474673_say1a6pil', …}
+firestoreService.ts:265 [Users] Querying users for tenant: tenant_1760686473292_h4zi4y6nj
+firestoreService.ts:276 [Users] Query returned 10 users
+repositories.ts:188 [UserRepository] Fetched users count: 10
+repositories.ts:189 [UserRepository] Users: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+firestoreService.ts:307 [getAllRoles] Querying roles for tenantId: tenant_1760686473292_h4zi4y6nj
+firestoreService.ts:276 [Users] Query returned 10 users
+repositories.ts:188 [UserRepository] Fetched users count: 10
+repositories.ts:189 [UserRepository] Users: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+firestoreService.ts:307 [getAllRoles] Querying roles for tenantId: tenant_1760686473292_h4zi4y6nj
+firestoreService.ts:276 [Users] Query returned 10 users
+repositories.ts:188 [UserRepository] Fetched users count: 10
+repositories.ts:189 [UserRepository] Users: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+firestoreService.ts:307 [getAllRoles] Querying roles for tenantId: tenant_1760686473292_h4zi4y6nj
+firestoreService.ts:276 [Users] Query returned 10 users
+repositories.ts:188 [UserRepository] Fetched users count: 10
+repositories.ts:189 [UserRepository] Users: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+firestoreService.ts:307 [getAllRoles] Querying roles for tenantId: tenant_1760686473292_h4zi4y6nj
+firestoreService.ts:313 [getAllRoles] Current token claims: {tenantId: 'tenant_1760686473292_h4zi4y6nj', isPlatformAdmin: false, isTenantAdmin: true}
+firestoreService.ts:313 [getAllRoles] Current token claims: {tenantId: 'tenant_1760686473292_h4zi4y6nj', isPlatformAdmin: false, isTenantAdmin: true}
+firestoreService.ts:313 [getAllRoles] Current token claims: {tenantId: 'tenant_1760686473292_h4zi4y6nj', isPlatformAdmin: false, isTenantAdmin: true}
+firestoreService.ts:313 [getAllRoles] Current token claims: {tenantId: 'tenant_1760686473292_h4zi4y6nj', isPlatformAdmin: false, isTenantAdmin: true}

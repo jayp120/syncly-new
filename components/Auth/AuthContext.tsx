@@ -152,7 +152,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
           // ✨ AUTO-MIGRATION: Automatically update role permissions if needed
           // Runs silently in background, doesn't block login
-          if (userProfile.isPlatformAdmin || userProfile.roleName === 'Tenant Admin') {
+          // Check custom claims from token (more reliable than roleName)
+          const isTenantAdmin = tokenResult.claims.isTenantAdmin === true;
+          if (userProfile.isPlatformAdmin || isTenantAdmin) {
+            console.log('[AutoMigration] Triggering auto-migration for admin user...');
             autoMigrateRoles().catch(err => {
               console.warn('Auto-migration failed (non-critical):', err);
             });
