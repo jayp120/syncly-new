@@ -227,6 +227,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [currentUser, setCurrentUser, fetchUserRole]);
 
   const hasPermission = useCallback((permission: Permission): boolean => {
+    // Platform admins have all permissions except tenant-specific ones
+    if (currentUser?.isPlatformAdmin) {
+      return true;
+    }
+    
     // If we have the role doc, use its permissions
     if (currentUserRole) {
       return currentUserRole.permissions.includes(permission);
@@ -237,29 +242,73 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (currentUser?.roleName) {
       const roleName = currentUser.roleName.toLowerCase();
       
-      // Admin role has all permissions
-      if (roleName === 'admin' || roleName === 'tenant admin') {
+      // Tenant Admin role has all tenant-level permissions
+      if (roleName === 'tenant admin' || roleName === 'admin' || roleName === 'super admin') {
+        // Exclude platform-only permissions
+        if ([Permission.PLATFORM_ADMIN, Permission.CAN_MANAGE_TENANTS, Permission.CAN_VIEW_ALL_TENANTS].includes(permission)) {
+          return false;
+        }
         return true;
       }
       
       // Manager role permissions (matches DEFAULT_ROLES in constants.ts)
       if (roleName === 'manager') {
         return [
-          Permission.CAN_MANAGE_TEAM_REPORTS,
-          Permission.CAN_ACKNOWLEDGE_REPORTS,
-          Permission.CAN_MANAGE_TEAM_TASKS,
+          Permission.CAN_VIEW_USER_ACTIVITY,
+          Permission.CAN_VIEW_BUSINESS_UNITS,
+          Permission.CAN_VIEW_TEAM_TASKS,
+          Permission.CAN_CREATE_TEAM_TASK,
+          Permission.CAN_EDIT_TEAM_TASK,
+          Permission.CAN_ASSIGN_TASK,
           Permission.CAN_EDIT_ANY_TASK_STATUS,
-          Permission.CAN_VIEW_LEADERBOARD,
-          Permission.CAN_VIEW_TEAM_CALENDAR,
-          Permission.CAN_MANAGE_TEAM_MEETINGS,
-          Permission.CAN_VIEW_OWN_MEETINGS,
-          Permission.CAN_USE_PERFORMANCE_HUB,
-          Permission.CAN_VIEW_TRIGGER_LOG,
+          Permission.CAN_COMMENT_ON_TEAM_TASK,
           Permission.CAN_CREATE_PERSONAL_TASKS,
-          Permission.CAN_SUBMIT_OWN_LEAVE,
-          Permission.CAN_VIEW_OWN_REPORTS,
+          Permission.CAN_VIEW_OWN_TASKS,
+          Permission.CAN_VIEW_TEAM_REPORTS,
+          Permission.CAN_ACKNOWLEDGE_REPORTS,
           Permission.CAN_SUBMIT_OWN_EOD,
-          Permission.CAN_VIEW_OWN_CALENDAR
+          Permission.CAN_VIEW_OWN_REPORTS,
+          Permission.CAN_REQUIRE_EOD_SUBMISSION,
+          Permission.CAN_VIEW_TEAM_LEAVES,
+          Permission.CAN_APPROVE_LEAVE,
+          Permission.CAN_REJECT_LEAVE,
+          Permission.CAN_SUBMIT_OWN_LEAVE,
+          Permission.CAN_MANAGE_TEAM_MEETINGS,
+          Permission.CAN_VIEW_TEAM_MEETINGS,
+          Permission.CAN_VIEW_OWN_MEETINGS,
+          Permission.CAN_SCHEDULE_MEETING,
+          Permission.CAN_VIEW_TEAM_CALENDAR,
+          Permission.CAN_VIEW_OWN_CALENDAR,
+          Permission.CAN_MANAGE_TEAM_CALENDAR,
+          Permission.CAN_VIEW_ANALYTICS_DASHBOARD,
+          Permission.CAN_VIEW_LEADERBOARD,
+          Permission.CAN_USE_PERFORMANCE_HUB,
+          Permission.CAN_VIEW_TRIGGER_LOG
+        ].includes(permission);
+      }
+      
+      // Team Lead role permissions
+      if (roleName === 'team lead') {
+        return [
+          Permission.CAN_VIEW_BUSINESS_UNITS,
+          Permission.CAN_VIEW_TEAM_TASKS,
+          Permission.CAN_CREATE_TEAM_TASK,
+          Permission.CAN_ASSIGN_TASK,
+          Permission.CAN_COMMENT_ON_TEAM_TASK,
+          Permission.CAN_CREATE_PERSONAL_TASKS,
+          Permission.CAN_VIEW_OWN_TASKS,
+          Permission.CAN_VIEW_TEAM_REPORTS,
+          Permission.CAN_SUBMIT_OWN_EOD,
+          Permission.CAN_VIEW_OWN_REPORTS,
+          Permission.CAN_VIEW_TEAM_LEAVES,
+          Permission.CAN_SUBMIT_OWN_LEAVE,
+          Permission.CAN_VIEW_TEAM_MEETINGS,
+          Permission.CAN_VIEW_OWN_MEETINGS,
+          Permission.CAN_SCHEDULE_MEETING,
+          Permission.CAN_VIEW_TEAM_CALENDAR,
+          Permission.CAN_VIEW_OWN_CALENDAR,
+          Permission.CAN_VIEW_LEADERBOARD,
+          Permission.CAN_VIEW_TRIGGER_LOG
         ].includes(permission);
       }
       
@@ -267,12 +316,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (roleName === 'employee') {
         return [
           Permission.CAN_CREATE_PERSONAL_TASKS,
-          Permission.CAN_SUBMIT_OWN_LEAVE,
-          Permission.CAN_VIEW_OWN_REPORTS,
+          Permission.CAN_VIEW_OWN_TASKS,
           Permission.CAN_SUBMIT_OWN_EOD,
-          Permission.CAN_VIEW_LEADERBOARD,
+          Permission.CAN_VIEW_OWN_REPORTS,
+          Permission.CAN_SUBMIT_OWN_LEAVE,
+          Permission.CAN_VIEW_OWN_MEETINGS,
           Permission.CAN_VIEW_OWN_CALENDAR,
-          Permission.CAN_VIEW_OWN_MEETINGS
+          Permission.CAN_VIEW_LEADERBOARD
         ].includes(permission);
       }
     }
@@ -293,4 +343,59 @@ export const useAuth = (): AuthContextType => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
+};
+
+// ========== Permission Utilities ==========
+
+export const usePermission = (permission: Permission): boolean => {
+  const { hasPermission } = useAuth();
+  return hasPermission(permission);
+};
+
+export const usePermissions = (permissions: Permission[]): boolean[] => {
+  const { hasPermission } = useAuth();
+  return permissions.map(p => hasPermission(p));
+};
+
+export const useHasAnyPermission = (permissions: Permission[]): boolean => {
+  const { hasPermission } = useAuth();
+  return permissions.some(p => hasPermission(p));
+};
+
+export const useHasAllPermissions = (permissions: Permission[]): boolean => {
+  const { hasPermission } = useAuth();
+  return permissions.every(p => hasPermission(p));
+};
+
+interface RequirePermissionProps {
+  permission: Permission;
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+}
+
+export const RequirePermission: React.FC<RequirePermissionProps> = ({ permission, children, fallback = null }) => {
+  const { hasPermission } = useAuth();
+  return hasPermission(permission) ? <>{children}</> : <>{fallback}</>;
+};
+
+interface RequireAnyPermissionProps {
+  permissions: Permission[];
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+}
+
+export const RequireAnyPermission: React.FC<RequireAnyPermissionProps> = ({ permissions, children, fallback = null }) => {
+  const hasAny = useHasAnyPermission(permissions);
+  return hasAny ? <>{children}</> : <>{fallback}</>;
+};
+
+interface RequireAllPermissionsProps {
+  permissions: Permission[];
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+}
+
+export const RequireAllPermissions: React.FC<RequireAllPermissionsProps> = ({ permissions, children, fallback = null }) => {
+  const hasAll = useHasAllPermissions(permissions);
+  return hasAll ? <>{children}</> : <>{fallback}</>;
 };
