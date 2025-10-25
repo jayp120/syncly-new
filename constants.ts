@@ -192,8 +192,10 @@ export const DEFAULT_ROLES: Role[] = [
     id: 'tenant_admin',
     tenantId: '', // Will be set during tenant creation
     name: 'Tenant Admin',
-    description: 'Full control over tenant settings, users, roles, and all features. Cannot manage other tenants.',
+    description: 'Full control over tenant settings, users, roles, and all features. Cannot manage other tenants or platform settings.',
     permissions: [
+      // NOTE: Platform-only permissions (PLATFORM_ADMIN, CAN_MANAGE_TENANTS, CAN_VIEW_ALL_TENANTS) are excluded
+      
       // User Management - Full Control
       Permission.CAN_VIEW_ALL_USERS,
       Permission.CAN_CREATE_USER,
@@ -236,6 +238,7 @@ export const DEFAULT_ROLES: Role[] = [
       
       // EOD Reports - Full Control
       Permission.CAN_VIEW_ALL_REPORTS,
+      Permission.CAN_VIEW_TEAM_REPORTS,
       Permission.CAN_ACKNOWLEDGE_ANY_EOD,
       Permission.CAN_REQUIRE_EOD_SUBMISSION,
       Permission.CAN_MARK_EOD_LATE,
@@ -245,6 +248,7 @@ export const DEFAULT_ROLES: Role[] = [
       
       // Leave Management - Full Control
       Permission.CAN_VIEW_ALL_LEAVES,
+      Permission.CAN_VIEW_TEAM_LEAVES,
       Permission.CAN_APPROVE_LEAVE,
       Permission.CAN_REJECT_LEAVE,
       Permission.CAN_OVERRIDE_LEAVE_BALANCE,

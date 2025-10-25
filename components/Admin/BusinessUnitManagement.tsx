@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { BusinessUnit, UserStatus } from '../../types';
+import { BusinessUnit, UserStatus, Permission } from '../../types';
 import * as DataService from '../../services/dataService';
 import Card from '../Common/Card';
 import Button from '../Common/Button';
@@ -9,9 +9,31 @@ import Spinner from '../Common/Spinner';
 import Alert from '../Common/Alert';
 import ConfirmationModal from '../Common/ConfirmationModal';
 import { useToast } from '../../contexts/ToastContext';
-import { useAuth } from '../Auth/AuthContext';
+import { useAuth, usePermission } from '../Auth/AuthContext';
 
 const BusinessUnitManagement: React.FC = () => {
+  const canViewBU = usePermission(Permission.CAN_VIEW_BUSINESS_UNITS);
+  const canCreateBU = usePermission(Permission.CAN_CREATE_BUSINESS_UNIT);
+  const canEditBU = usePermission(Permission.CAN_EDIT_BUSINESS_UNIT);
+  const canArchiveBU = usePermission(Permission.CAN_ARCHIVE_BUSINESS_UNIT);
+  const canDeleteBU = usePermission(Permission.CAN_DELETE_BUSINESS_UNIT);
+  
+  // SECURITY: Block unauthorized access
+  if (!canViewBU) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card title="Access Denied">
+          <div className="text-center py-8">
+            <i className="fas fa-lock text-6xl text-gray-400 dark:text-gray-600 mb-4"></i>
+            <p className="text-lg font-semibold mb-2">Permission Required</p>
+            <p className="text-gray-600 dark:text-gray-400">
+              You do not have permission to view business units. Please contact your administrator.
+            </p>
+          </div>
+        </Card>
+      </div>
+    );
+  }
   const [allBusinessUnits, setAllBusinessUnits] = useState<BusinessUnit[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showFormModal, setShowFormModal] = useState(false);
@@ -38,6 +60,10 @@ const BusinessUnitManagement: React.FC = () => {
   const archivedBUs = useMemo(() => allBusinessUnits.filter(bu => bu.status === 'archived').sort((a,b) => a.name.localeCompare(b.name)), [allBusinessUnits]);
 
   const handleAddBU = () => {
+    if (!canCreateBU) {
+      addToast('You do not have permission to create business units.', 'error');
+      return;
+    }
     setCurrentBUToEdit(null);
     setBUName('');
     setFormError('');
@@ -45,6 +71,10 @@ const BusinessUnitManagement: React.FC = () => {
   };
 
   const handleEditBU = (bu: BusinessUnit) => {
+    if (!canEditBU) {
+      addToast('You do not have permission to edit business units.', 'error');
+      return;
+    }
     setCurrentBUToEdit(bu);
     setBUName(bu.name);
     setFormError('');
@@ -54,6 +84,10 @@ const BusinessUnitManagement: React.FC = () => {
   const handleArchiveBU = async (bu: BusinessUnit) => {
     if (!currentUser) {
       addToast('You must be logged in to perform this action.', 'error');
+      return;
+    }
+    if (!canArchiveBU) {
+      addToast('You do not have permission to archive business units.', 'error');
       return;
     }
     try {
@@ -70,6 +104,10 @@ const BusinessUnitManagement: React.FC = () => {
       addToast('You must be logged in to perform this action.', 'error');
       return;
     }
+    if (!canArchiveBU) {
+      addToast('You do not have permission to restore business units.', 'error');
+      return;
+    }
     try {
       await DataService.unarchiveBusinessUnit(bu.id, currentUser);
       addToast(`Business Unit "${bu.name}" has been restored.`, 'success');
@@ -83,6 +121,11 @@ const BusinessUnitManagement: React.FC = () => {
     if (!buToPermanentlyDelete) return;
     if (!currentUser) {
       addToast('You must be logged in to perform this action.', 'error');
+      return;
+    }
+    if (!canDeleteBU) {
+      addToast('You do not have permission to permanently delete business units.', 'error');
+      setBUToPermanentlyDelete(null);
       return;
     }
     try {
@@ -106,6 +149,16 @@ const BusinessUnitManagement: React.FC = () => {
 
     if (!currentUser) {
       setFormError('You must be logged in to perform this action.');
+      return;
+    }
+
+    // SECURITY: Validate permissions before calling DataService (critical defense against UI manipulation)
+    if (currentBUToEdit && !canEditBU) {
+      setFormError('You do not have permission to edit business units.');
+      return;
+    }
+    if (!currentBUToEdit && !canCreateBU) {
+      setFormError('You do not have permission to create business units.');
       return;
     }
 
@@ -139,7 +192,7 @@ const BusinessUnitManagement: React.FC = () => {
   return (
     <div className="space-y-6">
       <Card title="Active Business Units" titleIcon={<i className="fas fa-briefcase"></i>} actions={
-        <Button onClick={handleAddBU} variant="primary" icon={<i className="fas fa-plus"></i>}>Add Business Unit</Button>
+        canCreateBU ? <Button onClick={handleAddBU} variant="primary" icon={<i className="fas fa-plus"></i>}>Add Business Unit</Button> : undefined
       }>
         {activeBUs.length === 0 ? (
           <p className="text-center text-text-secondary dark:text-dark-text-secondary py-6">No active Business Units found.</p>

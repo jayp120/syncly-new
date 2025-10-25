@@ -5,13 +5,34 @@ import Card from '../Common/Card';
 import Button from '../Common/Button';
 import Spinner from '../Common/Spinner';
 import { useToast } from '../../contexts/ToastContext';
-import { useAuth } from '../Auth/AuthContext';
+import { useAuth, usePermission } from '../Auth/AuthContext';
 import Input from '../Common/Input';
 import Textarea from '../Common/Textarea';
 import ConfirmationModal from '../Common/ConfirmationModal';
 import { PERMISSION_GROUPS, SYSTEM_ROLE_IDS } from '../../constants';
 
 const RolesPermissionsPage: React.FC = () => {
+    const canViewRoles = usePermission(Permission.CAN_VIEW_ROLES);
+    const canEditRoles = usePermission(Permission.CAN_EDIT_ROLE);
+    const canCreateRoles = usePermission(Permission.CAN_CREATE_ROLE);
+    const canDeleteRoles = usePermission(Permission.CAN_DELETE_ROLE);
+    
+    // SECURITY: Block unauthorized access
+    if (!canViewRoles) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <Card title="Access Denied">
+                    <div className="text-center py-8">
+                        <i className="fas fa-lock text-6xl text-gray-400 dark:text-gray-600 mb-4"></i>
+                        <p className="text-lg font-semibold mb-2">Permission Required</p>
+                        <p className="text-gray-600 dark:text-gray-400">
+                            You do not have permission to view roles and permissions. Please contact your administrator.
+                        </p>
+                    </div>
+                </Card>
+            </div>
+        );
+    }
     const [roles, setRoles] = useState<Role[]>([]);
     const [selectedRole, setSelectedRole] = useState<Role | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -32,10 +53,16 @@ const RolesPermissionsPage: React.FC = () => {
     }, [fetchRoles]);
 
     const handleSelectRole = (role: Role) => {
-        setSelectedRole(JSON.parse(JSON.stringify(role))); // Deep copy for editing
+        // SECURITY: Allow viewing system roles even without edit permission
+        // Users with CAN_VIEW_ROLES can inspect system roles, but cannot modify them
+        setSelectedRole(JSON.parse(JSON.stringify(role))); // Deep copy for viewing/editing
     };
 
     const handleAddNewRole = () => {
+        if (!canCreateRoles) {
+            addToast('You do not have permission to create roles.', 'error');
+            return;
+        }
         setSelectedRole({
             id: '',
             name: '',
@@ -66,6 +93,22 @@ const RolesPermissionsPage: React.FC = () => {
             return;
         }
 
+        // SECURITY: Prevent editing system roles
+        if (selectedRole.id && isSystemRole(selectedRole.id)) {
+            addToast('System roles cannot be modified for security reasons.', 'error');
+            return;
+        }
+
+        // SECURITY: Check permissions
+        if (selectedRole.id && !canEditRoles) {
+            addToast('You do not have permission to edit roles.', 'error');
+            return;
+        }
+        if (!selectedRole.id && !canCreateRoles) {
+            addToast('You do not have permission to create roles.', 'error');
+            return;
+        }
+
         setIsSaving(true);
         try {
             if (selectedRole.id) { // Editing existing role
@@ -90,6 +133,21 @@ const RolesPermissionsPage: React.FC = () => {
             addToast('You must be logged in to perform this action.', 'error');
             return;
         }
+        
+        // SECURITY: Check permission
+        if (!canDeleteRoles) {
+            addToast('You do not have permission to delete roles.', 'error');
+            setRoleToDelete(null);
+            return;
+        }
+        
+        // SECURITY: Prevent deleting system roles
+        if (isSystemRole(roleToDelete.id)) {
+            addToast('System roles cannot be deleted for security reasons.', 'error');
+            setRoleToDelete(null);
+            return;
+        }
+        
         try {
             await DataService.deleteRole(roleToDelete.id, currentUser);
             addToast(`Role "${roleToDelete.name}" deleted successfully.`, 'success');
@@ -110,7 +168,7 @@ const RolesPermissionsPage: React.FC = () => {
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card title="Roles" titleIcon={<i className="fas fa-user-tag"/>} actions={<Button onClick={handleAddNewRole} icon={<i className="fas fa-plus"/>} size="sm">New Role</Button>}>
+            <Card title="Roles" titleIcon={<i className="fas fa-user-tag"/>} actions={canCreateRoles ? <Button onClick={handleAddNewRole} icon={<i className="fas fa-plus"/>} size="sm">New Role</Button> : undefined}>
                 <ul className="space-y-2">
                     {roles.map(role => (
                         <li key={role.id}>
@@ -138,8 +196,8 @@ const RolesPermissionsPage: React.FC = () => {
                             />
                             {isSystemRole(selectedRole.id) && (
                                 <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
-                                    <i className="fas fa-info-circle mr-1"></i>
-                                    System role names cannot be changed. You can modify permissions only.
+                                    <i className="fas fa-lock mr-1"></i>
+                                    System role - cannot be modified for security reasons. {canEditRoles ? 'View-only access.' : 'Read-only access - contact admin to modify.'}
                                 </p>
                             )}
                              <Textarea 
@@ -164,7 +222,7 @@ const RolesPermissionsPage: React.FC = () => {
                                                         checked={selectedRole.permissions.includes(permission)}
                                                         onChange={e => handlePermissionChange(permission, e.target.checked)}
                                                         className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                                                        disabled={isSaving || (selectedRole.id === 'tenant_admin')}
+                                                        disabled={isSaving || isSystemRole(selectedRole.id) || !canEditRoles}
                                                     />
                                                     <label htmlFor={permission} className="ml-2 text-sm text-gray-700 dark:text-slate-300 capitalize cursor-pointer" style={{textTransform: 'capitalize'}}>
                                                         {permission.replace(/CAN_/g, '').replace(/_/g, ' ').toLowerCase()}
