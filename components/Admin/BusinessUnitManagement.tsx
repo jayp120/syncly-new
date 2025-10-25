@@ -9,6 +9,7 @@ import Spinner from '../Common/Spinner';
 import Alert from '../Common/Alert';
 import ConfirmationModal from '../Common/ConfirmationModal';
 import { useToast } from '../../contexts/ToastContext';
+import { useAuth } from '../Auth/AuthContext';
 
 const BusinessUnitManagement: React.FC = () => {
   const [allBusinessUnits, setAllBusinessUnits] = useState<BusinessUnit[]>([]);
@@ -20,6 +21,7 @@ const BusinessUnitManagement: React.FC = () => {
   const [buName, setBUName] = useState('');
   const [formError, setFormError] = useState('');
   const { addToast } = useToast();
+  const { currentUser } = useAuth();
 
   const fetchBusinessUnits = useCallback(async () => {
     setIsLoading(true);
@@ -50,8 +52,12 @@ const BusinessUnitManagement: React.FC = () => {
   };
 
   const handleArchiveBU = async (bu: BusinessUnit) => {
+    if (!currentUser) {
+      addToast('You must be logged in to perform this action.', 'error');
+      return;
+    }
     try {
-      await DataService.archiveBusinessUnit(bu.id);
+      await DataService.archiveBusinessUnit(bu.id, currentUser);
       addToast(`Business Unit "${bu.name}" archived successfully.`, 'success');
       fetchBusinessUnits();
     } catch (error: any) {
@@ -60,8 +66,12 @@ const BusinessUnitManagement: React.FC = () => {
   };
 
   const handleUnarchiveBU = async (bu: BusinessUnit) => {
+    if (!currentUser) {
+      addToast('You must be logged in to perform this action.', 'error');
+      return;
+    }
     try {
-      await DataService.unarchiveBusinessUnit(bu.id);
+      await DataService.unarchiveBusinessUnit(bu.id, currentUser);
       addToast(`Business Unit "${bu.name}" has been restored.`, 'success');
       fetchBusinessUnits();
     } catch (error: any) {
@@ -71,8 +81,12 @@ const BusinessUnitManagement: React.FC = () => {
   
   const confirmPermanentDelete = async () => {
     if (!buToPermanentlyDelete) return;
+    if (!currentUser) {
+      addToast('You must be logged in to perform this action.', 'error');
+      return;
+    }
     try {
-      await DataService.permanentlyDeleteBusinessUnit(buToPermanentlyDelete.id);
+      await DataService.permanentlyDeleteBusinessUnit(buToPermanentlyDelete.id, currentUser);
       addToast(`Business Unit "${buToPermanentlyDelete.name}" permanently deleted.`, 'success');
       fetchBusinessUnits();
     } catch (error: any) {
@@ -90,6 +104,11 @@ const BusinessUnitManagement: React.FC = () => {
       return;
     }
 
+    if (!currentUser) {
+      setFormError('You must be logged in to perform this action.');
+      return;
+    }
+
     const businessUnits = await DataService.getBusinessUnits();
     const existingBU = businessUnits.find(
         bu => bu.name.toLowerCase() === buName.trim().toLowerCase() && bu.id !== currentBUToEdit?.id
@@ -101,9 +120,9 @@ const BusinessUnitManagement: React.FC = () => {
 
     let result: BusinessUnit | null = null;
     if (currentBUToEdit) {
-      result = await DataService.updateBusinessUnit({ ...currentBUToEdit, name: buName.trim() });
+      result = await DataService.updateBusinessUnit({ ...currentBUToEdit, name: buName.trim() }, currentUser);
     } else {
-      result = await DataService.addBusinessUnit({ name: buName.trim() });
+      result = await DataService.addBusinessUnit({ name: buName.trim() }, currentUser);
     }
 
     if (result) {

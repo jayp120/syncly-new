@@ -5,6 +5,7 @@ import Card from '../Common/Card';
 import Button from '../Common/Button';
 import Spinner from '../Common/Spinner';
 import { useToast } from '../../contexts/ToastContext';
+import { useAuth } from '../Auth/AuthContext';
 import Input from '../Common/Input';
 import Textarea from '../Common/Textarea';
 import ConfirmationModal from '../Common/ConfirmationModal';
@@ -28,6 +29,7 @@ const RolesPermissionsPage: React.FC = () => {
     const [isSaving, setIsSaving] = useState(false);
     const [roleToDelete, setRoleToDelete] = useState<Role | null>(null);
     const { addToast } = useToast();
+    const { currentUser } = useAuth();
 
     const fetchRoles = useCallback(async () => {
         setIsLoading(true);
@@ -50,6 +52,7 @@ const RolesPermissionsPage: React.FC = () => {
             name: '',
             description: '',
             permissions: [],
+            tenantId: ''
         });
     };
     
@@ -69,13 +72,18 @@ const RolesPermissionsPage: React.FC = () => {
             return;
         }
 
+        if (!currentUser) {
+            addToast('You must be logged in to perform this action.', 'error');
+            return;
+        }
+
         setIsSaving(true);
         try {
             if (selectedRole.id) { // Editing existing role
-                await DataService.updateRole(selectedRole);
+                await DataService.updateRole(selectedRole, currentUser);
                 addToast(`Role "${selectedRole.name}" updated successfully.`, 'success');
             } else { // Adding new role
-                const newRole = await DataService.addRole({ name: selectedRole.name, description: selectedRole.description, permissions: selectedRole.permissions });
+                const newRole = await DataService.addRole({ name: selectedRole.name, description: selectedRole.description, permissions: selectedRole.permissions }, currentUser);
                 setSelectedRole(newRole); // Update state with the newly created role including its ID
                 addToast(`Role "${selectedRole.name}" created successfully.`, 'success');
             }
@@ -89,8 +97,12 @@ const RolesPermissionsPage: React.FC = () => {
 
     const confirmDeleteRole = async () => {
         if (!roleToDelete) return;
+        if (!currentUser) {
+            addToast('You must be logged in to perform this action.', 'error');
+            return;
+        }
         try {
-            await DataService.deleteRole(roleToDelete.id);
+            await DataService.deleteRole(roleToDelete.id, currentUser);
             addToast(`Role "${roleToDelete.name}" deleted successfully.`, 'success');
             setSelectedRole(null);
             await fetchRoles();

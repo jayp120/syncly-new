@@ -558,10 +558,9 @@ export const getRoles = async (overrideTenantId?: string): Promise<Role[]> => {
     return await roleRepository.getAll(tenantId);
 };
 export const getRoleById = async (id: string): Promise<Role | null> => await roleRepository.getById(id);
-export const updateRole = async (role: Role): Promise<Role> => {
+export const updateRole = async (role: Role, actor: User): Promise<Role> => {
     const existingRole = await getRoleById(role.id);
     if (!existingRole) throw new Error("Role not found");
-    const actor = getAuthUser();
     await roleRepository.update(role.id, role);
     
     // Log activity
@@ -577,11 +576,10 @@ export const updateRole = async (role: Role): Promise<Role> => {
     
     return role;
 };
-export const addRole = async (roleData: Omit<Role, 'id'>): Promise<Role> => {
+export const addRole = async (roleData: Omit<Role, 'id' | 'tenantId'>, actor: User): Promise<Role> => {
     let roles = await getRoles();
     if (roles.some(r => r.name.toLowerCase() === roleData.name.toLowerCase())) throw new Error("Role name already exists");
     const tenantId = requireTenantId();
-    const actor = getAuthUser();
     const newRole: Role = { ...roleData, id: generateId('role'), tenantId };
     await roleRepository.create(newRole.id, newRole);
     
@@ -598,11 +596,10 @@ export const addRole = async (roleData: Omit<Role, 'id'>): Promise<Role> => {
     
     return newRole;
 };
-export const deleteRole = async (roleId: string): Promise<void> => {
+export const deleteRole = async (roleId: string, actor: User): Promise<void> => {
     const users = await getUsers();
     if (users.some(u => u.roleId === roleId)) throw new Error("Cannot delete role as it is assigned to one or more users.");
     const role = await roleRepository.getById(roleId);
-    const actor = getAuthUser();
     await roleRepository.delete(roleId);
     
     // Log activity
@@ -624,11 +621,10 @@ export const getBusinessUnits = async (overrideTenantId?: string): Promise<Busin
     const tenantId = overrideTenantId || requireTenantId();
     return await businessUnitRepository.getAll(tenantId);
 };
-export const addBusinessUnit = async (buData: Omit<BusinessUnit, 'id' | 'status'>): Promise<BusinessUnit> => {
+export const addBusinessUnit = async (buData: Omit<BusinessUnit, 'id' | 'status' | 'tenantId'>, actor: User): Promise<BusinessUnit> => {
     let bus = await getBusinessUnits();
     if (bus.some(b => b.name.toLowerCase() === buData.name.toLowerCase())) throw new Error("Business Unit name already exists");
     const tenantId = requireTenantId();
-    const actor = getAuthUser();
     const newBU: BusinessUnit = { ...buData, id: generateId('bu'), status: 'active', tenantId };
     await businessUnitRepository.create(newBU.id, newBU);
     
@@ -645,10 +641,9 @@ export const addBusinessUnit = async (buData: Omit<BusinessUnit, 'id' | 'status'
     
     return newBU;
 };
-export const updateBusinessUnit = async (bu: BusinessUnit): Promise<BusinessUnit> => {
+export const updateBusinessUnit = async (bu: BusinessUnit, actor: User): Promise<BusinessUnit> => {
     const existing = await businessUnitRepository.getById(bu.id);
     if (!existing) throw new Error("Business Unit not found");
-    const actor = getAuthUser();
     await businessUnitRepository.update(bu.id, bu);
     
     // Log activity
@@ -664,10 +659,9 @@ export const updateBusinessUnit = async (bu: BusinessUnit): Promise<BusinessUnit
     
     return bu;
 };
-export const archiveBusinessUnit = async (buId: string): Promise<void> => {
+export const archiveBusinessUnit = async (buId: string, actor: User): Promise<void> => {
     const bu = await businessUnitRepository.getById(buId);
     if (!bu) throw new Error("Business Unit not found");
-    const actor = getAuthUser();
     bu.status = 'archived';
     await businessUnitRepository.update(buId, bu);
     
@@ -682,10 +676,9 @@ export const archiveBusinessUnit = async (buId: string): Promise<void> => {
         targetName: bu.name
     });
 };
-export const unarchiveBusinessUnit = async (buId: string): Promise<void> => {
+export const unarchiveBusinessUnit = async (buId: string, actor: User): Promise<void> => {
     const bu = await businessUnitRepository.getById(buId);
     if (!bu) throw new Error("Business Unit not found");
-    const actor = getAuthUser();
     bu.status = 'active';
     await businessUnitRepository.update(buId, bu);
     
@@ -700,11 +693,10 @@ export const unarchiveBusinessUnit = async (buId: string): Promise<void> => {
         targetName: bu.name
     });
 };
-export const permanentlyDeleteBusinessUnit = async (buId: string): Promise<void> => {
+export const permanentlyDeleteBusinessUnit = async (buId: string, actor: User): Promise<void> => {
     const users = await getUsers();
     if (users.some(u => u.businessUnitId === buId)) throw new Error("Cannot delete Business Unit as it is assigned to users.");
     const bu = await businessUnitRepository.getById(buId);
-    const actor = getAuthUser();
     await businessUnitRepository.delete(buId);
     
     // Log activity
