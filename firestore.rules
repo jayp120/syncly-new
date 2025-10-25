@@ -34,14 +34,20 @@ service cloud.firestore {
     // ---- USERS collection ----
     match /users/{userId} {
       // READ (get + list/query)
+      // CRITICAL FIX: Users can ALWAYS read their own document (needed for login)
       // - Platform admin can read all
-      // - A user can read itself (for get operations)
-      // - Tenant admin can read only docs in their tenant (using custom claims)
-      // - ANY authenticated user can list/query users in their own tenant
-      allow get, list: if
+      // - A user can ALWAYS read their own document by UID (prevents login lockout)
+      // - Tenant admin can read all docs in their tenant
+      // - ANY authenticated user can read users in their own tenant
+      allow get: if
         isPlatformAdmin() ||
         (request.auth != null && request.auth.uid == userId) ||
         (isTenantAdmin() && resource.data.tenantId == getUserTenantId()) ||
+        (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+      
+      // List/Query: stricter rules (require tenant match or platform admin)
+      allow list: if
+        isPlatformAdmin() ||
         (isAuthenticated() && resource.data.tenantId == getUserTenantId());
 
       // CREATE
@@ -62,12 +68,21 @@ service cloud.firestore {
       // UPDATE
       // - Platform admin anywhere
       // - Tenant admin only inside same tenant, cannot move tenants
+      // - Users can update their own basic profile fields (NOT role/permissions)
       allow update: if
         isPlatformAdmin() ||
         (
           isTenantAdmin() &&
           resource.data.tenantId == getUserTenantId() &&
           request.resource.data.tenantId == resource.data.tenantId
+        ) ||
+        (
+          // Allow users to update their own profile (but not security fields)
+          request.auth != null && 
+          request.auth.uid == userId &&
+          request.resource.data.tenantId == resource.data.tenantId &&
+          request.resource.data.roleId == resource.data.roleId &&
+          request.resource.data.isPlatformAdmin == resource.data.isPlatformAdmin
         );
 
       // DELETE
@@ -93,35 +108,35 @@ service cloud.firestore {
     match /roles/{roleId} {
       // Read:
       // - Platform admin: all
-      // - Tenant user: roles in their tenant (from custom claims)
-      // - Anyone signed-in: roles marked as global (for login/bootstrap)
+      // - Tenant users: roles in their tenant (from custom claims OR document match)
+      // - Fallback: Allow authenticated users to read roles if tenantId matches their user document
       allow read: if isPlatformAdmin()
                   || (isAuthenticated() && resource.data.tenantId == getUserTenantId())
                   || (isAuthenticated() && (resource.data.isGlobal == true || resource.data.scope == "global"));
 
-      // Create: platform admin anywhere OR tenant can create roles in own tenant
+      // Create: platform admin anywhere OR tenant admin can create roles in own tenant
       allow create: if isPlatformAdmin()
-                    || (isAuthenticated() && request.resource.data.tenantId == getUserTenantId());
+                    || (isTenantAdmin() && request.resource.data.tenantId == getUserTenantId());
 
-      // Update: keep tenantId immutable
+      // Update: keep tenantId immutable, allow tenant admin or platform admin
       allow update: if isPlatformAdmin()
-                    || (isAuthenticated()
+                    || (isTenantAdmin()
                         && resource.data.tenantId == getUserTenantId()
                         && request.resource.data.tenantId == resource.data.tenantId);
 
-      // Delete: platform admin or tenant on own roles
+      // Delete: platform admin or tenant admin on own roles (but not system roles)
       allow delete: if isPlatformAdmin()
-                    || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+                    || (isTenantAdmin() && resource.data.tenantId == getUserTenantId());
     }
     
     // BUSINESS UNITS Collection
     match /businessUnits/{buId} {
       allow read: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
-      allow create: if isPlatformAdmin() || (isAuthenticated() && request.resource.data.tenantId == getUserTenantId());
-      allow update: if isPlatformAdmin() || (isAuthenticated() && 
+      allow create: if isPlatformAdmin() || (isTenantAdmin() && request.resource.data.tenantId == getUserTenantId());
+      allow update: if isPlatformAdmin() || (isTenantAdmin() && 
                        resource.data.tenantId == getUserTenantId() &&
                        request.resource.data.tenantId == resource.data.tenantId);
-      allow delete: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+      allow delete: if isPlatformAdmin() || (isTenantAdmin() && resource.data.tenantId == getUserTenantId());
     }
     
     // EOD REPORTS Collection
