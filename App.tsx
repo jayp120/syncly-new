@@ -32,6 +32,7 @@ import AboutPage from './components/Legal/AboutPage';
 import ErrorBoundary from './components/Common/ErrorBoundary';
 import FixUsers from './src/pages/FixUsers';
 import LandingPage from './components/Landing/LandingPage';
+import RoleMigrationPage from './components/Admin/RoleMigrationPage';
 
 
 // This component contains the main application content, rendered within the layout
@@ -61,6 +62,9 @@ const AppContent: React.FC = () => {
       {/* Platform Admin Routes */}
       {currentUser?.isPlatformAdmin && <Route path="/super-admin" element={<SuperAdminDashboard />} />}
       {currentUser?.isPlatformAdmin && <Route path="/fix-users" element={<FixUsers />} />}
+
+      {/* Role Migration - Platform Admin or Tenant Admin */}
+      {(currentUser?.isPlatformAdmin || currentUser?.roleName === 'Tenant Admin') && <Route path="/migrate-roles" element={<RoleMigrationPage />} />}
 
       {/* Admin Routes */}
       {hasPermission(Permission.CAN_MANAGE_USERS) && <Route path="/user-management" element={<AdminUserManagementPage />} />}
