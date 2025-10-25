@@ -43,6 +43,13 @@ The application is built using **React 19.1** and **TypeScript**, with **Vite 6.
 - **Deployment Guide:** See `FIRESTORE_RULES_DEPLOYMENT.md`
 - **Quick Deploy:** `firebase deploy --only firestore:rules`
 
+**Auto-Migration System:** ✅ **ACTIVE** (October 25, 2025)
+- **Status:** Production-ready, runs automatically on admin login
+- **Purpose:** Automatically updates role permissions without manual intervention
+- **Triggers:** Platform Admin and Tenant Admin logins
+- **Guide:** See `AUTO_MIGRATION_GUIDE.md`
+- **Implementation:** `services/autoMigrationService.ts`
+
 **Firestore Indexes:** ✅ **DEPLOYED** (October 23, 2025)
 - **Project:** syncly-473404
 - **Indexes:** 20 composite indexes
