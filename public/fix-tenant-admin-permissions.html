@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fix Tenant Admin Permissions</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 900px; margin: 50px auto; padding: 20px; }
+        h1 { color: #2563eb; }
+        .instructions { background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .permissions { background: #1e293b; color: #e2e8f0; padding: 20px; border-radius: 8px; overflow-x: auto; }
+        pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; }
+        .copy-btn { background: #2563eb; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px; }
+        .copy-btn:hover { background: #1d4ed8; }
+        .step { margin: 15px 0; padding-left: 10px; border-left: 3px solid #2563eb; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Fix Tenant Admin Permissions</h1>
+    
+    <div class="instructions">
+        <h2>📋 Quick Fix Instructions:</h2>
+        
+        <div class="step">
+            <strong>Step 1:</strong> Open <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a>
+        </div>
+        
+        <div class="step">
+            <strong>Step 2:</strong> Navigate to <strong>Firestore Database</strong> → <strong>Data</strong>
+        </div>
+        
+        <div class="step">
+            <strong>Step 3:</strong> Find the <code>roles</code> collection
+        </div>
+        
+        <div class="step">
+            <strong>Step 4:</strong> Click on the <code>tenant_admin</code> document
+        </div>
+        
+        <div class="step">
+            <strong>Step 5:</strong> Click the <code>permissions</code> array field and replace it with the permissions below
+        </div>
+        
+        <div class="step">
+            <strong>Step 6:</strong> Click <strong>Update</strong> in Firebase Console
+        </div>
+        
+        <div class="step">
+            <strong>Step 7:</strong> Refresh your Syncly app and try accessing Roles & Permissions again ✅
+        </div>
+    </div>
+    
+    <h2>🔑 Updated Tenant Admin Permissions (65 permissions):</h2>
+    <button class="copy-btn" onclick="copyPermissions()">📋 Copy to Clipboard</button>
+    
+    <div class="permissions">
+        <pre id="permissionsArray">["CAN_VIEW_ALL_USERS", "CAN_CREATE_USER", "CAN_EDIT_USER", "CAN_INVITE_USER", "CAN_SUSPEND_USER", "CAN_RESTORE_USER", "CAN_ARCHIVE_USER", "CAN_DELETE_ARCHIVED_USER", "CAN_RESET_USER_PASSWORD", "CAN_RESET_USER_MFA", "CAN_ASSIGN_ROLE", "CAN_VIEW_USER_ACTIVITY", "CAN_VIEW_ROLES", "CAN_CREATE_ROLE", "CAN_EDIT_ROLE", "CAN_DELETE_ROLE", "CAN_ASSIGN_PERMISSIONS", "CAN_VIEW_BUSINESS_UNITS", "CAN_CREATE_BUSINESS_UNIT", "CAN_EDIT_BUSINESS_UNIT", "CAN_ARCHIVE_BUSINESS_UNIT", "CAN_DELETE_BUSINESS_UNIT", "CAN_ASSIGN_BUSINESS_UNIT", "CAN_VIEW_TEAM_TASKS", "CAN_CREATE_TEAM_TASK", "CAN_EDIT_TEAM_TASK", "CAN_DELETE_ANY_TASK", "CAN_ASSIGN_TASK", "CAN_EDIT_ANY_TASK_STATUS", "CAN_COMMENT_ON_TEAM_TASK", "CAN_CREATE_PERSONAL_TASKS", "CAN_VIEW_OWN_TASKS", "CAN_VIEW_ALL_REPORTS", "CAN_VIEW_TEAM_REPORTS", "CAN_ACKNOWLEDGE_ANY_EOD", "CAN_REQUIRE_EOD_SUBMISSION", "CAN_MARK_EOD_LATE", "CAN_SUBMIT_OWN_EOD", "CAN_VIEW_OWN_REPORTS", "CAN_EXPORT_EODS", "CAN_VIEW_ALL_LEAVES", "CAN_VIEW_TEAM_LEAVES", "CAN_APPROVE_LEAVE", "CAN_REJECT_LEAVE", "CAN_OVERRIDE_LEAVE_BALANCE", "CAN_SUBMIT_OWN_LEAVE", "CAN_MANAGE_TEAM_MEETINGS", "CAN_VIEW_TEAM_MEETINGS", "CAN_VIEW_OWN_MEETINGS", "CAN_SCHEDULE_MEETING", "CAN_VIEW_TEAM_CALENDAR", "CAN_VIEW_OWN_CALENDAR", "CAN_MANAGE_TEAM_CALENDAR", "CAN_MANAGE_TENANT_SETTINGS", "CAN_VIEW_TENANT_SETTINGS", "CAN_MANAGE_INTEGRATIONS", "CAN_MANAGE_NOTIFICATIONS", "CAN_VIEW_BILLING", "CAN_VIEW_ACTIVITY_LOG", "CAN_EXPORT_ACTIVITY_LOG", "CAN_VIEW_AUDIT_TRAIL", "CAN_VIEW_ANALYTICS_DASHBOARD", "CAN_EXPORT_DATA", "CAN_VIEW_LEADERBOARD", "CAN_USE_PERFORMANCE_HUB", "CAN_VIEW_TRIGGER_LOG"]</pre>
+    </div>
+    
+    <script>
+        function copyPermissions() {
+            const text = document.getElementById('permissionsArray').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = '✅ Copied!';
+                setTimeout(() => {
+                    btn.textContent = '📋 Copy to Clipboard';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
