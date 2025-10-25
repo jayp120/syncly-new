@@ -561,18 +561,105 @@ export const getRoleById = async (id: string): Promise<Role | null> => await rol
 export const updateRole = async (role: Role, actor: User): Promise<Role> => {
     const existingRole = await getRoleById(role.id);
     if (!existingRole) throw new Error("Role not found");
+    
+    // Track detailed changes for audit logging
+    const changes: { field: string; from: any; to: any }[] = [];
+    
+    // Track role name changes
+    if (existingRole.name !== role.name) {
+        changes.push({
+            field: 'Role Name',
+            from: existingRole.name,
+            to: role.name
+        });
+    }
+    
+    // Track role description changes
+    if (existingRole.description !== role.description) {
+        changes.push({
+            field: 'Role Description',
+            from: existingRole.description || '(none)',
+            to: role.description || '(none)'
+        });
+    }
+    
+    // Track permission changes (added and removed)
+    const oldPermissions = new Set(existingRole.permissions);
+    const newPermissions = new Set(role.permissions);
+    
+    const addedPermissions = role.permissions.filter(p => !oldPermissions.has(p));
+    const removedPermissions = existingRole.permissions.filter(p => !newPermissions.has(p));
+    
+    if (addedPermissions.length > 0) {
+        changes.push({
+            field: 'Permissions Added',
+            from: { canonical: [], humanReadable: '' },
+            to: { 
+                canonical: addedPermissions, // Store exact permission enum values for machine audit
+                humanReadable: addedPermissions.map(p => p.replace(/CAN_/g, '').replace(/_/g, ' ').toLowerCase()).join(', ')
+            }
+        });
+    }
+    
+    if (removedPermissions.length > 0) {
+        changes.push({
+            field: 'Permissions Removed',
+            from: {
+                canonical: removedPermissions, // Store exact permission enum values for machine audit
+                humanReadable: removedPermissions.map(p => p.replace(/CAN_/g, '').replace(/_/g, ' ').toLowerCase()).join(', ')
+            },
+            to: { canonical: [], humanReadable: '' }
+        });
+    }
+    
     await roleRepository.update(role.id, role);
     
-    // Log activity
+    // Create detailed activity log for the actor
+    const activityDescription = changes.length > 0 
+        ? `updated role "${role.name}" (${changes.length} change${changes.length > 1 ? 's' : ''})`
+        : `updated role "${role.name}"`;
+    
     await addActivityLog({
         timestamp: Date.now(),
         actorId: actor.id,
         actorName: actor.name,
         type: ActivityLogActionType.ROLE_UPDATED,
-        description: `updated role:`,
+        description: activityDescription,
         targetId: role.id,
-        targetName: role.name
+        targetName: role.name,
+        details: changes.length > 0 ? { changes } : undefined
     });
+    
+    // CRITICAL: Create activity logs for all users with this role so they see permission changes in their timeline
+    if (addedPermissions.length > 0 || removedPermissions.length > 0) {
+        const allUsers = await getUsers();
+        const affectedUsers = allUsers.filter(u => u.roleId === role.id && u.id !== actor.id);
+        
+        // Log for each affected user so it appears in their timeline
+        const permissionChangeDescription = [];
+        if (addedPermissions.length > 0) {
+            permissionChangeDescription.push(`gained ${addedPermissions.length} permission${addedPermissions.length > 1 ? 's' : ''}`);
+        }
+        if (removedPermissions.length > 0) {
+            permissionChangeDescription.push(`lost ${removedPermissions.length} permission${removedPermissions.length > 1 ? 's' : ''}`);
+        }
+        
+        for (const user of affectedUsers) {
+            await addActivityLog({
+                timestamp: Date.now(),
+                actorId: actor.id,
+                actorName: actor.name,
+                type: ActivityLogActionType.ROLE_UPDATED,
+                description: `updated your role "${role.name}" - you ${permissionChangeDescription.join(' and ')}`,
+                targetId: role.id,
+                targetName: role.name,
+                targetUserId: user.id,
+                targetUserName: user.name,
+                details: { changes },
+                isCrucial: true // Mark as crucial so users don't miss permission changes
+            });
+        }
+    }
     
     return role;
 };
@@ -583,15 +670,45 @@ export const addRole = async (roleData: Omit<Role, 'id' | 'tenantId'>, actor: Us
     const newRole: Role = { ...roleData, id: generateId('role'), tenantId };
     await roleRepository.create(newRole.id, newRole);
     
-    // Log activity
+    // Track detailed information for audit logging
+    const permissionCount = newRole.permissions.length;
+    const permissionList = newRole.permissions
+        .map(p => p.replace(/CAN_/g, '').replace(/_/g, ' ').toLowerCase())
+        .join(', ');
+    
+    const details = {
+        changes: [
+            {
+                field: 'Role Name',
+                from: null,
+                to: newRole.name
+            },
+            {
+                field: 'Description',
+                from: null,
+                to: newRole.description || '(none)'
+            },
+            {
+                field: 'Permissions',
+                from: { canonical: [], humanReadable: '' },
+                to: {
+                    canonical: newRole.permissions, // Store exact permission enum values
+                    humanReadable: `${permissionCount} permission${permissionCount !== 1 ? 's' : ''}: ${permissionList}`
+                }
+            }
+        ]
+    };
+    
+    // Log activity with detailed permission information
     await addActivityLog({
         timestamp: Date.now(),
         actorId: actor.id,
         actorName: actor.name,
         type: ActivityLogActionType.ROLE_CREATED,
-        description: `created role:`,
+        description: `created new role "${newRole.name}" with ${permissionCount} permission${permissionCount !== 1 ? 's' : ''}`,
         targetId: newRole.id,
-        targetName: newRole.name
+        targetName: newRole.name,
+        details
     });
     
     return newRole;
@@ -600,18 +717,53 @@ export const deleteRole = async (roleId: string, actor: User): Promise<void> => 
     const users = await getUsers();
     if (users.some(u => u.roleId === roleId)) throw new Error("Cannot delete role as it is assigned to one or more users.");
     const role = await roleRepository.getById(roleId);
+    
+    // Track deleted role information for audit trail
+    let details = undefined;
+    if (role) {
+        const permissionCount = role.permissions.length;
+        const permissionList = role.permissions
+            .map(p => p.replace(/CAN_/g, '').replace(/_/g, ' ').toLowerCase())
+            .join(', ');
+        
+        details = {
+            changes: [
+                {
+                    field: 'Role Name',
+                    from: role.name,
+                    to: null
+                },
+                {
+                    field: 'Description',
+                    from: role.description || '(none)',
+                    to: null
+                },
+                {
+                    field: 'Permissions',
+                    from: {
+                        canonical: role.permissions, // Store exact permission enum values
+                        humanReadable: `${permissionCount} permission${permissionCount !== 1 ? 's' : ''}: ${permissionList}`
+                    },
+                    to: { canonical: [], humanReadable: '' }
+                }
+            ]
+        };
+    }
+    
     await roleRepository.delete(roleId);
     
-    // Log activity
+    // Log activity with detailed information about deleted role
     if (role) {
         await addActivityLog({
             timestamp: Date.now(),
             actorId: actor.id,
             actorName: actor.name,
             type: ActivityLogActionType.ROLE_DELETED,
-            description: `deleted role:`,
+            description: `deleted role "${role.name}"`,
             targetId: roleId,
-            targetName: role.name
+            targetName: role.name,
+            details,
+            isCrucial: true // Role deletion is a critical security event
         });
     }
 };
