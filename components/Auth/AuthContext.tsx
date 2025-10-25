@@ -259,25 +259,61 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (isTenantAdminClaim) {
       // Grant all tenant admin permissions based on verified custom claim
       const tenantAdminPermissions = [
+        // Role Management
         Permission.CAN_MANAGE_ROLES,
+        Permission.CAN_VIEW_ROLES,
         Permission.CAN_CREATE_ROLE,
         Permission.CAN_EDIT_ROLE,
         Permission.CAN_DELETE_ROLE,
+        Permission.CAN_ASSIGN_PERMISSIONS,
+        
+        // User Management
         Permission.CAN_MANAGE_USERS,
+        Permission.CAN_VIEW_ALL_USERS,
         Permission.CAN_CREATE_USER,
         Permission.CAN_EDIT_USER,
+        Permission.CAN_INVITE_USER,
+        Permission.CAN_SUSPEND_USER,
+        Permission.CAN_RESTORE_USER,
         Permission.CAN_ARCHIVE_USER,
+        Permission.CAN_ASSIGN_ROLE,
+        Permission.CAN_VIEW_USER_ACTIVITY,
+        
+        // Business Unit Management
         Permission.CAN_MANAGE_BUSINESS_UNITS,
+        Permission.CAN_VIEW_BUSINESS_UNITS,
         Permission.CAN_CREATE_BUSINESS_UNIT,
         Permission.CAN_EDIT_BUSINESS_UNIT,
+        Permission.CAN_ARCHIVE_BUSINESS_UNIT,
         Permission.CAN_DELETE_BUSINESS_UNIT,
+        Permission.CAN_ASSIGN_BUSINESS_UNIT,
+        
+        // Reports & Analytics
         Permission.CAN_VIEW_ALL_REPORTS,
-        Permission.CAN_MANAGE_TEAM_TASKS,
         Permission.CAN_VIEW_ANALYTICS_DASHBOARD,
+        Permission.CAN_EXPORT_DATA,
+        Permission.CAN_EXPORT_EODS,
+        
+        // Task Management
+        Permission.CAN_MANAGE_TEAM_TASKS,
+        Permission.CAN_VIEW_TEAM_TASKS,
+        Permission.CAN_CREATE_TEAM_TASK,
+        Permission.CAN_EDIT_TEAM_TASK,
+        Permission.CAN_DELETE_ANY_TASK,
+        Permission.CAN_ASSIGN_TASK,
+        
+        // Leave Management
+        Permission.CAN_MANAGE_ALL_LEAVES,
+        Permission.CAN_VIEW_ALL_LEAVES,
+        Permission.CAN_APPROVE_LEAVE,
+        Permission.CAN_REJECT_LEAVE,
+        
+        // System & Integration
         Permission.CAN_MANAGE_INTEGRATIONS,
         Permission.CAN_VIEW_ACTIVITY_LOG,
-        Permission.CAN_MANAGE_ALL_LEAVES,
-        Permission.CAN_VIEW_TRIGGER_LOG
+        Permission.CAN_VIEW_TRIGGER_LOG,
+        Permission.CAN_VIEW_LEADERBOARD,
+        Permission.CAN_USE_PERFORMANCE_HUB
       ];
       if (tenantAdminPermissions.includes(permission)) {
         return true;
