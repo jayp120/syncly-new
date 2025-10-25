@@ -25,6 +25,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [currentUser, setCurrentUser] = useLocalStorage<User | null>('eod_current_user', null);
   const [currentUserRole, setCurrentUserRole] = useState<Role | null>(null);
   const [currentTenantId, setTenantIdState] = useState<string | null>(null); // ✅ React state for tenant
+  const [isTenantAdminClaim, setIsTenantAdminClaim] = useState<boolean>(false); // ✅ Store verified custom claim
   const [isLoading, setIsLoading] = useState(true);
   const { addToast } = useToast();
   
@@ -129,6 +130,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isTenantAdmin: tokenResult.claims.isTenantAdmin
       });
       
+      // ✅ CRITICAL: Store verified custom claim in state for permission checks
+      setIsTenantAdminClaim(tokenResult.claims.isTenantAdmin === true);
+      
       // PRODUCTION: Firestore is already initialized - no localStorage migration needed
       // await initializeFirestoreAfterLogin(); // Disabled for production
       
@@ -214,9 +218,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await signOut(auth);
     setCurrentUser(null);
     setCurrentUserRole(null);
-    // CRITICAL: Clear tenant context and platform admin flag on logout
+    // CRITICAL: Clear tenant context, platform admin flag, and tenant admin claim on logout
     updateTenantContext(null);
     setIsPlatformAdmin(false);
+    setIsTenantAdminClaim(false);
     
     // SECURITY: Clear user cache on logout to prevent cross-tenant data leaks
     const { clearUserCache } = await import('../../services/repositories');
@@ -242,6 +247,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Platform admins have all permissions except tenant-specific ones
     if (currentUser?.isPlatformAdmin) {
       return true;
+    }
+    
+    // ✅ SECURE: Check verified Firebase Auth custom claim for Tenant Admin
+    // This bypasses outdated role permissions during migration
+    // Uses isTenantAdminClaim which is set from Firebase Auth token (secure, not mutable)
+    if (isTenantAdminClaim) {
+      // Grant all tenant admin permissions based on verified custom claim
+      const tenantAdminPermissions = [
+        Permission.CAN_MANAGE_ROLES,
+        Permission.CAN_CREATE_ROLE,
+        Permission.CAN_EDIT_ROLE,
+        Permission.CAN_DELETE_ROLE,
+        Permission.CAN_MANAGE_USERS,
+        Permission.CAN_CREATE_USER,
+        Permission.CAN_EDIT_USER,
+        Permission.CAN_DELETE_USER,
+        Permission.CAN_MANAGE_BUSINESS_UNITS,
+        Permission.CAN_CREATE_BUSINESS_UNIT,
+        Permission.CAN_EDIT_BUSINESS_UNIT,
+        Permission.CAN_DELETE_BUSINESS_UNIT,
+        Permission.CAN_VIEW_ALL_REPORTS,
+        Permission.CAN_MANAGE_ALL_TASKS,
+        Permission.CAN_VIEW_ANALYTICS,
+        Permission.CAN_MANAGE_INTEGRATIONS,
+        Permission.CAN_VIEW_ACTIVITY_LOG,
+        Permission.CAN_MANAGE_ALL_LEAVES,
+        Permission.CAN_VIEW_TRIGGER_LOG
+      ];
+      if (tenantAdminPermissions.includes(permission)) {
+        return true;
+      }
     }
     
     // If we have the role doc, use its permissions
@@ -340,7 +376,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     
     return false;
-  }, [currentUserRole, currentUser]);
+  }, [currentUserRole, currentUser, isTenantAdminClaim]);
 
   return (
     <AuthContext.Provider value={{ currentUser, currentUserRole, currentTenantId, login, logout, isLoading, refreshUser, hasPermission }}>
