@@ -6,6 +6,7 @@ import useLocalStorage from '../../hooks/useLocalStorage';
 import { auth } from '../../services/firebase';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { setCurrentTenantId, setIsPlatformAdmin } from '../../services/tenantContext';
+import { autoMigrateRoles } from '../../services/autoMigrationService';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -148,6 +149,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           await fetchUserRole(userProfile); // Fetch role before setting user
           setCurrentUser(userProfile);
+
+          // ✨ AUTO-MIGRATION: Automatically update role permissions if needed
+          // Runs silently in background, doesn't block login
+          if (userProfile.isPlatformAdmin || userProfile.roleName === 'Tenant Admin') {
+            autoMigrateRoles().catch(err => {
+              console.warn('Auto-migration failed (non-critical):', err);
+            });
+          }
 
           try {
             await DataService.checkAndAwardBadges(userProfile.id);
