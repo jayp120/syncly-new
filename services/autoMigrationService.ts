@@ -7,7 +7,8 @@
 
 import { DEFAULT_ROLES, SYSTEM_ROLE_IDS } from '../constants';
 import { db } from './firebase';
-import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
+import { getAllRoles } from './firestoreService';
 
 let migrationAttempted = false;
 
@@ -15,7 +16,7 @@ let migrationAttempted = false;
  * Automatically migrates system roles if needed
  * Runs silently in the background on app startup
  */
-export async function autoMigrateRoles(tenantId?: string): Promise<void> {
+export async function autoMigrateRoles(tenantId: string): Promise<void> {
   // Only attempt migration once per session
   if (migrationAttempted) {
     return;
@@ -25,35 +26,23 @@ export async function autoMigrateRoles(tenantId?: string): Promise<void> {
   
   try {
     console.log('[AutoMigration] Checking if role migration is needed...');
+    console.log(`[AutoMigration] Tenant ID: ${tenantId}`);
     
-    // CRITICAL FIX: Only query roles for the current tenant
-    // Platform admins can migrate all tenants, but tenant admins can only migrate their own
-    const rolesRef = collection(db, 'roles');
-    let snapshot;
+    // Use existing getAllRoles which already handles tenant scoping and security
+    const roles = await getAllRoles(tenantId);
     
-    if (tenantId) {
-      // Tenant admin: only get roles for their tenant
-      const { query, where } = await import('firebase/firestore');
-      const tenantQuery = query(rolesRef, where('tenantId', '==', tenantId));
-      snapshot = await getDocs(tenantQuery);
-      console.log(`[AutoMigration] Checking roles for tenant: ${tenantId}`);
-    } else {
-      // Platform admin: get all roles
-      snapshot = await getDocs(rolesRef);
-      console.log('[AutoMigration] Checking all roles (Platform Admin)');
-    }
-    
-    if (snapshot.empty) {
+    if (!roles || roles.length === 0) {
       console.log('[AutoMigration] No roles found, skipping migration');
       return;
     }
     
+    console.log(`[AutoMigration] Found ${roles.length} roles to check`)
+    
     let needsUpdate = false;
-    const rolesToUpdate: { docId: string; roleId: string; template: any }[] = [];
+    const rolesToUpdate: { roleData: any; roleId: string; template: any }[] = [];
     
     // Check which roles need updating
-    for (const roleDoc of snapshot.docs) {
-      const existingRole = roleDoc.data();
+    for (const existingRole of roles) {
       const roleId = existingRole.id;
       
       // Only check system roles
@@ -73,7 +62,7 @@ export async function autoMigrateRoles(tenantId?: string): Promise<void> {
       if (missingPermissions.length > 0) {
         needsUpdate = true;
         rolesToUpdate.push({ 
-          docId: roleDoc.id, 
+          roleData: existingRole, 
           roleId, 
           template 
         });
@@ -85,12 +74,14 @@ export async function autoMigrateRoles(tenantId?: string): Promise<void> {
       return;
     }
     
-    // Perform updates
+    // Perform updates using Firestore document ID from the role data
     console.log(`[AutoMigration] 🔧 Updating ${rolesToUpdate.length} role(s)...`);
     
-    for (const { docId, roleId, template } of rolesToUpdate) {
+    for (const { roleData, roleId, template } of rolesToUpdate) {
       try {
-        const roleDocRef = doc(db, 'roles', docId);
+        // Use the Firestore document ID (which should be role.id for roles)
+        const firestoreDocId = roleData.id; // This is the Firestore document ID
+        const roleDocRef = doc(db, 'roles', firestoreDocId);
         await updateDoc(roleDocRef, {
           permissions: template.permissions,
           description: template.description,
