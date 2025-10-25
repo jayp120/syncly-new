@@ -210,11 +210,11 @@ const RolesPermissionsPage: React.FC = () => {
 
                             <h3 className="font-semibold text-lg pt-4 border-t dark:border-slate-700">Permissions</h3>
                             <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2">
-                                {Object.entries(PERMISSION_GROUPS).map(([groupName, permissions]) => (
+                                {Object.entries(PERMISSION_GROUPS).map(([groupName, group]) => (
                                     <div key={groupName}>
-                                        <h4 className="font-semibold text-md mb-2 text-secondary dark:text-slate-300">{groupName}</h4>
+                                        <h4 className="font-semibold text-md mb-2 text-secondary dark:text-slate-300">{group.label}</h4>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
-                                            {permissions.map(permission => (
+                                            {group.permissions.map((permission: Permission) => (
                                                 <div key={permission} className="flex items-center">
                                                     <input 
                                                         type="checkbox"

@@ -266,9 +266,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // This bypasses outdated role permissions during migration
     // Uses isTenantAdminClaim which is set from Firebase Auth token (secure, not mutable)
     if (isTenantAdminClaim) {
-      // Grant all tenant admin permissions based on verified custom claim
+      // Grant ALL tenant admin permissions based on verified custom claim (65 total)
       const tenantAdminPermissions = [
-        // Role Management
+        // Role Management (6)
         Permission.CAN_MANAGE_ROLES,
         Permission.CAN_VIEW_ROLES,
         Permission.CAN_CREATE_ROLE,
@@ -276,7 +276,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         Permission.CAN_DELETE_ROLE,
         Permission.CAN_ASSIGN_PERMISSIONS,
         
-        // User Management
+        // User Management (13)
         Permission.CAN_MANAGE_USERS,
         Permission.CAN_VIEW_ALL_USERS,
         Permission.CAN_CREATE_USER,
@@ -285,10 +285,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         Permission.CAN_SUSPEND_USER,
         Permission.CAN_RESTORE_USER,
         Permission.CAN_ARCHIVE_USER,
+        Permission.CAN_DELETE_ARCHIVED_USER,
+        Permission.CAN_RESET_USER_PASSWORD,
+        Permission.CAN_RESET_USER_MFA,
         Permission.CAN_ASSIGN_ROLE,
         Permission.CAN_VIEW_USER_ACTIVITY,
         
-        // Business Unit Management
+        // Business Unit Management (7)
         Permission.CAN_MANAGE_BUSINESS_UNITS,
         Permission.CAN_VIEW_BUSINESS_UNITS,
         Permission.CAN_CREATE_BUSINESS_UNIT,
@@ -297,32 +300,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         Permission.CAN_DELETE_BUSINESS_UNIT,
         Permission.CAN_ASSIGN_BUSINESS_UNIT,
         
-        // Reports & Analytics
-        Permission.CAN_VIEW_ALL_REPORTS,
-        Permission.CAN_VIEW_ANALYTICS_DASHBOARD,
-        Permission.CAN_EXPORT_DATA,
-        Permission.CAN_EXPORT_EODS,
-        
-        // Task Management
+        // Task Management (10)
         Permission.CAN_MANAGE_TEAM_TASKS,
         Permission.CAN_VIEW_TEAM_TASKS,
         Permission.CAN_CREATE_TEAM_TASK,
         Permission.CAN_EDIT_TEAM_TASK,
         Permission.CAN_DELETE_ANY_TASK,
         Permission.CAN_ASSIGN_TASK,
+        Permission.CAN_EDIT_ANY_TASK_STATUS,
+        Permission.CAN_COMMENT_ON_TEAM_TASK,
+        Permission.CAN_CREATE_PERSONAL_TASKS,
+        Permission.CAN_VIEW_OWN_TASKS,
         
-        // Leave Management
+        // EOD Report Management (10)
+        Permission.CAN_VIEW_ALL_REPORTS,
+        Permission.CAN_VIEW_TEAM_REPORTS,
+        Permission.CAN_VIEW_OWN_REPORTS,
+        Permission.CAN_MANAGE_TEAM_REPORTS,
+        Permission.CAN_ACKNOWLEDGE_REPORTS,
+        Permission.CAN_ACKNOWLEDGE_ANY_EOD,
+        Permission.CAN_REQUIRE_EOD_SUBMISSION,
+        Permission.CAN_MARK_EOD_LATE,
+        Permission.CAN_SUBMIT_OWN_EOD,
+        Permission.CAN_EXPORT_EODS,
+        
+        // Leave Management (7)
         Permission.CAN_MANAGE_ALL_LEAVES,
         Permission.CAN_VIEW_ALL_LEAVES,
+        Permission.CAN_VIEW_TEAM_LEAVES,
         Permission.CAN_APPROVE_LEAVE,
         Permission.CAN_REJECT_LEAVE,
+        Permission.CAN_OVERRIDE_LEAVE_BALANCE,
+        Permission.CAN_SUBMIT_OWN_LEAVE,
         
-        // System & Integration
+        // Meeting & Calendar Management (7)
+        Permission.CAN_MANAGE_TEAM_MEETINGS,
+        Permission.CAN_VIEW_TEAM_MEETINGS,
+        Permission.CAN_VIEW_OWN_MEETINGS,
+        Permission.CAN_SCHEDULE_MEETING,
+        Permission.CAN_VIEW_TEAM_CALENDAR,
+        Permission.CAN_VIEW_OWN_CALENDAR,
+        Permission.CAN_MANAGE_TEAM_CALENDAR,
+        
+        // Settings & Integration (5)
         Permission.CAN_MANAGE_INTEGRATIONS,
         Permission.CAN_VIEW_ACTIVITY_LOG,
         Permission.CAN_VIEW_TRIGGER_LOG,
         Permission.CAN_VIEW_LEADERBOARD,
-        Permission.CAN_USE_PERFORMANCE_HUB
+        Permission.CAN_USE_PERFORMANCE_HUB,
+        Permission.CAN_VIEW_ANALYTICS_DASHBOARD,
+        Permission.CAN_EXPORT_DATA
       ];
       if (tenantAdminPermissions.includes(permission)) {
         return true;
