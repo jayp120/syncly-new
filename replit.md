@@ -52,14 +52,17 @@ The application is built using **React 19.1** and **TypeScript**, with **Vite 6.
 
 **Tenant Admin Permission Bypass:** ✅ **PRODUCTION READY** (October 26, 2025)
 - **Status:** Secure permission bypass using Firebase Auth custom claims - **ARCHITECT APPROVED**
-- **Purpose:** Grants Tenant Admins immediate access to ALL admin features (68 comprehensive permissions) without waiting for role document migration
-- **Permissions Coverage:** Complete coverage including Role Management (6), User Management (13), Business Units (7), Tasks (10), EOD Reports (10), Leave (7), Meetings/Calendar (7), Settings/Integration (7), Integration Access (3: Google Calendar, Telegram Bot, Gemini AI)
+- **Purpose:** Grants Tenant Admins immediate access to ALL admin features (27 production-ready permissions) without waiting for role document migration
+- **Permissions Coverage:** Complete coverage including Platform Admin (3), User Management (5), Role Management (1), Business Units (1), Tasks (4), EOD Reports (5), Leave (1), Meetings/Calendar (3), Performance (1), Integration Access (3: Google Calendar, Telegram Bot, Gemini AI)
 - **Security:** Uses verified `isTenantAdmin` custom claim from Firebase Auth token (cannot be manipulated by users)
 - **Implementation:** `components/Auth/AuthContext.tsx` - hasPermission callback checks custom claim first, then falls back to role permissions
 - **Session Persistence:** Auth state listener reads custom claims on page refresh to maintain permissions across sessions
 - **Auto-Migration:** Still runs in background to fix outdated role documents
 - **Zero Manual Intervention:** Works automatically on every login and page refresh - true production SaaS standard
-- **Recent Fixes:** Fixed activity log display bug showing "[object Object]" for permission changes (October 26, 2025)
+- **Recent Fixes:** 
+  - Fixed activity log display bug showing "[object Object]" for permission changes (October 26, 2025)
+  - Fixed sidebar Integrations menu not showing for employees with integration permissions (October 26, 2025)
+  - Trimmed permissions from 105 to 27 production-ready permissions matching actual app features (October 26, 2025)
 
 **Firestore Indexes:** ✅ **DEPLOYED** (October 23, 2025)
 - **Project:** syncly-473404

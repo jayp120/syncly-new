@@ -31,6 +31,7 @@ export const PERMISSIONS = Object.values(Permission);
 export const LATE_SUBMISSION_HOUR = 19; // 7 PM
 
 // ========== Permission Groups for UI Organization ==========
+// Production-Ready: Only permissions that match actual app features
 export const PERMISSION_GROUPS = {
   platformAdmin: {
     label: 'Platform Administration (Syncly Owner Only)',
@@ -43,51 +44,30 @@ export const PERMISSION_GROUPS = {
   userManagement: {
     label: 'User Management',
     permissions: [
-      Permission.CAN_VIEW_ALL_USERS,
+      Permission.CAN_MANAGE_USERS,
       Permission.CAN_CREATE_USER,
       Permission.CAN_EDIT_USER,
-      Permission.CAN_INVITE_USER,
-      Permission.CAN_SUSPEND_USER,
-      Permission.CAN_RESTORE_USER,
       Permission.CAN_ARCHIVE_USER,
       Permission.CAN_DELETE_ARCHIVED_USER,
-      Permission.CAN_RESET_USER_PASSWORD,
-      Permission.CAN_RESET_USER_MFA,
-      Permission.CAN_ASSIGN_ROLE,
-      Permission.CAN_VIEW_USER_ACTIVITY,
     ],
   },
   roleManagement: {
     label: 'Role & Permission Management',
     permissions: [
-      Permission.CAN_VIEW_ROLES,
-      Permission.CAN_CREATE_ROLE,
-      Permission.CAN_EDIT_ROLE,
-      Permission.CAN_DELETE_ROLE,
-      Permission.CAN_ASSIGN_PERMISSIONS,
+      Permission.CAN_MANAGE_ROLES,
     ],
   },
   businessUnitManagement: {
     label: 'Business Unit Management',
     permissions: [
-      Permission.CAN_VIEW_BUSINESS_UNITS,
-      Permission.CAN_CREATE_BUSINESS_UNIT,
-      Permission.CAN_EDIT_BUSINESS_UNIT,
-      Permission.CAN_ARCHIVE_BUSINESS_UNIT,
-      Permission.CAN_DELETE_BUSINESS_UNIT,
-      Permission.CAN_ASSIGN_BUSINESS_UNIT,
+      Permission.CAN_MANAGE_BUSINESS_UNITS,
     ],
   },
   taskManagement: {
     label: 'Task Management',
     permissions: [
-      Permission.CAN_VIEW_TEAM_TASKS,
-      Permission.CAN_CREATE_TEAM_TASK,
-      Permission.CAN_EDIT_TEAM_TASK,
-      Permission.CAN_DELETE_ANY_TASK,
-      Permission.CAN_ASSIGN_TASK,
+      Permission.CAN_MANAGE_TEAM_TASKS,
       Permission.CAN_EDIT_ANY_TASK_STATUS,
-      Permission.CAN_COMMENT_ON_TEAM_TASK,
       Permission.CAN_CREATE_PERSONAL_TASKS,
       Permission.CAN_VIEW_OWN_TASKS,
     ],
@@ -95,66 +75,31 @@ export const PERMISSION_GROUPS = {
   eodReportManagement: {
     label: 'EOD Report Management',
     permissions: [
-      Permission.CAN_VIEW_ALL_REPORTS,
-      Permission.CAN_VIEW_TEAM_REPORTS,
       Permission.CAN_VIEW_OWN_REPORTS,
-      Permission.CAN_ACKNOWLEDGE_REPORTS,
-      Permission.CAN_ACKNOWLEDGE_ANY_EOD,
-      Permission.CAN_REQUIRE_EOD_SUBMISSION,
-      Permission.CAN_MARK_EOD_LATE,
       Permission.CAN_SUBMIT_OWN_EOD,
-      Permission.CAN_EXPORT_EODS,
+      Permission.CAN_MANAGE_TEAM_REPORTS,
+      Permission.CAN_ACKNOWLEDGE_REPORTS,
+      Permission.CAN_VIEW_ALL_REPORTS,
     ],
   },
   leaveManagement: {
     label: 'Leave Management',
     permissions: [
-      Permission.CAN_VIEW_ALL_LEAVES,
-      Permission.CAN_VIEW_TEAM_LEAVES,
-      Permission.CAN_APPROVE_LEAVE,
-      Permission.CAN_REJECT_LEAVE,
-      Permission.CAN_OVERRIDE_LEAVE_BALANCE,
-      Permission.CAN_SUBMIT_OWN_LEAVE,
+      Permission.CAN_MANAGE_ALL_LEAVES,
     ],
   },
   meetingManagement: {
     label: 'Meeting & Calendar Management',
     permissions: [
       Permission.CAN_MANAGE_TEAM_MEETINGS,
-      Permission.CAN_VIEW_TEAM_MEETINGS,
       Permission.CAN_VIEW_OWN_MEETINGS,
-      Permission.CAN_SCHEDULE_MEETING,
-      Permission.CAN_VIEW_TEAM_CALENDAR,
       Permission.CAN_VIEW_OWN_CALENDAR,
-      Permission.CAN_MANAGE_TEAM_CALENDAR,
     ],
   },
-  settingsAndConfiguration: {
-    label: 'Settings & Configuration',
+  performanceHub: {
+    label: 'Performance & Analytics',
     permissions: [
-      Permission.CAN_MANAGE_TENANT_SETTINGS,
-      Permission.CAN_VIEW_TENANT_SETTINGS,
-      Permission.CAN_MANAGE_INTEGRATIONS,
-      Permission.CAN_MANAGE_NOTIFICATIONS,
-      Permission.CAN_VIEW_BILLING,
-    ],
-  },
-  auditAndActivityLog: {
-    label: 'Audit & Activity Logs',
-    permissions: [
-      Permission.CAN_VIEW_ACTIVITY_LOG,
-      Permission.CAN_EXPORT_ACTIVITY_LOG,
-      Permission.CAN_VIEW_AUDIT_TRAIL,
-    ],
-  },
-  analyticsAndReporting: {
-    label: 'Analytics & Reporting',
-    permissions: [
-      Permission.CAN_VIEW_ANALYTICS_DASHBOARD,
-      Permission.CAN_EXPORT_DATA,
-      Permission.CAN_VIEW_LEADERBOARD,
       Permission.CAN_USE_PERFORMANCE_HUB,
-      Permission.CAN_VIEW_TRIGGER_LOG,
     ],
   },
   integrationAccess: {
@@ -202,93 +147,42 @@ export const DEFAULT_ROLES: Role[] = [
     name: 'Tenant Admin',
     description: 'Full control over tenant settings, users, roles, and all features. Cannot manage other tenants or platform settings.',
     permissions: [
-      // NOTE: Platform-only permissions (PLATFORM_ADMIN, CAN_MANAGE_TENANTS, CAN_VIEW_ALL_TENANTS) are excluded
-      
       // User Management - Full Control
-      Permission.CAN_VIEW_ALL_USERS,
+      Permission.CAN_MANAGE_USERS,
       Permission.CAN_CREATE_USER,
       Permission.CAN_EDIT_USER,
-      Permission.CAN_INVITE_USER,
-      Permission.CAN_SUSPEND_USER,
-      Permission.CAN_RESTORE_USER,
       Permission.CAN_ARCHIVE_USER,
       Permission.CAN_DELETE_ARCHIVED_USER,
-      Permission.CAN_RESET_USER_PASSWORD,
-      Permission.CAN_RESET_USER_MFA,
-      Permission.CAN_ASSIGN_ROLE,
-      Permission.CAN_VIEW_USER_ACTIVITY,
       
       // Role Management - Full Control
-      Permission.CAN_VIEW_ROLES,
-      Permission.CAN_CREATE_ROLE,
-      Permission.CAN_EDIT_ROLE,
-      Permission.CAN_DELETE_ROLE,
-      Permission.CAN_ASSIGN_PERMISSIONS,
+      Permission.CAN_MANAGE_ROLES,
       
       // Business Unit Management - Full Control
-      Permission.CAN_VIEW_BUSINESS_UNITS,
-      Permission.CAN_CREATE_BUSINESS_UNIT,
-      Permission.CAN_EDIT_BUSINESS_UNIT,
-      Permission.CAN_ARCHIVE_BUSINESS_UNIT,
-      Permission.CAN_DELETE_BUSINESS_UNIT,
-      Permission.CAN_ASSIGN_BUSINESS_UNIT,
+      Permission.CAN_MANAGE_BUSINESS_UNITS,
       
       // Task Management - Full Control
-      Permission.CAN_VIEW_TEAM_TASKS,
-      Permission.CAN_CREATE_TEAM_TASK,
-      Permission.CAN_EDIT_TEAM_TASK,
-      Permission.CAN_DELETE_ANY_TASK,
-      Permission.CAN_ASSIGN_TASK,
+      Permission.CAN_MANAGE_TEAM_TASKS,
       Permission.CAN_EDIT_ANY_TASK_STATUS,
-      Permission.CAN_COMMENT_ON_TEAM_TASK,
       Permission.CAN_CREATE_PERSONAL_TASKS,
       Permission.CAN_VIEW_OWN_TASKS,
       
       // EOD Reports - Full Control
-      Permission.CAN_VIEW_ALL_REPORTS,
-      Permission.CAN_VIEW_TEAM_REPORTS,
-      Permission.CAN_ACKNOWLEDGE_ANY_EOD,
-      Permission.CAN_REQUIRE_EOD_SUBMISSION,
-      Permission.CAN_MARK_EOD_LATE,
-      Permission.CAN_SUBMIT_OWN_EOD,
       Permission.CAN_VIEW_OWN_REPORTS,
-      Permission.CAN_EXPORT_EODS,
+      Permission.CAN_SUBMIT_OWN_EOD,
+      Permission.CAN_MANAGE_TEAM_REPORTS,
+      Permission.CAN_ACKNOWLEDGE_REPORTS,
+      Permission.CAN_VIEW_ALL_REPORTS,
       
       // Leave Management - Full Control
-      Permission.CAN_VIEW_ALL_LEAVES,
-      Permission.CAN_VIEW_TEAM_LEAVES,
-      Permission.CAN_APPROVE_LEAVE,
-      Permission.CAN_REJECT_LEAVE,
-      Permission.CAN_OVERRIDE_LEAVE_BALANCE,
-      Permission.CAN_SUBMIT_OWN_LEAVE,
+      Permission.CAN_MANAGE_ALL_LEAVES,
       
       // Meetings & Calendar - Full Control
       Permission.CAN_MANAGE_TEAM_MEETINGS,
-      Permission.CAN_VIEW_TEAM_MEETINGS,
       Permission.CAN_VIEW_OWN_MEETINGS,
-      Permission.CAN_SCHEDULE_MEETING,
-      Permission.CAN_VIEW_TEAM_CALENDAR,
       Permission.CAN_VIEW_OWN_CALENDAR,
-      Permission.CAN_MANAGE_TEAM_CALENDAR,
       
-      // Settings - Full Control
-      Permission.CAN_MANAGE_TENANT_SETTINGS,
-      Permission.CAN_VIEW_TENANT_SETTINGS,
-      Permission.CAN_MANAGE_INTEGRATIONS,
-      Permission.CAN_MANAGE_NOTIFICATIONS,
-      Permission.CAN_VIEW_BILLING,
-      
-      // Audit & Activity - Full Control
-      Permission.CAN_VIEW_ACTIVITY_LOG,
-      Permission.CAN_EXPORT_ACTIVITY_LOG,
-      Permission.CAN_VIEW_AUDIT_TRAIL,
-      
-      // Analytics & Reporting - Full Control
-      Permission.CAN_VIEW_ANALYTICS_DASHBOARD,
-      Permission.CAN_EXPORT_DATA,
-      Permission.CAN_VIEW_LEADERBOARD,
+      // Performance - Full Control
       Permission.CAN_USE_PERFORMANCE_HUB,
-      Permission.CAN_VIEW_TRIGGER_LOG,
       
       // Integration Access - Full Control
       Permission.CAN_USE_GOOGLE_CALENDAR,
@@ -302,49 +196,28 @@ export const DEFAULT_ROLES: Role[] = [
     name: 'Manager',
     description: 'Manages team members, approves leaves, acknowledges EODs, and oversees team tasks and meetings.',
     permissions: [
-      // User Management - View Only
-      Permission.CAN_VIEW_USER_ACTIVITY,
-      
-      // Business Units - View Only
-      Permission.CAN_VIEW_BUSINESS_UNITS,
-      
       // Task Management - Team Level
-      Permission.CAN_VIEW_TEAM_TASKS,
-      Permission.CAN_CREATE_TEAM_TASK,
-      Permission.CAN_EDIT_TEAM_TASK,
-      Permission.CAN_ASSIGN_TASK,
+      Permission.CAN_MANAGE_TEAM_TASKS,
       Permission.CAN_EDIT_ANY_TASK_STATUS,
-      Permission.CAN_COMMENT_ON_TEAM_TASK,
       Permission.CAN_CREATE_PERSONAL_TASKS,
       Permission.CAN_VIEW_OWN_TASKS,
       
       // EOD Reports - Team Management
-      Permission.CAN_VIEW_TEAM_REPORTS,
+      Permission.CAN_MANAGE_TEAM_REPORTS,
       Permission.CAN_ACKNOWLEDGE_REPORTS,
       Permission.CAN_SUBMIT_OWN_EOD,
       Permission.CAN_VIEW_OWN_REPORTS,
-      Permission.CAN_REQUIRE_EOD_SUBMISSION,
       
       // Leave Management - Approval Authority
-      Permission.CAN_VIEW_TEAM_LEAVES,
-      Permission.CAN_APPROVE_LEAVE,
-      Permission.CAN_REJECT_LEAVE,
-      Permission.CAN_SUBMIT_OWN_LEAVE,
+      Permission.CAN_MANAGE_ALL_LEAVES,
       
       // Meetings & Calendar - Team Level
       Permission.CAN_MANAGE_TEAM_MEETINGS,
-      Permission.CAN_VIEW_TEAM_MEETINGS,
       Permission.CAN_VIEW_OWN_MEETINGS,
-      Permission.CAN_SCHEDULE_MEETING,
-      Permission.CAN_VIEW_TEAM_CALENDAR,
       Permission.CAN_VIEW_OWN_CALENDAR,
-      Permission.CAN_MANAGE_TEAM_CALENDAR,
       
-      // Analytics & Reporting
-      Permission.CAN_VIEW_ANALYTICS_DASHBOARD,
-      Permission.CAN_VIEW_LEADERBOARD,
+      // Performance Hub
       Permission.CAN_USE_PERFORMANCE_HUB,
-      Permission.CAN_VIEW_TRIGGER_LOG,
     ],
   },
   {
@@ -353,36 +226,20 @@ export const DEFAULT_ROLES: Role[] = [
     name: 'Team Lead',
     description: 'Coordinates team tasks and meetings, reviews EODs, but cannot approve leaves or manage users.',
     permissions: [
-      // Business Units - View Only
-      Permission.CAN_VIEW_BUSINESS_UNITS,
-      
       // Task Management - Team Coordination
-      Permission.CAN_VIEW_TEAM_TASKS,
-      Permission.CAN_CREATE_TEAM_TASK,
-      Permission.CAN_ASSIGN_TASK,
-      Permission.CAN_COMMENT_ON_TEAM_TASK,
+      Permission.CAN_MANAGE_TEAM_TASKS,
       Permission.CAN_CREATE_PERSONAL_TASKS,
       Permission.CAN_VIEW_OWN_TASKS,
       
       // EOD Reports - Team Visibility
-      Permission.CAN_VIEW_TEAM_REPORTS,
+      Permission.CAN_MANAGE_TEAM_REPORTS,
       Permission.CAN_SUBMIT_OWN_EOD,
       Permission.CAN_VIEW_OWN_REPORTS,
       
-      // Leave Management - View Only
-      Permission.CAN_VIEW_TEAM_LEAVES,
-      Permission.CAN_SUBMIT_OWN_LEAVE,
-      
       // Meetings & Calendar - Team Level
-      Permission.CAN_VIEW_TEAM_MEETINGS,
+      Permission.CAN_MANAGE_TEAM_MEETINGS,
       Permission.CAN_VIEW_OWN_MEETINGS,
-      Permission.CAN_SCHEDULE_MEETING,
-      Permission.CAN_VIEW_TEAM_CALENDAR,
       Permission.CAN_VIEW_OWN_CALENDAR,
-      
-      // Analytics - Basic Access
-      Permission.CAN_VIEW_LEADERBOARD,
-      Permission.CAN_VIEW_TRIGGER_LOG,
     ],
   },
   {
@@ -399,15 +256,9 @@ export const DEFAULT_ROLES: Role[] = [
       Permission.CAN_SUBMIT_OWN_EOD,
       Permission.CAN_VIEW_OWN_REPORTS,
       
-      // Leave Management - Self-Service
-      Permission.CAN_SUBMIT_OWN_LEAVE,
-      
       // Meetings & Calendar - Personal Only
       Permission.CAN_VIEW_OWN_MEETINGS,
       Permission.CAN_VIEW_OWN_CALENDAR,
-      
-      // Analytics - Basic Access
-      Permission.CAN_VIEW_LEADERBOARD,
     ],
   },
 ];

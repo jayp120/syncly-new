@@ -266,90 +266,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // This bypasses outdated role permissions during migration
     // Uses isTenantAdminClaim which is set from Firebase Auth token (secure, not mutable)
     if (isTenantAdminClaim) {
-      // Grant ALL tenant admin permissions based on verified custom claim (68 total)
+      // Grant ALL tenant admin permissions based on verified custom claim (27 production-ready permissions)
       const tenantAdminPermissions = [
-        // Role Management (6)
-        Permission.CAN_MANAGE_ROLES,
-        Permission.CAN_VIEW_ROLES,
-        Permission.CAN_CREATE_ROLE,
-        Permission.CAN_EDIT_ROLE,
-        Permission.CAN_DELETE_ROLE,
-        Permission.CAN_ASSIGN_PERMISSIONS,
-        
-        // User Management (13)
+        // User Management (5)
         Permission.CAN_MANAGE_USERS,
-        Permission.CAN_VIEW_ALL_USERS,
         Permission.CAN_CREATE_USER,
         Permission.CAN_EDIT_USER,
-        Permission.CAN_INVITE_USER,
-        Permission.CAN_SUSPEND_USER,
-        Permission.CAN_RESTORE_USER,
         Permission.CAN_ARCHIVE_USER,
         Permission.CAN_DELETE_ARCHIVED_USER,
-        Permission.CAN_RESET_USER_PASSWORD,
-        Permission.CAN_RESET_USER_MFA,
-        Permission.CAN_ASSIGN_ROLE,
-        Permission.CAN_VIEW_USER_ACTIVITY,
         
-        // Business Unit Management (7)
+        // Role Management (1)
+        Permission.CAN_MANAGE_ROLES,
+        
+        // Business Unit Management (1)
         Permission.CAN_MANAGE_BUSINESS_UNITS,
-        Permission.CAN_VIEW_BUSINESS_UNITS,
-        Permission.CAN_CREATE_BUSINESS_UNIT,
-        Permission.CAN_EDIT_BUSINESS_UNIT,
-        Permission.CAN_ARCHIVE_BUSINESS_UNIT,
-        Permission.CAN_DELETE_BUSINESS_UNIT,
-        Permission.CAN_ASSIGN_BUSINESS_UNIT,
         
-        // Task Management (10)
+        // Task Management (4)
         Permission.CAN_MANAGE_TEAM_TASKS,
-        Permission.CAN_VIEW_TEAM_TASKS,
-        Permission.CAN_CREATE_TEAM_TASK,
-        Permission.CAN_EDIT_TEAM_TASK,
-        Permission.CAN_DELETE_ANY_TASK,
-        Permission.CAN_ASSIGN_TASK,
         Permission.CAN_EDIT_ANY_TASK_STATUS,
-        Permission.CAN_COMMENT_ON_TEAM_TASK,
         Permission.CAN_CREATE_PERSONAL_TASKS,
         Permission.CAN_VIEW_OWN_TASKS,
         
-        // EOD Report Management (10)
-        Permission.CAN_VIEW_ALL_REPORTS,
-        Permission.CAN_VIEW_TEAM_REPORTS,
+        // EOD Report Management (5)
         Permission.CAN_VIEW_OWN_REPORTS,
+        Permission.CAN_SUBMIT_OWN_EOD,
         Permission.CAN_MANAGE_TEAM_REPORTS,
         Permission.CAN_ACKNOWLEDGE_REPORTS,
-        Permission.CAN_ACKNOWLEDGE_ANY_EOD,
-        Permission.CAN_REQUIRE_EOD_SUBMISSION,
-        Permission.CAN_MARK_EOD_LATE,
-        Permission.CAN_SUBMIT_OWN_EOD,
-        Permission.CAN_EXPORT_EODS,
+        Permission.CAN_VIEW_ALL_REPORTS,
         
-        // Leave Management (7)
+        // Leave Management (1)
         Permission.CAN_MANAGE_ALL_LEAVES,
-        Permission.CAN_VIEW_ALL_LEAVES,
-        Permission.CAN_VIEW_TEAM_LEAVES,
-        Permission.CAN_APPROVE_LEAVE,
-        Permission.CAN_REJECT_LEAVE,
-        Permission.CAN_OVERRIDE_LEAVE_BALANCE,
-        Permission.CAN_SUBMIT_OWN_LEAVE,
         
-        // Meeting & Calendar Management (7)
+        // Meeting & Calendar Management (3)
         Permission.CAN_MANAGE_TEAM_MEETINGS,
-        Permission.CAN_VIEW_TEAM_MEETINGS,
         Permission.CAN_VIEW_OWN_MEETINGS,
-        Permission.CAN_SCHEDULE_MEETING,
-        Permission.CAN_VIEW_TEAM_CALENDAR,
         Permission.CAN_VIEW_OWN_CALENDAR,
-        Permission.CAN_MANAGE_TEAM_CALENDAR,
         
-        // Settings & Integration (7)
-        Permission.CAN_MANAGE_INTEGRATIONS,
-        Permission.CAN_VIEW_ACTIVITY_LOG,
-        Permission.CAN_VIEW_TRIGGER_LOG,
-        Permission.CAN_VIEW_LEADERBOARD,
+        // Performance (1)
         Permission.CAN_USE_PERFORMANCE_HUB,
-        Permission.CAN_VIEW_ANALYTICS_DASHBOARD,
-        Permission.CAN_EXPORT_DATA,
         
         // Integration Access (3)
         Permission.CAN_USE_GOOGLE_CALENDAR,
@@ -383,61 +337,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Manager role permissions (matches DEFAULT_ROLES in constants.ts)
       if (roleName === 'manager') {
         return [
-          Permission.CAN_VIEW_USER_ACTIVITY,
-          Permission.CAN_VIEW_BUSINESS_UNITS,
-          Permission.CAN_VIEW_TEAM_TASKS,
-          Permission.CAN_CREATE_TEAM_TASK,
-          Permission.CAN_EDIT_TEAM_TASK,
-          Permission.CAN_ASSIGN_TASK,
+          Permission.CAN_MANAGE_TEAM_TASKS,
           Permission.CAN_EDIT_ANY_TASK_STATUS,
-          Permission.CAN_COMMENT_ON_TEAM_TASK,
           Permission.CAN_CREATE_PERSONAL_TASKS,
           Permission.CAN_VIEW_OWN_TASKS,
-          Permission.CAN_VIEW_TEAM_REPORTS,
+          Permission.CAN_MANAGE_TEAM_REPORTS,
           Permission.CAN_ACKNOWLEDGE_REPORTS,
           Permission.CAN_SUBMIT_OWN_EOD,
           Permission.CAN_VIEW_OWN_REPORTS,
-          Permission.CAN_REQUIRE_EOD_SUBMISSION,
-          Permission.CAN_VIEW_TEAM_LEAVES,
-          Permission.CAN_APPROVE_LEAVE,
-          Permission.CAN_REJECT_LEAVE,
-          Permission.CAN_SUBMIT_OWN_LEAVE,
+          Permission.CAN_MANAGE_ALL_LEAVES,
           Permission.CAN_MANAGE_TEAM_MEETINGS,
-          Permission.CAN_VIEW_TEAM_MEETINGS,
           Permission.CAN_VIEW_OWN_MEETINGS,
-          Permission.CAN_SCHEDULE_MEETING,
-          Permission.CAN_VIEW_TEAM_CALENDAR,
           Permission.CAN_VIEW_OWN_CALENDAR,
-          Permission.CAN_MANAGE_TEAM_CALENDAR,
-          Permission.CAN_VIEW_ANALYTICS_DASHBOARD,
-          Permission.CAN_VIEW_LEADERBOARD,
-          Permission.CAN_USE_PERFORMANCE_HUB,
-          Permission.CAN_VIEW_TRIGGER_LOG
+          Permission.CAN_USE_PERFORMANCE_HUB
         ].includes(permission);
       }
       
       // Team Lead role permissions
       if (roleName === 'team lead') {
         return [
-          Permission.CAN_VIEW_BUSINESS_UNITS,
-          Permission.CAN_VIEW_TEAM_TASKS,
-          Permission.CAN_CREATE_TEAM_TASK,
-          Permission.CAN_ASSIGN_TASK,
-          Permission.CAN_COMMENT_ON_TEAM_TASK,
+          Permission.CAN_MANAGE_TEAM_TASKS,
           Permission.CAN_CREATE_PERSONAL_TASKS,
           Permission.CAN_VIEW_OWN_TASKS,
-          Permission.CAN_VIEW_TEAM_REPORTS,
+          Permission.CAN_MANAGE_TEAM_REPORTS,
           Permission.CAN_SUBMIT_OWN_EOD,
           Permission.CAN_VIEW_OWN_REPORTS,
-          Permission.CAN_VIEW_TEAM_LEAVES,
-          Permission.CAN_SUBMIT_OWN_LEAVE,
-          Permission.CAN_VIEW_TEAM_MEETINGS,
+          Permission.CAN_MANAGE_TEAM_MEETINGS,
           Permission.CAN_VIEW_OWN_MEETINGS,
-          Permission.CAN_SCHEDULE_MEETING,
-          Permission.CAN_VIEW_TEAM_CALENDAR,
-          Permission.CAN_VIEW_OWN_CALENDAR,
-          Permission.CAN_VIEW_LEADERBOARD,
-          Permission.CAN_VIEW_TRIGGER_LOG
+          Permission.CAN_VIEW_OWN_CALENDAR
         ].includes(permission);
       }
       
@@ -448,10 +375,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           Permission.CAN_VIEW_OWN_TASKS,
           Permission.CAN_SUBMIT_OWN_EOD,
           Permission.CAN_VIEW_OWN_REPORTS,
-          Permission.CAN_SUBMIT_OWN_LEAVE,
           Permission.CAN_VIEW_OWN_MEETINGS,
-          Permission.CAN_VIEW_OWN_CALENDAR,
-          Permission.CAN_VIEW_LEADERBOARD
+          Permission.CAN_VIEW_OWN_CALENDAR
         ].includes(permission);
       }
     }
