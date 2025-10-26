@@ -77,7 +77,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed, onToggl
   const filteredNavItems = navItems.filter(item => {
     if (item.permission === 'dashboard') return true; 
     if (item.permission === 'super_admin') return currentUser?.roleName === 'Super Admin';
-    if (item.permission === 'integrations') return hasPermission(Permission.CAN_MANAGE_TEAM_MEETINGS) || hasPermission(Permission.CAN_MANAGE_USERS);
+    if (item.permission === 'integrations') return hasPermission(Permission.CAN_USE_GOOGLE_CALENDAR) || hasPermission(Permission.CAN_USE_TELEGRAM_BOT) || hasPermission(Permission.CAN_USE_GEMINI_AI);
     return hasPermission(item.permission);
   });
 
