@@ -67,7 +67,7 @@ const AppContent: React.FC = () => {
       {hasPermission(Permission.CAN_MANAGE_ROLES) && <Route path="/roles-permissions" element={<AdminRolesPermissionsPage />} />}
       {hasPermission(Permission.CAN_MANAGE_BUSINESS_UNITS) && <Route path="/manage-business-units" element={<AdminBusinessUnitManagementPage />} />}
       {hasPermission(Permission.CAN_VIEW_ALL_REPORTS) && <Route path="/all-reports" element={<AdminAllReportsPage />} />}
-      {hasPermission(Permission.CAN_VIEW_TRIGGER_LOG) && <Route path="/admin-trigger-log" element={<AdminTriggerLogPage />} />}
+      {hasPermission(Permission.CAN_MANAGE_USERS) && <Route path="/admin-trigger-log" element={<AdminTriggerLogPage />} />}
       {hasPermission(Permission.CAN_MANAGE_ALL_LEAVES) && <Route path="/admin/leave-records" element={<AdminLeaveManagementPage />} />}
 
       {/* Manager Routes */}
@@ -89,7 +89,7 @@ const AppContent: React.FC = () => {
       
       {/* Shared Routes */}
       {hasPermission(Permission.CAN_VIEW_OWN_CALENDAR) && <Route path="/calendar-view" element={hasPermission(Permission.CAN_MANAGE_TEAM_REPORTS) ? <ManagerCalendarPage /> : <EmployeeCalendarPage />} />}
-      {hasPermission(Permission.CAN_VIEW_LEADERBOARD) && <Route path="/leaderboard" element={<LeaderboardPage />} />}
+      {hasPermission(Permission.CAN_USE_PERFORMANCE_HUB) && <Route path="/leaderboard" element={<LeaderboardPage />} />}
       {hasPermission(Permission.CAN_VIEW_OWN_MEETINGS) && <Route path="/meetings" element={<MeetingListPage />} />}
       {hasPermission(Permission.CAN_VIEW_OWN_MEETINGS) && <Route path="/meetings/:meetingId" element={<MeetingWorkspacePage />} />}
 

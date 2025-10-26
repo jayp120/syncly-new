@@ -28,7 +28,7 @@ The application is built using **React 19.1** and **TypeScript**, with **Vite 6.
 -   **Smart Meeting Assistant:** Live memo and meeting scheduling with Google Calendar sync. Google Calendar invitations sent to all attendees via `sendUpdates: 'all'` parameter.
 -   **Performance & Gamification:** Badge system and leaderboards.
 -   **Notifications:** ✅ **PRODUCTION READY** - Real-time notification system with 23 types (20 crucial). Includes real-time in-app bell icon, desktop/mobile push notifications, and 7 automated scheduled triggers. Firestore composite indexes deployed successfully (October 23, 2025).
--   **Telegram Bot Integration:** ✅ **LIVE IN PRODUCTION** - Complete Telegram bot (@syncly_superbot) with 7 commands (/start, /help, /tasks, /today, /streak, /leaderboard, /unlink) and 5 notification types. Deployed October 24, 2025 with 3 Firebase Cloud Functions (telegramWebhook, sendTelegramNotification, generateTelegramLinkingCode). Webhook active at us-central1. See `TELEGRAM_DEPLOYMENT_SUCCESS.md`.
+-   **Telegram Bot Integration:** ✅ **LIVE IN PRODUCTION** - Complete Telegram bot (@syncly_superbot) with 7 commands (/start, /help, /tasks, /today, /streak, /leaderboard, /unlink) and 5 notification types. All 21 Firebase Cloud Functions successfully deployed to production (us-central1) on October 26, 2025 after fixing missing dependencies. Webhook active. Production-ready with tenant-scoped data queries. See `TELEGRAM_DEPLOYMENT_SUCCESS.md`.
 
 **UI/UX Decisions:**
 -   Component-based architecture.
@@ -65,7 +65,8 @@ The application is built using **React 19.1** and **TypeScript**, with **Vite 6.
   - Trimmed permissions from 105 to 27 production-ready permissions matching actual app features (October 26, 2025)
   - Fixed Tenant Admin access to Roles & Permissions and Business Units pages (October 26, 2025)
   - Fixed Integrations page navigation issue for employees with integration permissions (October 26, 2025)
-  - Added Gemini AI integration card showing active AI features (EOD summaries, task generation, performance reviews) (October 26, 2025)
+  - **CRITICAL: Fixed Telegram bot connection** - Installed missing Firebase Functions dependencies (259 packages) and deployed all 21 Cloud Functions to production. Telegram connection now fully functional. (October 26, 2025)
+  - Removed Gemini AI card from Integrations page (backend API key, not user-facing integration) (October 26, 2025)
 
 **Firestore Indexes:** ✅ **DEPLOYED** (October 23, 2025)
 - **Project:** syncly-473404
