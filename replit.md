@@ -63,6 +63,7 @@ The application is built using **React 19.1** and **TypeScript**, with **Vite 6.
   - Fixed activity log display bug showing "[object Object]" for permission changes (October 26, 2025)
   - Fixed sidebar Integrations menu not showing for employees with integration permissions (October 26, 2025)
   - Trimmed permissions from 105 to 27 production-ready permissions matching actual app features (October 26, 2025)
+  - Fixed Tenant Admin access to Roles & Permissions and Business Units pages (October 26, 2025)
 
 **Firestore Indexes:** ✅ **DEPLOYED** (October 23, 2025)
 - **Project:** syncly-473404
