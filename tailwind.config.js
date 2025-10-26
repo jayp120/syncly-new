@@ -12,7 +12,7 @@ const config = {
   darkMode: "class",
   theme: {
     extend: {
-      fontFamily: { sans: ["Inter", "sans-serif"] },
+      fontFamily: { sans: ["Plus Jakarta Sans", "Inter", "sans-serif"] },
       colors: {
         primary: '#3b82f6', // blue-500
         'primary-hover': '#2563eb', // blue-600

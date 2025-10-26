@@ -23,35 +23,57 @@ const LandingPage: React.FC = () => {
   const aiFeatures = [
     {
       icon: 'fa-brain',
+      iconClass: 'fas',
       title: 'AI-Powered EOD Reports',
       description: 'Intelligent summaries that extract key insights from your daily work. Our AI analyzes patterns and highlights what matters most.',
       gradient: 'from-cyan-500 via-blue-500 to-indigo-600',
-      accentColor: 'cyan',
-      benefits: ['Smart summaries', 'Pattern recognition', 'Auto-categorization']
+      benefits: ['Smart summaries', 'Pattern recognition', 'Auto-categorization'],
+      chipClass: 'bg-cyan-500/10 text-cyan-300 border-cyan-500/20'
     },
     {
       icon: 'fa-chart-line',
+      iconClass: 'fas',
       title: 'Consistency Tracker',
       description: 'AI-powered habit tracking that learns your work patterns and helps you maintain productivity streaks across all activities.',
       gradient: 'from-indigo-500 via-purple-500 to-pink-600',
-      accentColor: 'purple',
-      benefits: ['Habit analysis', 'Streak tracking', 'Smart reminders']
+      benefits: ['Habit analysis', 'Streak tracking', 'Smart reminders'],
+      chipClass: 'bg-purple-500/10 text-purple-300 border-purple-500/20'
     },
     {
       icon: 'fa-trophy',
+      iconClass: 'fas',
       title: 'Performance Hub',
       description: 'Gamification meets AI insights. Real-time performance analytics, intelligent badges, and personalized growth recommendations.',
       gradient: 'from-orange-500 via-red-500 to-pink-600',
-      accentColor: 'orange',
-      benefits: ['AI insights', 'Smart badges', 'Leaderboards']
+      benefits: ['AI insights', 'Smart badges', 'Leaderboards'],
+      chipClass: 'bg-orange-500/10 text-orange-300 border-orange-500/20'
     },
     {
       icon: 'fa-robot',
+      iconClass: 'fas',
       title: 'AI Task Generation',
       description: 'Automatically generate tasks from meetings, EOD reports, and conversations. Never miss action items again.',
       gradient: 'from-green-500 via-emerald-500 to-teal-600',
-      accentColor: 'emerald',
-      benefits: ['Auto-generation', 'Smart prioritization', 'Context-aware']
+      benefits: ['Auto-generation', 'Smart prioritization', 'Context-aware'],
+      chipClass: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20'
+    },
+    {
+      icon: 'fa-telegram-plane',
+      iconClass: 'fab',
+      title: 'Telegram Bot Integration',
+      description: 'Stay connected on-the-go with real-time notifications, task updates, and instant commands through Telegram. Never miss important updates.',
+      gradient: 'from-blue-400 via-sky-500 to-blue-600',
+      benefits: ['Real-time alerts', 'Instant commands', 'Mobile-first'],
+      chipClass: 'bg-blue-500/10 text-blue-300 border-blue-500/20'
+    },
+    {
+      icon: 'fa-google',
+      iconClass: 'fab',
+      title: 'Google Calendar Sync',
+      description: 'Seamless two-way synchronization with Google Calendar. Smart scheduling, automated meeting notes, and intelligent time management.',
+      gradient: 'from-emerald-500 via-green-500 to-teal-600',
+      benefits: ['Two-way sync', 'Smart scheduling', 'Auto invites'],
+      chipClass: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20'
     }
   ];
 
@@ -100,6 +122,7 @@ const LandingPage: React.FC = () => {
         'Everything in Starter',
         'Smart Meeting Assistant',
         'Google Calendar Integration',
+        'Telegram Bot Integration',
         'Performance Hub & Gamification',
         'AI Consistency Tracker',
         'Priority Support'
@@ -234,7 +257,7 @@ const LandingPage: React.FC = () => {
             
             <p className="text-xl sm:text-2xl text-gray-600 mb-10 leading-relaxed">
               Transform your team's productivity with AI-powered EOD reports, intelligent consistency tracking, 
-              smart meeting assistance with Google Calendar, and performance insights—all in one beautiful platform.
+              Telegram bot notifications, Google Calendar sync, and performance insights—all in one beautiful platform.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
@@ -310,14 +333,14 @@ const LandingPage: React.FC = () => {
               <span className="text-cyan-300 font-semibold text-sm">Powered by Advanced AI</span>
             </div>
             <h2 className="text-4xl sm:text-5xl font-extrabold text-white mb-4">
-              AI Command Center
+              Intelligent Features & Integrations
             </h2>
             <p className="text-xl text-slate-300 max-w-2xl mx-auto">
-              Intelligent features that learn from your team's patterns and deliver actionable insights
+              AI-powered insights combined with seamless integrations to supercharge your team's productivity
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             {aiFeatures.map((feature, index) => (
               <div 
                 key={index}
@@ -330,7 +353,7 @@ const LandingPage: React.FC = () => {
                 {/* Card */}
                 <div className="relative bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-8 hover:border-white/20 transition-all duration-500 h-full">
                   <div className={`inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br ${feature.gradient} rounded-xl mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-lg`}>
-                    <i className={`fas ${feature.icon} text-2xl text-white`}></i>
+                    <i className={`${(feature as any).iconClass} ${feature.icon} text-2xl text-white`}></i>
                   </div>
                   
                   <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:bg-clip-text group-hover:from-cyan-300 group-hover:to-indigo-300 transition-all duration-300">
@@ -345,7 +368,7 @@ const LandingPage: React.FC = () => {
                     {feature.benefits.map((benefit, bIndex) => (
                       <span 
                         key={bIndex}
-                        className={`px-3 py-1 text-xs font-semibold bg-${feature.accentColor}-500/10 text-${feature.accentColor}-300 border border-${feature.accentColor}-500/20 rounded-full`}
+                        className={`px-3 py-1 text-xs font-semibold ${(feature as any).chipClass} rounded-full`}
                       >
                         {benefit}
                       </span>
