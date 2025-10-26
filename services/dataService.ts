@@ -1893,6 +1893,14 @@ export const transformActivityToTimelineEvent = async (activity: ActivityLogItem
           to = formatDateDDMonYYYY(to);
       }
       
+      // Handle permission changes with humanReadable text
+      if (typeof from === 'object' && from !== null && 'humanReadable' in from) {
+          from = from.humanReadable || '(none)';
+      }
+      if (typeof to === 'object' && to !== null && 'humanReadable' in to) {
+          to = to.humanReadable || '(none)';
+      }
+      
       description = `changed the ${fieldName} for task from "${from}" to "${to}"`;
   }
   

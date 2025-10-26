@@ -50,7 +50,7 @@ The application is built using **React 19.1** and **TypeScript**, with **Vite 6.
 - **Guide:** See `AUTO_MIGRATION_GUIDE.md`
 - **Implementation:** `services/autoMigrationService.ts`
 
-**Tenant Admin Permission Bypass:** ✅ **PRODUCTION READY** (October 25, 2025)
+**Tenant Admin Permission Bypass:** ✅ **PRODUCTION READY** (October 26, 2025)
 - **Status:** Secure permission bypass using Firebase Auth custom claims - **ARCHITECT APPROVED**
 - **Purpose:** Grants Tenant Admins immediate access to ALL admin features (68 comprehensive permissions) without waiting for role document migration
 - **Permissions Coverage:** Complete coverage including Role Management (6), User Management (13), Business Units (7), Tasks (10), EOD Reports (10), Leave (7), Meetings/Calendar (7), Settings/Integration (7), Integration Access (3: Google Calendar, Telegram Bot, Gemini AI)
@@ -59,6 +59,7 @@ The application is built using **React 19.1** and **TypeScript**, with **Vite 6.
 - **Session Persistence:** Auth state listener reads custom claims on page refresh to maintain permissions across sessions
 - **Auto-Migration:** Still runs in background to fix outdated role documents
 - **Zero Manual Intervention:** Works automatically on every login and page refresh - true production SaaS standard
+- **Recent Fixes:** Fixed activity log display bug showing "[object Object]" for permission changes (October 26, 2025)
 
 **Firestore Indexes:** ✅ **DEPLOYED** (October 23, 2025)
 - **Project:** syncly-473404
