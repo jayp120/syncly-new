@@ -231,67 +231,6 @@ const IntegrationsPage: React.FC = () => {
     </Card>
   );
 
-  const renderGeminiAICard = () => {
-    const hasApiKey = !!import.meta.env.VITE_GEMINI_API_KEY;
-    
-    return (
-      <Card className="flex flex-col">
-        <div className="flex items-center mb-4">
-          <div className="w-12 h-12 mr-4 flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg text-white text-2xl">
-            <i className="fas fa-brain"></i>
-          </div>
-          <div>
-            <h3 className="text-xl font-semibold text-darktext dark:text-slate-200">Google Gemini AI</h3>
-            <p className="text-sm text-mediumtext dark:text-slate-400">Intelligent insights for reports, tasks, and performance.</p>
-          </div>
-        </div>
-        
-        <div className="flex-grow flex items-center justify-center py-4 min-h-[100px]">
-          {hasApiKey ? (
-            <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-2 flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-full text-purple-600 dark:text-purple-400 text-3xl">
-                <i className="fas fa-sparkles"></i>
-              </div>
-              <p className="font-semibold text-darktext dark:text-slate-200">AI Features Active</p>
-              <span className="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">
-                <i className="fas fa-check-circle mr-1.5"></i> Configured
-              </span>
-              <div className="mt-3">
-                <ul className="text-xs text-mediumtext dark:text-slate-400 space-y-1 text-left max-w-xs mx-auto">
-                  <li>• AI EOD Report Summaries</li>
-                  <li>• AI Task Generation</li>
-                  <li>• Performance Reviews</li>
-                </ul>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center px-4">
-              <p className="text-sm text-mediumtext dark:text-slate-400 mb-3">
-                Enable AI-powered features for your team:
-              </p>
-              <ul className="text-xs text-mediumtext dark:text-slate-400 space-y-1 text-left max-w-xs mx-auto">
-                <li>• Smart EOD summaries</li>
-                <li>• Automated task generation</li>
-                <li>• Performance insights</li>
-              </ul>
-            </div>
-          )}
-        </div>
-        
-        <div className="mt-auto pt-4 border-t border-border-primary dark:border-dark-border">
-          {hasApiKey ? (
-            <Button variant="ghost" disabled className="w-full">API Key Configured</Button>
-          ) : (
-            <Button variant="primary" disabled className="w-full">
-              Configure API Key
-              <i className="fas fa-external-link-alt ml-2 text-xs"></i>
-            </Button>
-          )}
-        </div>
-      </Card>
-    );
-  };
-
   const renderPlaceholderCard = (appName: string, iconUrl: string, description: string) => (
     <Card className="flex flex-col opacity-50">
       <div className="flex items-center mb-4">
@@ -320,7 +259,6 @@ const IntegrationsPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {renderGoogleCalendarCard()}
         {renderTelegramCard()}
-        {renderGeminiAICard()}
         {renderPlaceholderCard('Slack', 'https://a.slack-edge.com/80588/marketing/img/meta/slack_hash_256.png', 'Get task notifications and reminders in Slack.')}
         {renderPlaceholderCard('Jira', 'https://cdn.worldvectorlogo.com/logos/jira-1.svg', 'Sync tasks and issues between Syncly and Jira.')}
       </div>
