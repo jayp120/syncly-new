@@ -34,6 +34,7 @@ import {
   getTaskComments,
   createTaskComment,
   getAllLeaveRecords,
+  getLeaveRecordById,
   getLeaveRecordsByEmployee,
   createLeaveRecord,
   updateLeaveRecord,
@@ -409,6 +410,10 @@ export const taskRepository = {
 export const leaveRepository = {
   async getAll(tenantId: string): Promise<LeaveRecord[]> {
     return await getAllLeaveRecords(tenantId);
+  },
+
+  async getById(id: string): Promise<LeaveRecord | null> {
+    return await getLeaveRecordById(id);
   },
   
   async getByEmployee(employeeId: string): Promise<LeaveRecord[]> {

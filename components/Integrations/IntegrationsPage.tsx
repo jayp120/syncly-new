@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PageContainer from '../Layout/PageContainer';
 import Card from '../Common/Card';
 import Button from '../Common/Button';
@@ -8,7 +8,7 @@ import UserAvatar from '../Common/UserAvatar';
 import Alert from '../Common/Alert';
 import { useAuth } from '../Auth/AuthContext';
 import { callGenerateTelegramLinkingCode } from '../../services/cloudFunctions';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 
 const IntegrationsPage: React.FC = () => {
@@ -20,50 +20,62 @@ const IntegrationsPage: React.FC = () => {
   const [isLinking, setIsLinking] = useState(false);
   const [telegramError, setTelegramError] = useState<string | null>(null);
   const [checkingStatus, setCheckingStatus] = useState(true);
+  const linkingInProgressRef = useRef(false);
 
   useEffect(() => {
-    const checkTelegramStatus = async () => {
-      if (!user) {
-        setCheckingStatus(false);
-        return;
-      }
-      
-      try {
-        const userDoc = await getDoc(doc(db, 'users', user.id));
-        const userData = userDoc.data();
-        
-        if (userData?.telegramChatId) {
-          setTelegramLinked(true);
-          setTelegramUsername(userData.telegramUsername || null);
-          
-          // If we were linking and now detected connection, stop polling
-          if (isLinking) {
-            setIsLinking(false);
-            setTelegramError('✅ Telegram connected successfully!');
-          }
-        } else {
-          setTelegramLinked(false);
-          setTelegramUsername(null);
-        }
-      } catch (error) {
-        console.error('Error checking Telegram status:', error);
-      } finally {
-        setCheckingStatus(false);
-      }
-    };
-    
-    checkTelegramStatus();
-    
-    // Auto-refresh status every 2 seconds when linking is in progress
-    let intervalId: NodeJS.Timeout | null = null;
-    if (isLinking) {
-      intervalId = setInterval(checkTelegramStatus, 2000);
+    linkingInProgressRef.current = isLinking;
+  }, [isLinking]);
+
+  useEffect(() => {
+    if (!user?.id) {
+      setCheckingStatus(false);
+      setTelegramLinked(false);
+      setTelegramUsername(null);
+      return;
     }
-    
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [user, isLinking]);
+
+    setCheckingStatus(true);
+    const userDocRef = doc(db, 'users', user.id);
+
+    const unsubscribe = onSnapshot(
+      userDocRef,
+      (snapshot) => {
+        const userData = snapshot.data();
+        const isLinked = Boolean(userData?.telegramChatId);
+
+        setTelegramLinked(isLinked);
+        setTelegramUsername(userData?.telegramUsername || null);
+        setCheckingStatus(false);
+
+        if (linkingInProgressRef.current && isLinked) {
+          linkingInProgressRef.current = false;
+          setIsLinking(false);
+          setTelegramError('Telegram connected successfully!');
+        }
+      },
+      (error) => {
+        console.error('Error checking Telegram status:', error);
+        setTelegramError('Failed to check Telegram connection status. Please try again.');
+        setCheckingStatus(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!isLinking) {
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      linkingInProgressRef.current = false;
+      setIsLinking(false);
+      setTelegramError((current) => current ?? 'Still waiting for Telegram confirmation...');
+    }, 30000);
+
+    return () => clearTimeout(timeoutId);
+  }, [isLinking]);
 
   const connectTelegram = async () => {
     setIsLinking(true);
@@ -75,11 +87,6 @@ const IntegrationsPage: React.FC = () => {
       window.open(result.deepLink, '_blank');
       
       setTelegramError('Opening Telegram... Follow the instructions in the bot to complete linking.');
-      
-      // Keep polling for 30 seconds to auto-detect successful linking
-      setTimeout(() => {
-        setIsLinking(false);
-      }, 30000);
     } catch (error: any) {
       console.error('Error generating linking code:', error);
       setTelegramError(error.message || 'Failed to generate linking code. Please try again.');

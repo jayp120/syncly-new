@@ -460,6 +460,9 @@ export const getLeaveRecordsByEmployee = async (employeeId: string) => {
   );
 };
 
+export const getLeaveRecordById = (leaveId: string) =>
+  getDocument<LeaveRecord>(COLLECTIONS.LEAVE_RECORDS, leaveId);
+
 export const createLeaveRecord = (leaveId: string, leaveData: Omit<LeaveRecord, 'id'>) =>
   setDocument(COLLECTIONS.LEAVE_RECORDS, leaveId, leaveData);
 

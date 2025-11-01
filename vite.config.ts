@@ -2,13 +2,16 @@ import path from 'path';
 import { defineConfig } from 'vite';
 
 export default defineConfig(({ mode }) => {
+    const replitDomain = process.env.REPLIT_DEV_DOMAIN;
+    const devPort = Number(process.env.PORT) || 5173;
+
     return {
       server: {
         host: '0.0.0.0',
-        port: 5000,
+        port: devPort,
         hmr: {
-          clientPort: 443,
-          host: process.env.REPLIT_DEV_DOMAIN || 'localhost'
+          clientPort: replitDomain ? 443 : devPort,
+          host: replitDomain || 'localhost'
         }
       },
       define: {

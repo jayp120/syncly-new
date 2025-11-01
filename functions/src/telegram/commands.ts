@@ -8,6 +8,96 @@ import * as admin from 'firebase-admin';
 import { Telegraf, Context } from 'telegraf';
 import { getSynclyUserFromTelegram, linkTelegramUser, verifyLinkingCode } from './auth';
 
+const ACTIVE_TASK_STATUS_KEYWORDS = [
+  'not started',
+  'not_started',
+  'notstarted',
+  'in progress',
+  'in_progress',
+  'inprogress',
+  'to do',
+  'todo',
+  'blocked',
+  'pending',
+  'open'
+];
+const ACTIVE_TASK_STATUS_SET = new Set(ACTIVE_TASK_STATUS_KEYWORDS);
+const COMPLETED_STATUS_ALIASES = ['completed', 'complete', 'done', 'resolved', 'finished', 'closed', 'cancelled', 'canceled'];
+
+type LinkedSynclyContext = {
+  telegramId: string;
+  synclyUserId: string;
+  tenantId: string;
+  userData: Record<string, any>;
+};
+
+type LinkedContextResult = LinkedSynclyContext | { error: string };
+
+async function getLinkedContext(ctx: Context): Promise<LinkedContextResult> {
+  const telegramId = ctx.from?.id?.toString();
+  if (!telegramId) {
+    return { error: 'Unable to read your Telegram account. Please try again.' };
+  }
+
+  const linkedUser = await getSynclyUserFromTelegram(telegramId);
+  if (!linkedUser || !linkedUser.synclyUserId) {
+    return {
+      error: 'Your Telegram account is not linked to Syncly. Open Syncly → Integrations → Telegram and tap “Connect Telegram” again.'
+    };
+  }
+
+  const db = admin.firestore();
+  const userSnap = await db.collection('users').doc(linkedUser.synclyUserId).get();
+  if (!userSnap.exists) {
+    console.warn(`[telegram] Linked Syncly user ${linkedUser.synclyUserId} not found for Telegram ${telegramId}`);
+    return {
+      error: 'We could not find your Syncly profile. Please reconnect from Syncly → Integrations → Telegram.'
+    };
+  }
+
+  const userData = (userSnap.data() || {}) as Record<string, any>;
+  const tenantId = linkedUser.tenantId || userData.tenantId;
+  if (!tenantId) {
+    console.warn(`[telegram] Missing tenantId for Syncly user ${linkedUser.synclyUserId}`);
+    return {
+      error: 'Your Syncly account does not have an organisation assigned. Please contact your administrator.'
+    };
+  }
+
+  return {
+    telegramId,
+    synclyUserId: linkedUser.synclyUserId,
+    tenantId,
+    userData
+  };
+}
+
+function isTaskPendingForUser(task: Record<string, any>, userId: string): boolean {
+  const rawStatus = (task.status || '').toString().toLowerCase();
+  const status = rawStatus.replace(/\s+/g, ' ');
+  const statusUnderscore = rawStatus.replace(/\s+/g, '_');
+  const isStatusKnown = ACTIVE_TASK_STATUS_SET.has(status) || ACTIVE_TASK_STATUS_SET.has(statusUnderscore);
+
+  if (!rawStatus || isStatusKnown) {
+    // treat as potentially pending; continue to member progress check
+  } else {
+    // If status explicitly looks completed, skip
+    if (COMPLETED_STATUS_ALIASES.includes(rawStatus)) {
+      return false;
+    }
+  }
+
+  const progress = task.memberProgress?.[userId];
+  if (progress?.status) {
+    const progressStatus = progress.status.toString().toLowerCase();
+    if (COMPLETED_STATUS_ALIASES.includes(progressStatus)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 /**
  * Handle /start command
  */
@@ -45,9 +135,14 @@ export async function handleStartCommand(ctx: Context): Promise<void> {
   }
   
   // Check for linking code in start parameter
-  const startPayload = ctx.message && 'text' in ctx.message 
-    ? ctx.message.text.split(' ')[1] 
-    : undefined;
+  const startPayloadRaw =
+    // Telegraf exposes deep-link payload directly for /start
+    (ctx as any).startPayload ||
+    (ctx.message && 'text' in ctx.message
+      ? ctx.message.text.split(' ')[1]
+      : undefined);
+
+  const startPayload = startPayloadRaw?.trim().toUpperCase();
   
   if (startPayload) {
     console.log(`[/start] Processing linking code: ${startPayload}`);
@@ -99,16 +194,12 @@ export async function handleStartCommand(ctx: Context): Promise<void> {
  * Handle /help command
  */
 export async function handleHelpCommand(ctx: Context): Promise<void> {
-  const telegramId = ctx.from?.id.toString();
-  if (!telegramId) return;
-  
-  const linkedUser = await getSynclyUserFromTelegram(telegramId);
-  
-  if (!linkedUser) {
-    await ctx.reply('❌ Your Telegram is not linked to Syncly. Use /start to link your account first.');
+  const contextResult = await getLinkedContext(ctx);
+  if ('error' in contextResult) {
+    await ctx.reply(`⚠️ ${contextResult.error}`);
     return;
   }
-  
+
   const helpText = `
 <b>📚 Syncly Bot Commands</b>
 
@@ -133,23 +224,21 @@ Visit syncly.one/help
  * Handle /streak command
  */
 export async function handleStreakCommand(ctx: Context): Promise<void> {
-  const telegramId = ctx.from?.id.toString();
-  if (!telegramId) return;
-  
-  const linkedUser = await getSynclyUserFromTelegram(telegramId);
-  
-  if (!linkedUser) {
-    await ctx.reply('❌ Please link your Telegram account first using /start');
+  const contextResult = await getLinkedContext(ctx);
+  if ('error' in contextResult) {
+    await ctx.reply(`⚠️ ${contextResult.error}`);
     return;
   }
-  
+
+  const { synclyUserId } = contextResult;
+
   try {
     const db = admin.firestore();
     
     // Get user data
-    const userDoc = await db.collection('users').doc(linkedUser.synclyUserId).get();
+    const userDoc = await db.collection('users').doc(synclyUserId).get();
     if (!userDoc.exists) {
-      await ctx.reply('❌ User data not found');
+      await ctx.reply('⚠️ Could not find your Syncly account. Please reconnect from the Integrations page.');
       return;
     }
     
@@ -188,44 +277,60 @@ ${currentStreak >= 10 ? '🌟 Amazing consistency!' : '💪 Keep going!'}
  * Handle /tasks command
  */
 export async function handleTasksCommand(ctx: Context): Promise<void> {
-  const telegramId = ctx.from?.id.toString();
-  if (!telegramId) return;
-  
-  const linkedUser = await getSynclyUserFromTelegram(telegramId);
-  
-  if (!linkedUser) {
-    await ctx.reply('❌ Please link your Telegram account first using /start');
+  const contextResult = await getLinkedContext(ctx);
+  if ('error' in contextResult) {
+    await ctx.reply(`⚠️ ${contextResult.error}`);
     return;
   }
-  
+
+  const { tenantId, synclyUserId } = contextResult;
+
   try {
     const db = admin.firestore();
-    
-    // Get today's tasks for this user
+
     const tasksSnapshot = await db.collection('tasks')
-      .where('tenantId', '==', linkedUser.tenantId)
-      .where('assignedTo', '==', linkedUser.synclyUserId)
-      .where('status', 'in', ['To Do', 'In Progress'])
-      .limit(10)
+      .where('tenantId', '==', tenantId)
+      .where('assignedTo', 'array-contains', synclyUserId)
+      .limit(25)
       .get();
-    
-    if (tasksSnapshot.empty) {
-      await ctx.reply('✅ You have no pending tasks for today!');
+
+    const taskDocs = tasksSnapshot.docs
+      .map(doc => ({ id: doc.id, ...(doc.data() as Record<string, any>) })) as Array<Record<string, any>>;
+
+    const pendingTasks = taskDocs.filter(task => {
+      const assignees = Array.isArray(task.assignedTo) ? task.assignedTo : [];
+      if (!assignees.includes(synclyUserId)) {
+        return false;
+      }
+      return isTaskPendingForUser(task, synclyUserId);
+    });
+
+    console.log(`[telegram]/tasks tenant=${tenantId} user=${synclyUserId} snapshot=${tasksSnapshot.size} pending=${pendingTasks.length}`);
+
+    if (pendingTasks.length === 0) {
+      await ctx.reply('✅ You have no pending tasks right now!');
       return;
     }
-    
-    let message = `📋 <b>Your Tasks (${tasksSnapshot.size})</b>\n\n`;
-    
-    tasksSnapshot.docs.forEach((doc, index) => {
-      const task = doc.data();
-      const priority = task.priority === 'high' ? '🔴' : task.priority === 'medium' ? '🟡' : '🟢';
-      const status = task.status === 'In Progress' ? '⚡' : '📌';
-      
-      message += `${status} <b>${task.title}</b>\n`;
-      message += `   ${priority} ${task.priority} | Due: ${task.dueDate || 'No date'}\n\n`;
+
+    let message = `📋 <b>Your Tasks (${pendingTasks.length})</b>\n\n`;
+
+    pendingTasks.forEach(task => {
+      const priorityLabel = (task.priority || '').toString().toLowerCase();
+      const priorityIcon = priorityLabel === 'high' ? '🔴' : priorityLabel === 'medium' ? '🟡' : '🟢';
+      const userStatus = (task.memberProgress?.[synclyUserId]?.status || task.status || '').toString().toLowerCase();
+      const normalizedStatus = userStatus.replace(/\s+/g, ' ');
+      const statusIcon = normalizedStatus === 'in progress'
+        ? '⚡'
+        : normalizedStatus === 'blocked'
+          ? '⛔'
+          : '📌';
+      const dueText = task.dueDate || 'No date';
+
+      message += `${statusIcon} <b>${task.title}</b>\n`;
+      message += `   ${priorityIcon} ${task.priority || 'Priority not set'} | Due: ${dueText}\n\n`;
     });
-    
-    await ctx.reply(message, { 
+
+    await ctx.reply(message, {
       parse_mode: 'HTML',
       reply_markup: {
         inline_keyboard: [[
@@ -244,16 +349,14 @@ export async function handleTasksCommand(ctx: Context): Promise<void> {
  * Handle /today command
  */
 export async function handleTodayCommand(ctx: Context): Promise<void> {
-  const telegramId = ctx.from?.id.toString();
-  if (!telegramId) return;
-  
-  const linkedUser = await getSynclyUserFromTelegram(telegramId);
-  
-  if (!linkedUser) {
-    await ctx.reply('❌ Please link your Telegram account first using /start');
+  const contextResult = await getLinkedContext(ctx);
+  if ('error' in contextResult) {
+    await ctx.reply(`⚠️ ${contextResult.error}`);
     return;
   }
-  
+
+  const { tenantId, synclyUserId } = contextResult;
+
   try {
     const db = admin.firestore();
     const today = new Date().toISOString().split('T')[0];
@@ -264,24 +367,33 @@ export async function handleTodayCommand(ctx: Context): Promise<void> {
     
     // Get today's tasks
     const tasksSnapshot = await db.collection('tasks')
-      .where('tenantId', '==', linkedUser.tenantId)
-      .where('assignedTo', '==', linkedUser.synclyUserId)
-      .where('status', 'in', ['To Do', 'In Progress'])
-      .limit(5)
+      .where('tenantId', '==', tenantId)
+      .where('assignedTo', 'array-contains', synclyUserId)
+      .limit(25)
       .get();
+    const todayTaskDocs = tasksSnapshot.docs
+      .map(doc => ({ id: doc.id, ...(doc.data() as Record<string, any>) })) as Array<Record<string, any>>;
+    const pendingTasks = todayTaskDocs.filter(task => {
+      const assignees = Array.isArray(task.assignedTo) ? task.assignedTo : [];
+      if (!assignees.includes(synclyUserId)) {
+        return false;
+      }
+      return isTaskPendingForUser(task, synclyUserId);
+    });
     
     // Get today's meetings (using meetingDateTime timestamp)
     const meetingsSnapshot = await db.collection('meetings')
-      .where('tenantId', '==', linkedUser.tenantId)
-      .where('participants', 'array-contains', linkedUser.synclyUserId)
+      .where('tenantId', '==', tenantId)
+      .where('attendeeIds', 'array-contains', synclyUserId)
       .where('meetingDateTime', '>=', todayStart)
       .where('meetingDateTime', '<=', todayEnd)
       .get();
+    console.log(`[telegram]/today tenant=${tenantId} user=${synclyUserId} tasks=${pendingTasks.length} meetings=${meetingsSnapshot.size}`);
     
     // Get user's EOD status for today
     const eodSnapshot = await db.collection('eodReports')
-      .where('tenantId', '==', linkedUser.tenantId)
-      .where('userId', '==', linkedUser.synclyUserId)
+      .where('tenantId', '==', tenantId)
+      .where('userId', '==', synclyUserId)
       .where('date', '==', today)
       .limit(1)
       .get();
@@ -292,15 +404,15 @@ export async function handleTodayCommand(ctx: Context): Promise<void> {
     let message = `📅 <b>Your Agenda for Today</b>\n\n`;
     
     // Tasks section
-    if (!tasksSnapshot.empty) {
-      message += `<b>📋 Tasks (${tasksSnapshot.size}):</b>\n`;
-      tasksSnapshot.docs.slice(0, 3).forEach((doc) => {
-        const task = doc.data();
-        const priority = task.priority === 'high' ? '🔴' : task.priority === 'medium' ? '🟡' : '🟢';
-        message += `  ${priority} ${task.title}\n`;
+    if (pendingTasks.length > 0) {
+      message += `<b>📋 Tasks (${pendingTasks.length}):</b>\n`;
+      pendingTasks.slice(0, 3).forEach((task) => {
+        const priorityLabel = (task.priority || '').toString().toLowerCase();
+        const priorityIcon = priorityLabel === 'high' ? '🔴' : priorityLabel === 'medium' ? '🟡' : '🟢';
+        message += `  ${priorityIcon} ${task.title}\n`;
       });
-      if (tasksSnapshot.size > 3) {
-        message += `  ... and ${tasksSnapshot.size - 3} more\n`;
+      if (pendingTasks.length > 3) {
+        message += `  ... and ${pendingTasks.length - 3} more\n`;
       }
       message += '\n';
     } else {
@@ -349,13 +461,9 @@ export async function handleTodayCommand(ctx: Context): Promise<void> {
  * Handle /leaderboard command
  */
 export async function handleLeaderboardCommand(ctx: Context): Promise<void> {
-  const telegramId = ctx.from?.id.toString();
-  if (!telegramId) return;
-  
-  const linkedUser = await getSynclyUserFromTelegram(telegramId);
-  
-  if (!linkedUser) {
-    await ctx.reply('❌ Please link your Telegram account first using /start');
+  const contextResult = await getLinkedContext(ctx);
+  if ('error' in contextResult) {
+    await ctx.reply(`⚠️ ${contextResult.error}`);
     return;
   }
   
@@ -376,13 +484,9 @@ export async function handleLeaderboardCommand(ctx: Context): Promise<void> {
  * Handle /unlink command
  */
 export async function handleUnlinkCommand(ctx: Context): Promise<void> {
-  const telegramId = ctx.from?.id.toString();
-  if (!telegramId) return;
-  
-  const linkedUser = await getSynclyUserFromTelegram(telegramId);
-  
-  if (!linkedUser) {
-    await ctx.reply('❌ Your Telegram is not linked to any Syncly account.');
+  const contextResult = await getLinkedContext(ctx);
+  if ('error' in contextResult) {
+    await ctx.reply(`⚠️ ${contextResult.error}`);
     return;
   }
   

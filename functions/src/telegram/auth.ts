@@ -45,7 +45,8 @@ export async function verifyLinkingCode(code: string): Promise<{
   tenantId: string;
 } | null> {
   const db = admin.firestore();
-  const codeDoc = await db.collection('telegramLinkingCodes').doc(code).get();
+  const normalizedCode = code.trim().toUpperCase();
+  const codeDoc = await db.collection('telegramLinkingCodes').doc(normalizedCode).get();
   
   if (!codeDoc.exists) {
     return null;
