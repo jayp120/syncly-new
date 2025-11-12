@@ -13,7 +13,7 @@ import Spinner from '../Common/Spinner';
 import { MAX_REPORT_VERSIONS } from '../../constants';
 import Modal from '../Common/Modal'; 
 // FIX: Import isDayWeeklyOff directly from dateUtils.
-import { formatDateDDMonYYYY, formatDateTimeDDMonYYYYHHMM, isDayWeeklyOff } from '../../utils/dateUtils';
+import { formatDateDDMonYYYY, formatDateTimeDDMonYYYYHHMM, getLocalYYYYMMDD, isDayWeeklyOff } from '../../utils/dateUtils';
 import { useToast } from '../../contexts/ToastContext';
 import Select from '../Common/Select';
 
@@ -420,6 +420,19 @@ const EODReportForm: React.FC<EODReportFormProps> = ({ currentUser, reportDate, 
         setError('Please either type your tasks or mark a pending task as "Completed".');
         setIsLoading(false);
         return;
+    }
+
+    const todayLocalDate = getLocalYYYYMMDD(new Date());
+    if (!isEditMode && date === todayLocalDate) {
+        const todaysLeave = await DataService.getLeaveRecordForEmployeeOnDate(currentUser.id, todayLocalDate);
+        if (todaysLeave) {
+            const messageTitle = 'EOD Report Submission Restricted';
+            const messageBody = 'You are marked on leave today. You cannot submit the EOD report.';
+            setError(`${messageTitle}\n${messageBody}`);
+            addToast(`${messageTitle} — ${messageBody}`, 'warning');
+            setIsLoading(false);
+            return;
+        }
     }
     
     // NEW LOGIC: Prepend newly completed tasks to the report text
@@ -953,3 +966,4 @@ const EODReportForm: React.FC<EODReportFormProps> = ({ currentUser, reportDate, 
 };
 
 export default EODReportForm;
+

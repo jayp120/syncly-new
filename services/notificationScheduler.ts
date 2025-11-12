@@ -259,6 +259,26 @@ const checkTaskOverdue = async (user: User, tasks: Task[], now: Date) => {
     }
 };
 
+const checkAnnouncementAlerts = async (user: User, now: Date) => {
+    const announcements = await DataService.getActiveAnnouncementsForUser(user);
+    for (const announcement of announcements) {
+        const key = `announcement-alert-${announcement.id}-${user.id}`;
+        if (hasBeenSent(key)) {
+            continue;
+        }
+
+        await DataService.addNotification({
+            userId: user.id,
+            message: announcement.title,
+            type: 'info',
+            link: '/announcements',
+            targetId: announcement.id,
+            targetType: 'announcement',
+        });
+        markAsSent(key);
+    }
+};
+
 /**
  * NEW: Meeting agenda reminder for managers 24 hours before
  */
@@ -320,6 +340,7 @@ export const runScheduledChecks = async (user: User) => {
   await checkTaskDueTomorrow(user, userTasks, now);
   await checkTaskDueToday(user, userTasks, now);
   await checkTaskOverdue(user, userTasks, now);
+  await checkAnnouncementAlerts(user, now);
   
   // Run global checks (idempotent checks are safe here)
   await checkMeetingStartReminder(now);

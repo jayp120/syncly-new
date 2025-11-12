@@ -1,5 +1,5 @@
 
-import { User, Task } from '../types';
+import { Announcement, User, Task } from '../types';
 import { formatDateDDMonYYYY } from '../utils/dateUtils';
 
 const SENT_EMAILS_KEY = 'eod_sent_emails';
@@ -78,4 +78,22 @@ Please act immediately and submit your pending reports.
 Thank you,
 Syncly`;
   sendEmail(employee.email, subject, body);
+};
+
+export const sendAnnouncementEmail = (recipient: User, announcement: Announcement) => {
+  const subject = "\uD83D\uDCE3 " + announcement.title;
+  const body = `Hi ${recipient.name},
+
+A new announcement has been published for your organization.
+
+${announcement.content}
+
+Active from: ${new Date(announcement.startsAt).toLocaleString()}
+Expires on: ${new Date(announcement.endsAt).toLocaleString()}
+
+Please open Syncly to review the full details and acknowledge if required.
+
+Thank you,
+People Operations`;
+  sendEmail(recipient.notificationEmail || recipient.email, subject, body);
 };

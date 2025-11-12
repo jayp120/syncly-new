@@ -8,6 +8,7 @@ interface EmployeeMultiSelectProps {
 }
 
 const getInitials = (name: string = '') => name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+const getBusinessUnitLabel = (user?: User) => (user?.businessUnitName?.trim() ? user.businessUnitName : 'No BU');
 
 const EmployeeMultiSelect: React.FC<EmployeeMultiSelectProps> = ({ selectedIds, onSelectionChange, teamMembers }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -84,7 +85,10 @@ const EmployeeMultiSelect: React.FC<EmployeeMultiSelectProps> = ({ selectedIds, 
             <div className="w-5 h-5 rounded-full bg-primary text-white text-xs flex items-center justify-center font-bold">
               {getInitials(member.name)}
             </div>
-            {member.name}
+            <span className="flex items-center gap-1 text-primary dark:text-sky-200">
+              {member.name}
+              <span className="text-xs text-primary/80 dark:text-sky-300/80">({getBusinessUnitLabel(member)})</span>
+            </span>
             <button 
                 onClick={(e) => { e.stopPropagation(); handleDeselect(member.id); }} 
                 className="ml-1 w-4 h-4 rounded-full bg-primary/20 dark:bg-sky-500/30 text-primary/70 dark:text-sky-300/70 hover:bg-primary/40 dark:hover:bg-sky-500/50 hover:text-primary dark:hover:text-sky-200 flex items-center justify-center transition-colors"
@@ -115,12 +119,21 @@ const EmployeeMultiSelect: React.FC<EmployeeMultiSelectProps> = ({ selectedIds, 
                 <li
                   key={member.id}
                   onClick={() => handleSelect(member.id)}
-                  className={`px-4 py-2 cursor-pointer text-sm text-darktext dark:text-slate-200 flex items-center ${highlightedIndex === index ? 'bg-primary-light dark:bg-slate-700' : 'hover:bg-primary-light dark:hover:bg-slate-700'}`}
+                  className={`px-4 py-2 cursor-pointer text-sm text-darktext dark:text-slate-200 flex items-center justify-between ${highlightedIndex === index ? 'bg-primary-light dark:bg-slate-700' : 'hover:bg-primary-light dark:hover:bg-slate-700'}`}
                 >
-                  <div className="w-6 h-6 mr-3 rounded-full bg-secondary text-white text-xs flex items-center justify-center font-bold">
-                    {getInitials(member.name)}
+                  <div className="flex items-center">
+                    <div className="w-6 h-6 mr-3 rounded-full bg-secondary text-white text-xs flex items-center justify-center font-bold">
+                      {getInitials(member.name)}
+                    </div>
+                    <div>
+                      <div className="font-semibold">
+                        {member.name} <span className="text-xs text-slate-500 dark:text-slate-400">({getBusinessUnitLabel(member)})</span>
+                      </div>
+                      {member.designation && (
+                        <div className="text-xs text-slate-400 dark:text-slate-500">{member.designation}</div>
+                      )}
+                    </div>
                   </div>
-                  {member.name} <span className="text-xs text-slate-500 dark:text-slate-400 ml-2">({member.designation})</span>
                 </li>
               ))}
             </ul>

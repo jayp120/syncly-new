@@ -20,6 +20,9 @@ import {
   Archive,
   CalendarX,
   Puzzle,
+  ChevronsLeft,
+  ChevronsRight,
+  Megaphone,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -69,6 +72,7 @@ const navItems: NavItem[] = [
   { path: '/manage-business-units', label: 'Business Units', icon: Briefcase, permission: Permission.CAN_MANAGE_BUSINESS_UNITS },
   { path: '/all-reports', label: 'All Reports', icon: Archive, permission: Permission.CAN_VIEW_ALL_REPORTS },
   { path: '/admin/leave-records', label: 'Leave Management', icon: CalendarX, permission: Permission.CAN_MANAGE_ALL_LEAVES },
+  { path: '/announcements', label: 'Announcement Studio', icon: Megaphone, permission: Permission.CAN_MANAGE_ANNOUNCEMENTS },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed, onToggleCollapse, hasUnseenMeetings }) => {
@@ -93,7 +97,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed, onToggl
         }`}
       >
         {/* Logo & Toggle */}
-        <div className={`flex items-center h-16 mb-4 flex-shrink-0 px-4 transition-all duration-300 ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+        <div className={`flex items-center h-16 mb-4 flex-shrink-0 transition-all duration-300 ${isCollapsed ? 'px-3' : 'px-4'} justify-between`}>
           <Link to="/" className="flex items-center overflow-hidden min-w-0" title="Go to Dashboard">
             <i className="fas fa-infinity text-primary dark:text-accent text-2xl flex-shrink-0"></i>
             <span className={`text-xl font-bold text-text-primary dark:text-dark-text whitespace-nowrap transition-all duration-200 ${isCollapsed ? 'w-0 opacity-0 ml-0' : 'w-auto opacity-100 ml-3'}`}>
@@ -101,15 +105,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed, onToggl
             </span>
           </Link>
           
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
             {/* Desktop Toggle */}
             <button
               onClick={onToggleCollapse}
-              className={`hidden lg:flex items-center justify-center w-8 h-8 rounded-full bg-surface-inset/50 text-text-secondary dark:text-dark-text-secondary hover:bg-surface-hover dark:bg-dark-surface-inset dark:hover:bg-dark-surface-hover transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent dark:focus:ring-offset-dark-bg ${isCollapsed ? 'ml-0' : 'ml-2'}`}
+              className="hidden lg:flex items-center justify-center w-9 h-9 rounded-full border border-border-primary/60 dark:border-dark-border/60 bg-surface-inset/50 dark:bg-dark-surface-inset text-text-secondary dark:text-dark-text-secondary hover:text-text-primary dark:hover:text-dark-text transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent dark:focus:ring-offset-dark-bg"
               aria-label="Toggle sidebar"
               title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
-              <span className="text-xl font-sans">{isCollapsed ? '⇛' : '⇚'}</span>
+              {isCollapsed ? (
+                <ChevronsRight size={18} strokeWidth={1.75} />
+              ) : (
+                <ChevronsLeft size={18} strokeWidth={1.75} />
+              )}
             </button>
             
             {/* Mobile Close */}

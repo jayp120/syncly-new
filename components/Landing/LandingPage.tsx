@@ -1,10 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { callSubmitDemoRequest } from '../../services/cloudFunctions';
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annually'>('monthly');
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+  const [isSubmittingDemo, setIsSubmittingDemo] = useState(false);
+  const [demoError, setDemoError] = useState('');
+  const [demoSuccessMessage, setDemoSuccessMessage] = useState('');
+  const [demoForm, setDemoForm] = useState({
+    name: '',
+    email: '',
+    contactNumber: '',
+    companyName: '',
+    companySize: '1-10'
+  });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -98,6 +110,8 @@ const LandingPage: React.FC = () => {
     }
   ];
 
+  const companySizeOptions = ['1-10', '11-50', '51-200', '201-500', '500+'];
+
   const plans = [
     {
       name: 'Starter',
@@ -170,6 +184,51 @@ const LandingPage: React.FC = () => {
     }
   ];
 
+  const handleDemoInputChange = (field: keyof typeof demoForm) => (
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    setDemoForm(prev => ({
+      ...prev,
+      [field]: event.target.value
+    }));
+  };
+
+  const handleDemoSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setDemoError('');
+
+    const { name, email, contactNumber, companyName, companySize } = demoForm;
+    if (!name || !email || !contactNumber || !companyName || !companySize) {
+      setDemoError('Please complete all fields so we can schedule your session.');
+      return;
+    }
+
+    setIsSubmittingDemo(true);
+    try {
+      await callSubmitDemoRequest({
+        name: name.trim(),
+        email: email.trim(),
+        contactNumber: contactNumber.trim(),
+        companyName: companyName.trim(),
+        companySize
+      });
+      setIsDemoModalOpen(false);
+      setDemoForm({
+        name: '',
+        email: '',
+        contactNumber: '',
+        companyName: '',
+        companySize: '1-10'
+      });
+      setDemoSuccessMessage('Thanks! Our solutions team will reach out within the next few hours.');
+      setTimeout(() => setDemoSuccessMessage(''), 6000);
+    } catch (error: any) {
+      setDemoError(error.message || 'Something went wrong. Please try again in a moment.');
+    } finally {
+      setIsSubmittingDemo(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -220,6 +279,12 @@ const LandingPage: React.FC = () => {
               >
                 Sign In
               </button>
+              <button
+                onClick={() => setIsDemoModalOpen(true)}
+                className="hidden sm:inline-flex items-center justify-center px-5 py-2.5 rounded-lg font-semibold border border-indigo-200 text-indigo-600 hover:bg-indigo-50 transition-all duration-300"
+              >
+                Book a Live Demo
+              </button>
               <button 
                 onClick={() => navigate('/login')}
                 className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2.5 rounded-lg font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
@@ -230,6 +295,25 @@ const LandingPage: React.FC = () => {
           </div>
         </div>
       </nav>
+
+      {demoSuccessMessage && (
+        <div className="fixed top-6 right-6 z-50 max-w-sm bg-white shadow-2xl rounded-2xl border border-green-100 p-4 flex items-start space-x-3 animate-slide-in">
+          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xl">
+            <i className="fas fa-check"></i>
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-gray-900">We got your request!</p>
+            <p className="text-sm text-gray-600">{demoSuccessMessage}</p>
+          </div>
+          <button
+            onClick={() => setDemoSuccessMessage('')}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+            aria-label="Dismiss notification"
+          >
+            <i className="fas fa-times"></i>
+          </button>
+        </div>
+      )}
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[90vh] flex items-center">
@@ -269,10 +353,11 @@ const LandingPage: React.FC = () => {
                 <i className="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform duration-300"></i>
               </button>
               <button 
-                onClick={() => scrollToSection('ai-features')}
-                className="bg-white/80 backdrop-blur-sm text-gray-700 px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl border-2 border-gray-200 hover:border-indigo-300 transition-all duration-300"
+                onClick={() => setIsDemoModalOpen(true)}
+                className="bg-white/90 backdrop-blur-sm text-gray-800 px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl border-2 border-indigo-100 hover:border-indigo-300 transition-all duration-300 flex items-center justify-center"
               >
-                Explore AI Features
+                Book a Live Demo
+                <i className="fas fa-calendar-check ml-2 text-indigo-500"></i>
               </button>
             </div>
 
@@ -851,10 +936,144 @@ const LandingPage: React.FC = () => {
         </div>
       </footer>
 
+      {isDemoModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center px-4 py-6">
+          <div
+            className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"
+            onClick={() => setIsDemoModalOpen(false)}
+          ></div>
+          <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-indigo-50 p-8 space-y-6 animate-fade-in-up">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm uppercase tracking-[0.3em] text-indigo-400">Live Demo</p>
+                <h3 className="text-2xl font-extrabold text-gray-900 mt-2">See Syncly in action</h3>
+                <p className="text-gray-600 mt-2">
+                  Share a few details and our team will reach out within one business day to schedule your personalised walkthrough.
+                </p>
+              </div>
+              <button
+                onClick={() => setIsDemoModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label="Close demo form"
+              >
+                <i className="fas fa-times text-xl"></i>
+              </button>
+            </div>
+
+            {demoError && (
+              <div className="rounded-2xl border border-red-100 bg-red-50 text-red-700 px-4 py-3 text-sm">
+                {demoError}
+              </div>
+            )}
+
+            <form onSubmit={handleDemoSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-800 mb-1.5">Name</label>
+                  <input
+                    type="text"
+                    value={demoForm.name}
+                    onChange={handleDemoInputChange('name')}
+                    className="w-full rounded-2xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="Jane Doe"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-800 mb-1.5">Work Email</label>
+                  <input
+                    type="email"
+                    value={demoForm.email}
+                    onChange={handleDemoInputChange('email')}
+                    className="w-full rounded-2xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="jane@company.com"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-800 mb-1.5">Contact Number</label>
+                  <input
+                    type="tel"
+                    value={demoForm.contactNumber}
+                    onChange={handleDemoInputChange('contactNumber')}
+                    className="w-full rounded-2xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="+1 555 123 4567"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-800 mb-1.5">Company Name</label>
+                  <input
+                    type="text"
+                    value={demoForm.companyName}
+                    onChange={handleDemoInputChange('companyName')}
+                    className="w-full rounded-2xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="Acme Corp"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-1.5">Company Size</label>
+                <select
+                  value={demoForm.companySize}
+                  onChange={handleDemoInputChange('companySize')}
+                  className="w-full rounded-2xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                  required
+                >
+                  {companySizeOptions.map(option => (
+                    <option key={option} value={option}>{option} employees</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="rounded-2xl bg-indigo-50 px-4 py-3 text-sm text-indigo-700 flex items-center space-x-2">
+                <i className="fas fa-bolt"></i>
+                <p>We reply fast: expect an email or call within a few hours.</p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
+                <p className="text-sm text-gray-500">By submitting, you agree to receive updates about Syncly. We respect your inbox.</p>
+                <button
+                  type="submit"
+                  disabled={isSubmittingDemo}
+                  className="inline-flex items-center justify-center px-6 py-3 rounded-2xl font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg hover:shadow-xl disabled:opacity-60 transition-all duration-300"
+                >
+                  {isSubmittingDemo ? (
+                    <>
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+                      Booking your slot...
+                    </>
+                  ) : (
+                    <>
+                      Schedule My Demo
+                      <i className="fas fa-arrow-right ml-2"></i>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <style>{`
         @keyframes float {
           0%, 100% { transform: translateY(0px) translateX(0px); }
           50% { transform: translateY(-20px) translateX(20px); }
+        }
+
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in-up {
+          animation: fadeInUp 0.35s ease forwards;
         }
         
         @keyframes float-delayed {
@@ -877,6 +1096,15 @@ const LandingPage: React.FC = () => {
         
         .animate-float-slow {
           animation: float-slow 12s ease-in-out infinite;
+        }
+
+        @keyframes slideInToast {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-slide-in {
+          animation: slideInToast 0.35s ease forwards;
         }
 
         @keyframes fadeSlide {

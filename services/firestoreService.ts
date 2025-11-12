@@ -31,7 +31,9 @@ import {
   Notification,
   TriggerLogEntry,
   ActivityLogItem,
-  Tenant
+  Tenant,
+  Announcement,
+  AnnouncementView
 } from '../types';
 
 // Collection names
@@ -51,7 +53,9 @@ export const COLLECTIONS = {
   NOTIFICATIONS: 'notifications',
   TRIGGER_LOG: 'triggerLogs',
   ACTIVITY_LOG: 'activityLogs',
-  SYNC_QUEUE: 'syncQueue'
+  SYNC_QUEUE: 'syncQueue',
+  ANNOUNCEMENTS: 'announcements',
+  ANNOUNCEMENT_VIEWS: 'announcementViews'
 } as const;
 
 // Helper to generate IDs
@@ -570,6 +574,62 @@ export const updateNotification = (notificationId: string, notificationData: Par
 
 export const deleteNotification = (notificationId: string) =>
   deleteDocument(COLLECTIONS.NOTIFICATIONS, notificationId);
+
+// Announcement functions
+export const getAnnouncementsByTenant = async () => {
+  const { requireTenantId } = await import('./tenantContext');
+  const tenantId = requireTenantId();
+  return getAllDocuments<Announcement>(
+    COLLECTIONS.ANNOUNCEMENTS,
+    where('tenantId', '==', tenantId),
+    orderBy('startsAt', 'desc')
+  );
+};
+
+export const createAnnouncement = (announcementId: string, announcement: Omit<Announcement, 'id'>) =>
+  setDocument(COLLECTIONS.ANNOUNCEMENTS, announcementId, announcement);
+
+export const updateAnnouncement = (announcementId: string, announcement: Partial<Announcement>) =>
+  updateDocument(COLLECTIONS.ANNOUNCEMENTS, announcementId, announcement);
+
+export const deleteAnnouncement = (announcementId: string) =>
+  deleteDocument(COLLECTIONS.ANNOUNCEMENTS, announcementId);
+
+export const getAnnouncementViewsByAnnouncement = async (announcementId: string) => {
+  const { requireTenantId } = await import('./tenantContext');
+  const tenantId = requireTenantId();
+  return getAllDocuments<AnnouncementView>(
+    COLLECTIONS.ANNOUNCEMENT_VIEWS,
+    where('tenantId', '==', tenantId),
+    where('announcementId', '==', announcementId)
+  );
+};
+
+export const getAnnouncementViewByUser = async (announcementId: string, userId: string) => {
+  const { requireTenantId } = await import('./tenantContext');
+  const tenantId = requireTenantId();
+  const views = await getAllDocuments<AnnouncementView>(
+    COLLECTIONS.ANNOUNCEMENT_VIEWS,
+    where('tenantId', '==', tenantId),
+    where('announcementId', '==', announcementId),
+    where('userId', '==', userId),
+    limit(1)
+  );
+  return views[0] || null;
+};
+
+export const getAnnouncementViewsForUser = async (userId: string) => {
+  const { requireTenantId } = await import('./tenantContext');
+  const tenantId = requireTenantId();
+  return getAllDocuments<AnnouncementView>(
+    COLLECTIONS.ANNOUNCEMENT_VIEWS,
+    where('tenantId', '==', tenantId),
+    where('userId', '==', userId)
+  );
+};
+
+export const upsertAnnouncementView = (viewId: string, view: Omit<AnnouncementView, 'id'>) =>
+  setDocument(COLLECTIONS.ANNOUNCEMENT_VIEWS, viewId, view);
 
 // Activity Log functions
 export const getActivityLogByUser = async (userId: string) => {

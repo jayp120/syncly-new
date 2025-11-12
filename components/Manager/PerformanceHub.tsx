@@ -52,11 +52,22 @@ const PerformanceHub: React.FC = () => {
     fetchData();
   }, [currentUser]);
 
+  const canViewAllEmployees =
+    currentUser?.roleName === 'HR' ||
+    currentUser?.roleName === 'Director' ||
+    currentUser?.roleName === 'Super Admin' ||
+    currentUser?.isPlatformAdmin;
+
   const employeeOptions = useMemo(() => {
     return allUsers
-      .filter(u => u.roleName === 'Employee' && u.status === UserStatus.ACTIVE && u.businessUnitId === currentUser?.businessUnitId)
-      .map(u => ({ value: u.id, label: u.name }));
-  }, [allUsers, currentUser]);
+      .filter(
+        (u) =>
+          u.roleName === 'Employee' &&
+          u.status === UserStatus.ACTIVE &&
+          (canViewAllEmployees || (currentUser?.businessUnitId && u.businessUnitId === currentUser.businessUnitId))
+      )
+      .map((u) => ({ value: u.id, label: `${u.name}${u.businessUnitName ? ` • ${u.businessUnitName}` : ''}` }));
+  }, [allUsers, currentUser, canViewAllEmployees]);
 
   const handleGenerateSummary = async () => {
     if (!selectedEmployeeId || !startDate || !endDate) {

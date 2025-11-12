@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { User, LeaveRecord, ActivityLogActionType } from '../../types';
 import Card from '../Common/Card';
 import Button from '../Common/Button';
 import ConfirmationModal from '../Common/ConfirmationModal';
 import * as DataService from '../../services/dataService';
-import { getLocalYYYYMMDD, formatDateDDMonYYYY } from '../../utils/dateUtils';
+import { getLocalYYYYMMDD, formatDateDDMonYYYY, isDayWeeklyOff } from '../../utils/dateUtils';
 import { useToast } from '../../contexts/ToastContext';
 import Input from '../Common/Input';
 
@@ -22,8 +22,13 @@ const LeaveManagementCard: React.FC<LeaveManagementCardProps> = ({ currentUser, 
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<'mark' | 'revoke' | null>(null);
   const [leaveReason, setLeaveReason] = useState('');
+  const [isWeeklyOffNoticeOpen, setIsWeeklyOffNoticeOpen] = useState(false);
 
   const todayStr = getLocalYYYYMMDD(new Date());
+  const isTodayWeeklyOff = useMemo(() => {
+    if (!currentUser.weeklyOffDay) return false;
+    return isDayWeeklyOff(new Date(), currentUser.weeklyOffDay);
+  }, [currentUser.weeklyOffDay]);
 
   const checkTodaysLeaveStatus = useCallback(async () => {
     setIsLoading(true);
@@ -53,7 +58,7 @@ const LeaveManagementCard: React.FC<LeaveManagementCardProps> = ({ currentUser, 
     }
     setIsLoading(true);
     try {
-      await DataService.addLeaveRecord(currentUser.id, todayStr, leaveReason);
+      await DataService.addLeaveRecord(currentUser.id, todayStr, leaveReason, currentUser);
       addToast(`Leave marked for ${formatDateDDMonYYYY(todayStr)}`, 'success');
       onLeaveUpdated();
       await checkTodaysLeaveStatus();
@@ -85,6 +90,10 @@ const LeaveManagementCard: React.FC<LeaveManagementCardProps> = ({ currentUser, 
   const openConfirmation = (action: 'mark' | 'revoke') => {
     if (action === 'mark' && !leaveReason.trim()) {
         addToast('Please provide a reason for your leave first.', 'warning');
+        return;
+    }
+    if (action === 'mark' && isTodayWeeklyOff) {
+        setIsWeeklyOffNoticeOpen(true);
         return;
     }
     setConfirmAction(action);
@@ -167,6 +176,19 @@ const LeaveManagementCard: React.FC<LeaveManagementCardProps> = ({ currentUser, 
             <p className="font-semibold text-amber-600 dark:text-amber-400 mt-2">Note: You can only revoke a leave once per day.</p>
           </>
         )}
+      </ConfirmationModal>
+
+      <ConfirmationModal
+        isOpen={isWeeklyOffNoticeOpen}
+        onClose={() => setIsWeeklyOffNoticeOpen(false)}
+        onConfirm={() => setIsWeeklyOffNoticeOpen(false)}
+        title="Cannot Submit Leave"
+        confirmButtonVariant="primary"
+        confirmText="OK"
+      >
+        <p>
+          You cannot submit leave on a weekly off day. Please select a valid working day.
+        </p>
       </ConfirmationModal>
     </>
   );

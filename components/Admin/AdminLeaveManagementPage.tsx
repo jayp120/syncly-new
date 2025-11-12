@@ -4,10 +4,12 @@ import PageContainer from '../Layout/PageContainer';
 import LeaveRecordsTable from './LeaveRecordsTable';
 
 import * as DataService from '../../services/dataService';
-import { LeaveRecord, User, BusinessUnit } from '../../types';
+import { LeaveRecord, User, BusinessUnit, Permission } from '../../types';
 import Spinner from '../Common/Spinner';
+import { useAuth } from '../Auth/AuthContext';
 
 const AdminLeaveManagementPage: React.FC = () => {
+  const { currentUser, hasPermission } = useAuth();
   const [leaveRecords, setLeaveRecords] = useState<LeaveRecord[]>([]);
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [allBusinessUnits, setAllBusinessUnits] = useState<BusinessUnit[]>([]);
@@ -37,12 +39,35 @@ const AdminLeaveManagementPage: React.FC = () => {
     );
   }
 
+  const canViewEntireTenant =
+    hasPermission(Permission.CAN_VIEW_ALL_REPORTS) ||
+    currentUser?.roleName === 'HR' ||
+    currentUser?.isPlatformAdmin;
+
+  const scopedBusinessUnitId = currentUser?.businessUnitId;
+  const scopedUsers = canViewEntireTenant
+    ? allUsers
+    : scopedBusinessUnitId
+      ? allUsers.filter(user => user.businessUnitId === scopedBusinessUnitId)
+      : [];
+  const scopedUserIds = new Set(scopedUsers.map(user => user.id));
+  const scopedLeaveRecords = canViewEntireTenant
+    ? leaveRecords
+    : scopedBusinessUnitId
+      ? leaveRecords.filter(record => scopedUserIds.has(record.employeeId))
+      : [];
+  const scopedBusinessUnits = canViewEntireTenant
+    ? allBusinessUnits
+    : scopedBusinessUnitId
+      ? allBusinessUnits.filter(bu => bu.id === scopedBusinessUnitId)
+      : [];
+
   return (
     <PageContainer title="Manage All Employee Leave Records">
       <LeaveRecordsTable
-        allLeaveRecords={leaveRecords}
-        allUsers={allUsers}
-        allBusinessUnits={allBusinessUnits}
+        allLeaveRecords={scopedLeaveRecords}
+        allUsers={scopedUsers}
+        allBusinessUnits={scopedBusinessUnits}
       />
     </PageContainer>
   );

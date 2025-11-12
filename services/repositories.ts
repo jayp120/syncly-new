@@ -60,7 +60,15 @@ import {
   createTriggerLog,
   getUserBadges,
   createUserBadge,
-  generateFirestoreId
+  generateFirestoreId,
+  getAnnouncementsByTenant,
+  createAnnouncement,
+  updateAnnouncement,
+  deleteAnnouncement,
+  getAnnouncementViewsByAnnouncement,
+  getAnnouncementViewByUser,
+  getAnnouncementViewsForUser,
+  upsertAnnouncementView
 } from './firestoreService';
 import {
   Tenant,
@@ -77,7 +85,9 @@ import {
   Notification,
   ActivityLogItem,
   TriggerLogEntry,
-  UserBadgeRecord
+  UserBadgeRecord,
+  Announcement,
+  AnnouncementView
 } from '../types';
 
 // In-memory cache for performance
@@ -503,6 +513,42 @@ export const notificationRepository = {
   
   async delete(id: string): Promise<void> {
     await deleteNotification(id);
+  }
+};
+
+export const announcementRepository = {
+  async getAll(): Promise<Announcement[]> {
+    return await getAnnouncementsByTenant();
+  },
+
+  async create(id: string, data: Omit<Announcement, 'id'>): Promise<void> {
+    await createAnnouncement(id, data);
+  },
+
+  async update(id: string, data: Partial<Announcement>): Promise<void> {
+    await updateAnnouncement(id, data);
+  },
+
+  async delete(id: string): Promise<void> {
+    await deleteAnnouncement(id);
+  }
+};
+
+export const announcementViewRepository = {
+  async getByAnnouncement(announcementId: string): Promise<AnnouncementView[]> {
+    return await getAnnouncementViewsByAnnouncement(announcementId);
+  },
+
+  async getByUserId(userId: string): Promise<AnnouncementView[]> {
+    return await getAnnouncementViewsForUser(userId);
+  },
+
+  async getByUser(announcementId: string, userId: string): Promise<AnnouncementView | null> {
+    return await getAnnouncementViewByUser(announcementId, userId);
+  },
+
+  async upsert(id: string, data: Omit<AnnouncementView, 'id'>): Promise<void> {
+    await upsertAnnouncementView(id, data);
   }
 };
 

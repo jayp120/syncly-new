@@ -9,8 +9,8 @@ import Button from '../Common/Button';
 // FIX: Corrected react-router-dom import to use a standard named import.
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import Leaderboard from '../Shared/Leaderboard';
-import TodaysWeeklyOffStatusCard from './TodaysWeeklyOffStatusCard';
 import TodaysLeaveStatusCard from './TodaysLeaveStatusCard';
+import WeeklyOffRestingCard from './WeeklyOffRestingCard';
 import ReportDetailModal from '../Shared/ReportDetailModal';
 import { LEAVE_RECORDS_KEY, ACTIVITY_LOG_KEY_PREFIX, REPORTS_KEY, TASKS_KEY } from '../../constants';
 import { formatDateTimeDDMonYYYYHHMM, getLocalYYYYMMDD, getNextOccurrence, formatDateDDMonYYYY } from '../../utils/dateUtils';
@@ -99,7 +99,7 @@ const ManagerDashboard: React.FC = () => {
   }, []);
 
 
-  const fetchData = useCallback(async () => {
+const fetchData = useCallback(async () => {
     if (currentUser && currentUser.roleName === 'Manager') {
       const [users, reports, leaves, tasks, meetings] = await Promise.all([
         DataService.getUsers(),
@@ -144,6 +144,12 @@ const ManagerDashboard: React.FC = () => {
     }
   }, [currentUser, activityFilters]);
 
+  const refreshLeaveRecords = useCallback(async () => {
+    if (!currentUser || currentUser.roleName !== 'Manager') return;
+    const leaves = await DataService.getLeaveRecords();
+    setAllLeaveRecords(leaves);
+  }, [currentUser]);
+
   useEffect(() => {
     setIsLoading(true);
     fetchData().finally(() => setIsLoading(false));
@@ -176,6 +182,16 @@ const ManagerDashboard: React.FC = () => {
       if (!currentUser) return [];
       return allMeetings.filter(m => m.createdBy === currentUser.id && m.recurrenceRule && m.recurrenceRule !== 'none');
   }, [allMeetings, currentUser]);
+
+  const meetingInviteCandidates = useMemo(() => {
+      if (!currentUser) return [];
+      return allUsers.filter(user =>
+        user.status === UserStatus.ACTIVE &&
+        user.tenantId === currentUser.tenantId &&
+        !user.isPlatformAdmin &&
+        user.id !== currentUser.id
+      );
+  }, [allUsers, currentUser]);
   
   if (!currentUser) return <Navigate to="/login" replace />;
 
@@ -203,7 +219,7 @@ const ManagerDashboard: React.FC = () => {
         isOpen={meetingModalType === 'live'} 
         onClose={() => setMeetingModalType(null)}
         manager={currentUser}
-        teamMembers={allUsers.filter(u => u.roleName === 'Employee' && u.businessUnitId === currentUser.businessUnitId && u.status === UserStatus.ACTIVE)}
+        teamMembers={meetingInviteCandidates}
         onSuccess={handleMeetingSuccess}
       />
 
@@ -215,7 +231,7 @@ const ManagerDashboard: React.FC = () => {
       >
         <ScheduleMeetingForm
           manager={currentUser}
-          teamMembers={allUsers.filter(u => u.roleName === 'Employee' && u.businessUnitId === currentUser.businessUnitId && u.status === UserStatus.ACTIVE)}
+          teamMembers={meetingInviteCandidates}
           onSuccess={handleMeetingSuccess}
           onCancel={() => setMeetingModalType(null)}
         />
@@ -291,8 +307,14 @@ const ManagerDashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <TodaysLeaveStatusCard allUsers={allUsers.filter(u => u.businessUnitId === currentUser.businessUnitId)} allLeaveRecords={allLeaveRecords} />
-        <TodaysWeeklyOffStatusCard users={allUsers.filter(u => u.businessUnitId === currentUser.businessUnitId)} reports={allReports} />
+        <TodaysLeaveStatusCard
+          allUsers={allUsers.filter(u => u.businessUnitId === currentUser.businessUnitId)}
+          allLeaveRecords={allLeaveRecords}
+          onLeaveUpdated={refreshLeaveRecords}
+        />
+        <WeeklyOffRestingCard
+          allUsers={allUsers.filter(u => u.businessUnitId === currentUser.businessUnitId)}
+        />
       </div>
 
       {/* Monthly Leaderboard */}

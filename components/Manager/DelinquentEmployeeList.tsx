@@ -1,7 +1,7 @@
 
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { User, UserStatus, TriggerLogEntry, DelinquentEmployeeDetails, BusinessUnit } from '../../types';
+import { User, UserStatus, TriggerLogEntry, DelinquentEmployeeDetails, BusinessUnit, Permission } from '../../types';
 import * as DataService from '../../services/dataService';
 import Card from '../Common/Card';
 import Button from '../Common/Button';
@@ -17,7 +17,7 @@ import ConfirmationModal from '../Common/ConfirmationModal';
 import ConsistencyCalendarModal from './ConsistencyCalendarModal';
 
 const UnifiedDelinquencyDashboard: React.FC = () => {
-  const { currentUser: managerUser } = useAuth();
+  const { currentUser: managerUser, hasPermission } = useAuth();
   const [consistencyData, setConsistencyData] = useState<DelinquentEmployeeDetails[]>([]);
   const [allBusinessUnits, setAllBusinessUnits] = useState<BusinessUnit[]>([]);
   const [triggerLogs, setTriggerLogs] = useState<TriggerLogEntry[]>([]);
@@ -35,7 +35,9 @@ const UnifiedDelinquencyDashboard: React.FC = () => {
 
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
-  const [businessUnitFilter, setBusinessUnitFilter] = useState<string>('');
+  const [businessUnitFilter, setBusinessUnitFilter] = useState<string>(() => managerUser?.businessUnitId || '');
+  const canViewEntireTenant = hasPermission(Permission.CAN_VIEW_ALL_REPORTS);
+  const scopedBusinessUnitId = managerUser?.businessUnitId;
   
   const fetchAllData = useCallback(async () => {
     setIsLoading(true);
@@ -54,14 +56,35 @@ const UnifiedDelinquencyDashboard: React.FC = () => {
     fetchAllData();
   }, [fetchAllData]);
 
+  useEffect(() => {
+    if (!canViewEntireTenant && scopedBusinessUnitId) {
+        setBusinessUnitFilter(scopedBusinessUnitId);
+    }
+  }, [canViewEntireTenant, scopedBusinessUnitId]);
+
+  const scopedConsistencyData = useMemo(() => {
+    if (canViewEntireTenant || !scopedBusinessUnitId) {
+        return consistencyData;
+    }
+    return consistencyData.filter(detail => detail.user.businessUnitId === scopedBusinessUnitId);
+  }, [consistencyData, canViewEntireTenant, scopedBusinessUnitId]);
+
+  const businessUnitOptions = useMemo(() => {
+    if (canViewEntireTenant) {
+        return [{ value: '', label: 'All Business Units' }, ...allBusinessUnits.map(bu => ({ value: bu.id, label: bu.name }))];
+    }
+    const managerBU = allBusinessUnits.find(bu => bu.id === scopedBusinessUnitId);
+    return managerBU ? [{ value: managerBU.id, label: managerBU.name }] : [];
+  }, [allBusinessUnits, canViewEntireTenant, scopedBusinessUnitId]);
+
   const filteredData = useMemo(() => {
-    return consistencyData.filter(d => {
+    return scopedConsistencyData.filter(d => {
         const term = searchTerm.toLowerCase();
         const matchesSearch = d.user.name.toLowerCase().includes(term) || d.user.email.toLowerCase().includes(term);
         const matchesBU = businessUnitFilter ? d.user.businessUnitId === businessUnitFilter : true;
         return matchesSearch && matchesBU;
     });
-  }, [consistencyData, searchTerm, businessUnitFilter]);
+  }, [scopedConsistencyData, searchTerm, businessUnitFilter]);
 
   const sendReminderSideEffects = async (employee: User, reason: string): Promise<TriggerLogEntry | null> => {
     if (!managerUser) return null;
@@ -167,7 +190,13 @@ const UnifiedDelinquencyDashboard: React.FC = () => {
         <div className="mb-4 p-3 border rounded-md bg-surface-secondary dark:bg-dark-surface-secondary dark:border-dark-border">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 items-end">
             <Input type="text" placeholder="Search by name or email..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-            <Select options={[{value: '', label: 'All Business Units'}, ...allBusinessUnits.map(bu => ({value: bu.id, label: bu.name}))]} value={businessUnitFilter} onChange={e => setBusinessUnitFilter(e.target.value)} label="Filter by Business Unit" />
+            <Select
+              options={businessUnitOptions}
+              value={businessUnitFilter}
+              onChange={e => setBusinessUnitFilter(e.target.value)}
+              label="Filter by Business Unit"
+              disabled={!canViewEntireTenant || businessUnitOptions.length <= 1}
+            />
           </div>
         </div>
 

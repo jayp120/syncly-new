@@ -35,7 +35,10 @@ const TimelineDisplay: React.FC<TimelineDisplayProps> = ({ title, events, isLoad
         case ActivityLogActionType.TASK_STATUS_CHANGED: // This is for 'Blocked'
             return 'border-red-500';
         case ActivityLogActionType.LEAVE_MARKED_BY_EMPLOYEE:
-            return 'border-rose-500'; // Using a different red
+        case ActivityLogActionType.LEAVE_MARKED_BY_MANAGER:
+            return 'border-rose-500';
+        case ActivityLogActionType.LEAVE_REVOKED_BY_MANAGER:
+            return 'border-indigo-400';
         default:
             return 'border-yellow-500'; // A generic crucial color
     }

@@ -1,4 +1,4 @@
-import { User, EODReport, Notification as AppNotification, ReportStatus, LeaveRecord, LeaveStatus, TriggerLogEntry, Attachment, ReportVersion, BusinessUnit, BadgeType, UserBadgeRecord, LeaderboardEntry, StoredAwardEntry, AwardDetailsForPopup, ActivityLogItem, ActivityLogActionType, TimelineEvent, Task, TaskComment, TaskPriority, TaskStatus, TaskType, MemberProgress, Meeting, MeetingUpdate, UserStatus, RsvpStatus, DateRange, DelinquentEmployeeDetails, Role, SubTask, MeetingInstance, MonthlyReportStatus, Permission } from '../types';
+import { User, EODReport, Notification as AppNotification, ReportStatus, LeaveRecord, LeaveStatus, TriggerLogEntry, Attachment, ReportVersion, BusinessUnit, BadgeType, UserBadgeRecord, LeaderboardEntry, StoredAwardEntry, AwardDetailsForPopup, ActivityLogItem, ActivityLogActionType, TimelineEvent, Task, TaskComment, TaskPriority, TaskStatus, TaskType, MemberProgress, Meeting, MeetingUpdate, UserStatus, RsvpStatus, DateRange, DelinquentEmployeeDetails, Role, SubTask, MeetingInstance, MonthlyReportStatus, Permission, Announcement, AnnouncementView } from '../types';
 import {
     DEFAULT_USERS,
     DEFAULT_REPORTS,
@@ -37,7 +37,8 @@ import {
     MEETING_INSTANCES_KEY,
     DEFAULT_MEETING_INSTANCES,
     APP_NAME,
-    LATE_SUBMISSION_HOUR
+    LATE_SUBMISSION_HOUR,
+    ANNOUNCEMENTS_KEY
 } from '../constants';
 import { formatDateDDMonYYYY, formatDateTimeDDMonYYYYHHMM, getLocalYYYYMMDD, getPastDate, getFutureDate, isDayWeeklyOff } from '../utils/dateUtils';
 import * as EmailService from './emailService';
@@ -63,8 +64,22 @@ import {
   activityLogRepository,
   triggerLogRepository,
   badgeRepository,
-  generateId
+  generateId,
+  announcementRepository,
+  announcementViewRepository
 } from './repositories';
+
+export interface AnnouncementDraft {
+    title: string;
+    content: string;
+    startsAt: number;
+    endsAt: number;
+    targetType: Announcement['targetType'];
+    targetBusinessUnitIds?: string[];
+    targetUserIds?: string[];
+    requireAcknowledgement?: boolean;
+    media?: Announcement['media'];
+}
 
 // --- LocalStorage Helpers (for backward compatibility during migration) ---
 
@@ -98,18 +113,117 @@ const setLocalStorageData = <T,>(key: string, value: T) => {
         // No need to remove it, but the storage event is now the primary mechanism.
         eventBus.emit('appDataChanged', { keyChanged: key });
     } catch (error) {
-        console.error(`Error setting localStorage key “${key}”:`, error);
+        console.error(`Error setting localStorage key "${key}":`, error);
     }
 };
 
+const persistAnnouncementsToCache = (announcements: Announcement[]) => {
+    try {
+        window.localStorage.setItem(ANNOUNCEMENTS_KEY, JSON.stringify(announcements));
+    } catch (error) {
+        console.warn('Unable to cache announcements locally:', error);
+    }
+};
+
+const emitAnnouncementsChanged = () => {
+    try {
+        eventBus.emit('appDataChanged', { keyChanged: ANNOUNCEMENTS_KEY });
+    } catch (error) {
+        console.warn('Failed to emit announcement change event:', error);
+    }
+};
+
+const computeAnnouncementStatus = (announcement: { startsAt: number; endsAt: number }, referenceDate = Date.now()): Announcement['status'] => {
+    if (referenceDate < announcement.startsAt) return 'scheduled';
+    if (referenceDate > announcement.endsAt) return 'expired';
+    return 'active';
+};
+
+const normalizeAnnouncement = (announcement: Announcement): Announcement => ({
+    ...announcement,
+    status: computeAnnouncementStatus(announcement),
+});
+
+const matchesAnnouncementAudience = (announcement: Announcement, user: User): boolean => {
+    if (announcement.targetType === 'all') return true;
+    if (announcement.targetType === 'businessUnits') {
+        if (!user.businessUnitId) return false;
+        return (announcement.targetBusinessUnitIds || []).includes(user.businessUnitId);
+    }
+    if (announcement.targetType === 'users') {
+        return (announcement.targetUserIds || []).includes(user.id);
+    }
+    return false;
+};
+
+const getAnnouncementTargetsFromUsers = (announcement: Announcement, users: User[]): User[] => {
+    const targetSet = new Set(announcement.targetType === 'users' ? (announcement.targetUserIds || []) : []);
+    return users.filter(user => {
+        if (user.status !== UserStatus.ACTIVE) return false;
+        if (announcement.targetType === 'all') return true;
+        if (announcement.targetType === 'businessUnits') {
+            return user.businessUnitId && (announcement.targetBusinessUnitIds || []).includes(user.businessUnitId);
+        }
+        return targetSet.has(user.id);
+    });
+};
+
+const sortAnnouncements = (announcements: Announcement[]) =>
+    announcements.sort((a, b) => b.startsAt - a.startsAt);
+
+const sanitizeAnnouncementDraft = (draft: AnnouncementDraft): AnnouncementDraft => ({
+    ...draft,
+    targetBusinessUnitIds: draft.targetBusinessUnitIds?.filter(Boolean) || [],
+    targetUserIds: draft.targetUserIds?.filter(Boolean) || [],
+});
+
 // --- Gemini API Key Management ---
-const getApiKey = (): string | null => {
-  // 1. Try sessionStorage (for local development)
-  const sessionKey = sessionStorage.getItem('GEMINI_API_KEY');
-  if (sessionKey) {
-    return sessionKey;
+const GEMINI_KEY_STORAGE_KEY = 'GEMINI_API_KEY';
+const GEMINI_KEY_UPDATED_EVENT = 'syncly:gemini-key-updated';
+const GEMINI_KEY_MISSING_MESSAGE =
+  'AI features are not configured yet. Open your profile menu -> Manage AI API Key to paste a Google Gemini key.';
+
+const dispatchGeminiKeyUpdate = (value: string | null) => {
+  if (typeof window === 'undefined') return;
+  try {
+    window.dispatchEvent(
+      new CustomEvent(GEMINI_KEY_UPDATED_EVENT, {
+        detail: { value },
+      })
+    );
+  } catch (error) {
+    console.warn('Unable to dispatch Gemini key update event:', error);
   }
-  // 2. Fallback to process.env (for deployed environments like AI Studio)
+};
+
+const getApiKey = (): string | null => {
+  if (typeof window !== 'undefined') {
+    try {
+      const localKey = window.localStorage?.getItem(GEMINI_KEY_STORAGE_KEY);
+      if (localKey) {
+        return localKey;
+      }
+    } catch (error) {
+      console.warn('Unable to read Gemini API key from localStorage:', error);
+    }
+
+    try {
+      const sessionKey = window.sessionStorage?.getItem(GEMINI_KEY_STORAGE_KEY);
+      if (sessionKey) {
+        // Backfill localStorage so the key persists across sessions.
+        try {
+          window.localStorage?.setItem(GEMINI_KEY_STORAGE_KEY, sessionKey);
+          dispatchGeminiKeyUpdate(sessionKey);
+        } catch {
+          // Ignore localStorage write errors (e.g., private browsing restrictions)
+        }
+        return sessionKey;
+      }
+    } catch (error) {
+      console.warn('Unable to read Gemini API key from sessionStorage:', error);
+    }
+  }
+
   const envKey = (import.meta as any)?.env?.API_KEY || (typeof process !== 'undefined' ? process.env.API_KEY : null);
   if (envKey) {
     return envKey;
@@ -119,6 +233,93 @@ const getApiKey = (): string | null => {
 
 export const isAiConfigured = (): boolean => {
   return !!getApiKey();
+};
+
+export const getGeminiApiKey = (): string | null => getApiKey();
+
+export const setGeminiApiKey = (apiKey: string): void => {
+  if (typeof window === 'undefined') return;
+  const trimmed = apiKey.trim();
+  if (!trimmed) return;
+
+  try {
+    window.localStorage?.setItem(GEMINI_KEY_STORAGE_KEY, trimmed);
+  } catch (error) {
+    console.warn('Unable to persist Gemini API key in localStorage:', error);
+  }
+
+  try {
+    window.sessionStorage?.setItem(GEMINI_KEY_STORAGE_KEY, trimmed);
+  } catch (error) {
+    console.warn('Unable to persist Gemini API key in sessionStorage:', error);
+  }
+
+  dispatchGeminiKeyUpdate(trimmed);
+};
+
+export const clearGeminiApiKey = (): void => {
+  if (typeof window === 'undefined') return;
+
+  try {
+    window.localStorage?.removeItem(GEMINI_KEY_STORAGE_KEY);
+  } catch (error) {
+    console.warn('Unable to remove Gemini API key from localStorage:', error);
+  }
+
+  try {
+    window.sessionStorage?.removeItem(GEMINI_KEY_STORAGE_KEY);
+  } catch (error) {
+    console.warn('Unable to remove Gemini API key from sessionStorage:', error);
+  }
+
+  dispatchGeminiKeyUpdate(null);
+};
+
+export const onGeminiKeyChange = (callback: (value: string | null) => void): (() => void) => {
+  if (typeof window === 'undefined') return () => undefined;
+
+  const handler = (event: Event) => {
+    if (event instanceof CustomEvent && event.type === GEMINI_KEY_UPDATED_EVENT) {
+      callback((event.detail?.value as string | null) ?? null);
+    } else if (event.type === 'storage') {
+      const storageEvent = event as StorageEvent;
+      if (storageEvent.key === GEMINI_KEY_STORAGE_KEY) {
+        callback(storageEvent.newValue);
+      }
+    }
+  };
+
+  window.addEventListener(GEMINI_KEY_UPDATED_EVENT, handler as EventListener);
+  window.addEventListener('storage', handler as EventListener);
+
+  return () => {
+    window.removeEventListener(GEMINI_KEY_UPDATED_EVENT, handler as EventListener);
+    window.removeEventListener('storage', handler as EventListener);
+  };
+};
+
+const normalizeGeminiError = (error: any): Error => {
+  const message =
+    typeof error?.message === 'string'
+      ? error.message
+      : typeof error?.error?.message === 'string'
+        ? error.error.message
+        : typeof error?.toString === 'function'
+          ? error.toString()
+          : 'An unexpected error occurred while communicating with Google Gemini.';
+
+  if (
+    /429/.test(message) ||
+    /RESOURCE_EXHAUSTED/i.test(message) ||
+    /quota/i.test(message) ||
+    error?.code === 429 ||
+    error?.status === 429 ||
+    error?.error?.code === 429
+  ) {
+    return new Error('Google Gemini rate limit reached. Please wait a moment or use a different API key.');
+  }
+
+  return new Error(message);
 };
 
 // --- Activity Log ---
@@ -431,6 +632,7 @@ export const addUser = async (userData: Omit<User, 'id' | 'status' | 'roleName' 
             name: userData.name,
             roleId: userData.roleId,
             roleName: role?.name || 'Employee',
+            notificationEmail: userData.notificationEmail?.toLowerCase() || userData.email.toLowerCase(),
             businessUnitId: userData.businessUnitId || '',
             businessUnitName: businessUnit?.name || '',
             designation: userData.designation || '',
@@ -534,8 +736,8 @@ export const permanentlyDeleteUser = async (userId: string, actor: User): Promis
         await reportRepository.delete(report.id);
     }
     
-    const leaves = await leaveRepository.getAll();
-    for (const leave of leaves.filter(l => l.employeeId === userId)) {
+    const leaves = await leaveRepository.getByEmployee(userId);
+    for (const leave of leaves) {
         await leaveRepository.delete(leave.id);
     }
     
@@ -875,8 +1077,8 @@ export const getReports = async (): Promise<EODReport[]> => {
 export const getReportsForUser = async (currentUser: User): Promise<EODReport[]> => {
     const allReports = await getReports();
     
-    // Directors see all reports across all business units in their tenant
-    if (isDirector(currentUser.roleName)) {
+    // Directors and HR see all reports across all business units in their tenant
+    if (isDirector(currentUser.roleName) || isHR(currentUser.roleName)) {
         return allReports;
     }
     
@@ -951,6 +1153,20 @@ export const addReport = async (reportData: { employeeId: string; employeeName: 
             actors: [{ id: employee.id, name: employee.name }],
             isCrucial: true
         });
+    }
+
+    const directors = users.filter(u => u.roleName === 'Director' && u.status === UserStatus.ACTIVE);
+    if (directors.length > 0) {
+        await Promise.all(directors.map(director => addNotification({
+            userId: director.id,
+            message: `${employee.name} submitted a new report${employee.businessUnitName ? ` (${employee.businessUnitName})` : ''}.`,
+            type: 'info',
+            link: '/director-dashboard',
+            actionType: 'ACKNOWLEDGE_REPORT',
+            targetId: newReport.id,
+            actors: [{ id: employee.id, name: employee.name }],
+            isCrucial: newReport.isLate
+        })));
     }
 
     return newReport;
@@ -1514,13 +1730,47 @@ export const getLeaveRecordForEmployeeOnDate = async (employeeId: string, date: 
     const records = await leaveRepository.getByEmployee(employeeId);
     return records.find(r => r.date === date) || null;
 };
-export const addLeaveRecord = async (employeeId: string, date: string, reason: string): Promise<LeaveRecord> => {
+export const addLeaveRecord = async (
+    employeeId: string,
+    date: string,
+    reason: string,
+    actor?: User | null
+): Promise<LeaveRecord> => {
     const existingRecords = await leaveRepository.getByEmployee(employeeId);
     if (existingRecords.some(r => r.date === date)) {
         throw new Error(`A leave record already exists for this employee on ${formatDateDDMonYYYY(date)}.`);
     }
     const employee = await getUserById(employeeId);
     if (!employee) throw new Error("Employee not found");
+    const trimmedReason = reason.trim();
+    if (!trimmedReason) {
+        throw new Error('Please provide a brief reason before marking leave.');
+    }
+
+    const leaveDate = new Date(`${date}T00:00:00`);
+    if (Number.isNaN(leaveDate.getTime())) {
+        throw new Error('Invalid leave date supplied.');
+    }
+
+    if (employee.weeklyOffDay && isDayWeeklyOff(leaveDate, employee.weeklyOffDay)) {
+        throw new Error(
+            `Today is ${employee.weeklyOffDay}, your scheduled weekly off. No leave submission is required.`
+        );
+    }
+
+    const formattedDateLabel = formatDateDDMonYYYY(date);
+
+    const activityLog = await getUserActivityLog(employeeId);
+    const hasRevocationForDate = activityLog.some(
+        log =>
+            log.type === ActivityLogActionType.LEAVE_REVOKED_BY_EMPLOYEE &&
+            log.targetName === formattedDateLabel
+    );
+    if (hasRevocationForDate) {
+        throw new Error(
+            'This date has already been marked and revoked once. Please contact your manager for any further changes.'
+        );
+    }
 
     const tenantId = requireTenantId();
     const leaveId = generateId('leave');
@@ -1530,7 +1780,7 @@ export const addLeaveRecord = async (employeeId: string, date: string, reason: s
         employeeName: employee.name,
         date,
         status: LeaveStatus.APPROVED,
-        reason,
+        reason: trimmedReason,
         createdAt: Date.now(),
         businessUnitId: employee.businessUnitId,
         businessUnitName: employee.businessUnitName,
@@ -1539,37 +1789,115 @@ export const addLeaveRecord = async (employeeId: string, date: string, reason: s
 
     await leaveRepository.create(leaveId, newRecord);
     
+    const actingUser = actor ?? employee;
+    const isFutureLeave = leaveDate > new Date();
+    const activityType = isFutureLeave
+        ? (actingUser.id === employeeId
+            ? ActivityLogActionType.LEAVE_FUTURE_SCHEDULED_BY_EMPLOYEE
+            : ActivityLogActionType.LEAVE_FUTURE_SCHEDULED_BY_MANAGER)
+        : (actingUser.id === employeeId
+            ? ActivityLogActionType.LEAVE_MARKED_BY_EMPLOYEE
+            : ActivityLogActionType.LEAVE_MARKED_BY_MANAGER);
+
     await addActivityLog({
         timestamp: newRecord.createdAt,
-        actorId: employeeId,
-        actorName: employee.name,
-        type: new Date(date) > new Date() ? ActivityLogActionType.LEAVE_FUTURE_SCHEDULED_BY_EMPLOYEE : ActivityLogActionType.LEAVE_MARKED_BY_EMPLOYEE,
+        actorId: actingUser.id,
+        actorName: actingUser.name,
+        targetUserId: employeeId,
+        targetUserName: employee.name,
+        type: activityType,
         description: `marked leave for`,
         targetId: newRecord.id,
-        targetName: formatDateDDMonYYYY(date),
+        targetName: formattedDateLabel,
         isCrucial: true
+    });
+
+    await addNotification({
+        userId: employeeId,
+        message: actingUser.id === employeeId
+            ? `Leave recorded for ${formattedDateLabel}.`
+            : `${actingUser.name} marked leave for you on ${formattedDateLabel}.`,
+        type: isFutureLeave ? 'reminder' : 'info',
+        link: '/leave',
+        isCrucial: true,
+        actors: [{ id: actingUser.id, name: actingUser.name }],
+        targetId: newRecord.id,
+        targetType: 'leave'
     });
     
     return newRecord;
 };
 
-export const deleteLeaveRecord = async (leaveRecordId: string): Promise<boolean> => {
+export const deleteLeaveRecord = async (leaveRecordId: string, actor?: User | null): Promise<boolean> => {
     const recordToDelete = await leaveRepository.getById(leaveRecordId);
     if (!recordToDelete) throw new Error("Leave record not found.");
 
+    const actingUser =
+        actor ??
+        (await getUserById(recordToDelete.employeeId)) ??
+        ({ id: recordToDelete.employeeId, name: recordToDelete.employeeName } as User);
+
+    if (actingUser.id === recordToDelete.employeeId) {
+        const activityLog = await getUserActivityLog(recordToDelete.employeeId);
+        const formattedDateLabel = formatDateDDMonYYYY(recordToDelete.date);
+
+        const alreadyRevoked = activityLog.some(
+            log =>
+                log.type === ActivityLogActionType.LEAVE_REVOKED_BY_EMPLOYEE &&
+                log.targetName === formattedDateLabel
+        );
+        if (alreadyRevoked) {
+            throw new Error(
+                'You have already revoked leave for this date once. Please contact your manager for any additional changes.'
+            );
+        }
+    }
+
     await leaveRepository.delete(leaveRecordId);
+
+    const isFutureLeave = new Date(recordToDelete.date) > new Date();
+    const activityType = isFutureLeave
+        ? (actingUser.id === recordToDelete.employeeId
+            ? ActivityLogActionType.LEAVE_FUTURE_CANCELED_BY_EMPLOYEE
+            : ActivityLogActionType.LEAVE_FUTURE_CANCELED_BY_MANAGER)
+        : (actingUser.id === recordToDelete.employeeId
+            ? ActivityLogActionType.LEAVE_REVOKED_BY_EMPLOYEE
+            : ActivityLogActionType.LEAVE_REVOKED_BY_MANAGER);
 
     await addActivityLog({
         timestamp: Date.now(),
-        actorId: recordToDelete.employeeId,
-        actorName: recordToDelete.employeeName,
-        type: new Date(recordToDelete.date) > new Date() ? ActivityLogActionType.LEAVE_FUTURE_CANCELED_BY_EMPLOYEE : ActivityLogActionType.LEAVE_REVOKED_BY_EMPLOYEE,
-        description: `revoked leave for`,
+        actorId: actingUser.id,
+        actorName: actingUser.name,
+        targetUserId: recordToDelete.employeeId,
+        targetUserName: recordToDelete.employeeName,
+        type: activityType,
+        description: `updated leave for`,
         targetId: recordToDelete.id,
         targetName: formatDateDDMonYYYY(recordToDelete.date)
     });
 
+    await addNotification({
+        userId: recordToDelete.employeeId,
+        message: actingUser.id === recordToDelete.employeeId
+            ? `You cancelled leave for ${formatDateDDMonYYYY(recordToDelete.date)}.`
+            : `${actingUser.name} cancelled your leave for ${formatDateDDMonYYYY(recordToDelete.date)}.`,
+        type: 'warning',
+        link: '/leave',
+        isCrucial: true,
+        actors: [{ id: actingUser.id, name: actingUser.name }],
+        targetId: recordToDelete.id,
+        targetType: 'leave'
+    });
+
     return true;
+};
+
+export const markLeaveForEmployee = async (employeeId: string, date: string, reason: string, actor: User) => {
+    return addLeaveRecord(employeeId, date, reason, actor);
+};
+
+export const revokeLeaveForEmployee = async (leaveRecordId: string, actor: User) => {
+    return deleteLeaveRecord(leaveRecordId, actor);
 };
 
 // --- Badge Management ---
@@ -1857,6 +2185,212 @@ export const addNotification = async (notificationData: Omit<AppNotification, 'i
     
     return newNotification;
 };
+
+export const getAnnouncements = async (): Promise<Announcement[]> => {
+    const announcements = await announcementRepository.getAll();
+    const normalized = sortAnnouncements(announcements.map(normalizeAnnouncement));
+    persistAnnouncementsToCache(normalized);
+    return normalized;
+};
+
+export const getAnnouncementById = async (announcementId: string): Promise<Announcement | undefined> => {
+    const announcements = await getAnnouncements();
+    return announcements.find(announcement => announcement.id === announcementId);
+};
+
+export const getActiveAnnouncementsForUser = async (user: User): Promise<Announcement[]> => {
+    const announcements = await getAnnouncements();
+    return announcements.filter(announcement => announcement.status === 'active' && matchesAnnouncementAudience(announcement, user));
+};
+
+const notifyAnnouncementAudience = async (announcement: Announcement, actor: User) => {
+    const users = await getUsers();
+    const targets = getAnnouncementTargetsFromUsers(announcement, users);
+    if (!targets.length) return;
+
+    await Promise.all(targets.map(async user => {
+        await addNotification({
+            userId: user.id,
+            message: announcement.title,
+            type: 'info',
+            link: '/announcements',
+            targetId: announcement.id,
+            targetType: 'announcement',
+            actors: [{ id: actor.id, name: actor.name }],
+            isCrucial: announcement.status === 'active',
+        });
+        EmailService.sendAnnouncementEmail(user, announcement);
+    }));
+};
+
+export const createAnnouncementRecord = async (draft: AnnouncementDraft, actor: User): Promise<Announcement> => {
+    const tenantId = requireTenantId();
+    const sanitized = sanitizeAnnouncementDraft(draft);
+    const announcementId = generateId('announce');
+    const now = Date.now();
+
+    const announcement: Announcement = {
+        id: announcementId,
+        tenantId,
+        title: sanitized.title.trim(),
+        content: sanitized.content,
+        targetType: sanitized.targetType,
+        targetBusinessUnitIds: sanitized.targetBusinessUnitIds,
+        targetUserIds: sanitized.targetUserIds,
+        startsAt: sanitized.startsAt,
+        endsAt: sanitized.endsAt,
+        status: computeAnnouncementStatus({ startsAt: sanitized.startsAt, endsAt: sanitized.endsAt }, now),
+        media: sanitized.media,
+        requireAcknowledgement: sanitized.requireAcknowledgement ?? false,
+        createdBy: actor.id,
+        createdByName: actor.name,
+        createdAt: now,
+        updatedAt: now,
+    };
+
+    await announcementRepository.create(announcementId, announcement);
+    await addActivityLog({
+        timestamp: now,
+        actorId: actor.id,
+        actorName: actor.name,
+        type: ActivityLogActionType.ANNOUNCEMENT_PUBLISHED,
+        description: `published "${announcement.title}"`,
+        targetId: announcement.id,
+        targetName: announcement.title,
+    });
+
+    emitAnnouncementsChanged();
+    const normalized = normalizeAnnouncement(announcement);
+    await getAnnouncements();
+    if (normalized.status === 'active') {
+        await notifyAnnouncementAudience(normalized, actor);
+    }
+    return normalized;
+};
+
+export const updateAnnouncementRecord = async (announcementId: string, updates: Partial<AnnouncementDraft>, actor: User): Promise<Announcement | null> => {
+    const existing = await getAnnouncementById(announcementId);
+    if (!existing) return null;
+
+    const sanitized = updates ? sanitizeAnnouncementDraft({ ...existing, ...updates }) : existing;
+    const now = Date.now();
+    const updated: Announcement = {
+        ...existing,
+        title: updates.title !== undefined ? updates.title.trim() : existing.title,
+        content: updates.content ?? existing.content,
+        targetType: updates.targetType ?? existing.targetType,
+        targetBusinessUnitIds: updates.targetBusinessUnitIds !== undefined ? sanitized.targetBusinessUnitIds : existing.targetBusinessUnitIds,
+        targetUserIds: updates.targetUserIds !== undefined ? sanitized.targetUserIds : existing.targetUserIds,
+        startsAt: updates.startsAt ?? existing.startsAt,
+        endsAt: updates.endsAt ?? existing.endsAt,
+        requireAcknowledgement: updates.requireAcknowledgement ?? existing.requireAcknowledgement,
+        media: updates.media ?? existing.media,
+        updatedAt: now,
+    };
+    updated.status = computeAnnouncementStatus(updated, now);
+
+    await announcementRepository.update(announcementId, updated);
+
+    await addActivityLog({
+        timestamp: now,
+        actorId: actor.id,
+        actorName: actor.name,
+        type: ActivityLogActionType.ANNOUNCEMENT_UPDATED,
+        description: `updated announcement "${updated.title}"`,
+        targetId: updated.id,
+        targetName: updated.title,
+    });
+
+    emitAnnouncementsChanged();
+    const normalized = normalizeAnnouncement(updated);
+    await getAnnouncements();
+    if (normalized.status === 'active' && existing.status !== 'active') {
+        await notifyAnnouncementAudience(normalized, actor);
+    }
+    return normalized;
+};
+
+export const deleteAnnouncementRecord = async (announcementId: string, actor: User): Promise<void> => {
+    const existing = await getAnnouncementById(announcementId);
+    if (!existing) return;
+    await announcementRepository.delete(announcementId);
+
+    await addActivityLog({
+        timestamp: Date.now(),
+        actorId: actor.id,
+        actorName: actor.name,
+        type: ActivityLogActionType.ANNOUNCEMENT_DELETED,
+        description: `deleted announcement "${existing.title}"`,
+        targetId: announcementId,
+        targetName: existing.title,
+    });
+
+    emitAnnouncementsChanged();
+    await getAnnouncements();
+};
+
+export const getAnnouncementEngagement = async (announcementId: string) => {
+    const views = await announcementViewRepository.getByAnnouncement(announcementId);
+    const totalViews = views.length;
+    const acknowledged = views.filter(view => !!view.acknowledgedAt).length;
+    return {
+        totalViews,
+        acknowledged,
+        pendingAcknowledgements: totalViews - acknowledged,
+    };
+};
+
+export const getAnnouncementViewsForUser = async (userId: string): Promise<Record<string, AnnouncementView>> => {
+    const views = await announcementViewRepository.getByUserId(userId);
+    return views.reduce<Record<string, AnnouncementView>>((acc, view) => {
+        acc[view.announcementId] = view;
+        return acc;
+    }, {});
+};
+
+export const markAnnouncementViewed = async (announcementId: string, user: User, options?: { acknowledge?: boolean }) => {
+    const viewId = `${announcementId}_${user.id}`;
+    const existingView = await announcementViewRepository.getByUser(announcementId, user.id);
+    const now = Date.now();
+
+    const payload: AnnouncementView = {
+        id: viewId,
+        announcementId,
+        tenantId: requireTenantId(),
+        userId: user.id,
+        viewedAt: existingView?.viewedAt ?? now,
+        acknowledgedAt: options?.acknowledge ? now : existingView?.acknowledgedAt,
+    };
+
+    await announcementViewRepository.upsert(viewId, payload);
+    emitAnnouncementsChanged();
+
+    const announcement = await getAnnouncementById(announcementId);
+    if (!announcement) return;
+
+    if (options?.acknowledge) {
+        await addActivityLog({
+            timestamp: now,
+            actorId: user.id,
+            actorName: user.name,
+            type: ActivityLogActionType.ANNOUNCEMENT_ACKNOWLEDGED,
+            description: `acknowledged "${announcement.title}"`,
+            targetId: announcement.id,
+            targetName: announcement.title,
+        });
+    } else if (!existingView) {
+        await addActivityLog({
+            timestamp: now,
+            actorId: user.id,
+            actorName: user.name,
+            type: ActivityLogActionType.ANNOUNCEMENT_VIEWED,
+            description: `viewed "${announcement.title}"`,
+            targetId: announcement.id,
+            targetName: announcement.title,
+        });
+    }
+};
+
 export const getTriggerLogEntries = async (): Promise<TriggerLogEntry[]> => {
     const tenantId = requireTenantId();
     return await triggerLogRepository.getAll(tenantId);
@@ -1928,8 +2462,9 @@ export const transformActivityToTimelineEvent = async (activity: ActivityLogItem
     targetLink: link,
   };
 };
-const isManagerOrAdmin = (roleName?: string) => roleName === 'Manager' || roleName === 'Super Admin' || roleName === 'Director';
+const isManagerOrAdmin = (roleName?: string) => roleName === 'Manager' || roleName === 'Super Admin' || roleName === 'Director' || roleName === 'HR';
 export const isDirector = (roleName?: string) => roleName === 'Director';
+export const isHR = (roleName?: string) => roleName === 'HR';
 
 export const getMeetingsForUser = async (userId: string): Promise<Meeting[]> => (await getMeetings()).filter(m => m.attendeeIds.includes(userId) || m.createdBy === userId);
 
@@ -2012,104 +2547,119 @@ export const getEmployeeConsistencyDetails = async (): Promise<DelinquentEmploye
 export const processAndCacheMonthlyAwards = async (): Promise<void> => { /* ... */ };
 export const generateReportSummary = async (reports: EODReport[]): Promise<string> => {
   const apiKey = getApiKey();
-  if (!apiKey) throw new Error("API key is not configured. Please set it up to use AI features.");
+  if (!apiKey) throw new Error(GEMINI_KEY_MISSING_MESSAGE);
 
-  const ai = new GoogleGenAI({ apiKey });
-  const prompt = `Summarize the following EOD reports for a manager. Highlight key achievements, common challenges, and any notable plans. Be concise and use bullet points.\n\nREPORTS:\n${JSON.stringify(reports, null, 2)}`;
-  
-  const response = await ai.models.generateContent({
-    model: 'gemini-2.5-flash',
-    contents: prompt,
-  });
+  try {
+    const ai = new GoogleGenAI({ apiKey });
+    const prompt = `Summarize the following EOD reports for a manager. Highlight key achievements, common challenges, and any notable plans. Be concise and use bullet points.\n\nREPORTS:\n${JSON.stringify(reports, null, 2)}`;
+    
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+    });
 
-  return response.text;
+    return response.text;
+  } catch (error) {
+    console.error('generateReportSummary failed:', error);
+    throw normalizeGeminiError(error);
+  }
 };
 
 export const generatePerformanceReviewSummary = async (employee: User, reports: EODReport[], tasks: Task[], leaves: LeaveRecord[], dateRange: DateRange): Promise<string> => {
   const apiKey = getApiKey();
-  if (!apiKey) throw new Error("API key is not configured. Please set it up to use AI features.");
-  const ai = new GoogleGenAI({ apiKey });
+  if (!apiKey) throw new Error(GEMINI_KEY_MISSING_MESSAGE);
+  try {
+    const ai = new GoogleGenAI({ apiKey });
 
-  const sanitizedReports = reports.map(r => ({
-    date: r.date,
-    isLate: r.isLate,
-    tasksCompleted: r.versions[r.versions.length - 1].tasksCompleted,
-    challengesFaced: r.versions[r.versions.length - 1].challengesFaced,
-  }));
+    const sanitizedReports = reports.map(r => ({
+      date: r.date,
+      isLate: r.isLate,
+      tasksCompleted: r.versions[r.versions.length - 1].tasksCompleted,
+      challengesFaced: r.versions[r.versions.length - 1].challengesFaced,
+    }));
 
-  const sanitizedTasks = tasks.map(t => ({
-      title: t.title,
-      priority: t.priority,
-      status: t.status,
-      dueDate: t.dueDate,
-  }));
+    const sanitizedTasks = tasks.map(t => ({
+        title: t.title,
+        priority: t.priority,
+        status: t.status,
+        dueDate: t.dueDate,
+    }));
 
-  const prompt = `
-    Generate a concise performance review summary for the employee "${employee.name}" for the period from ${dateRange.startDate} to ${dateRange.endDate}.
-    Use the provided data. The output should be professional, well-structured markdown.
+    const prompt = `
+      Generate a concise performance review summary for the employee "${employee.name}" for the period from ${dateRange.startDate} to ${dateRange.endDate}.
+      Use the provided data. The output should be professional, well-structured markdown.
 
-    Employee Details:
-    - Name: ${employee.name}
-    - Designation: ${employee.designation}
+      Employee Details:
+      - Name: ${employee.name}
+      - Designation: ${employee.designation}
 
-    Data:
-    - Total EOD Reports Submitted in Period: ${reports.length}
-    - Reports Marked as Late: ${reports.filter(r => r.isLate).length}
-    - Total Completed Tasks in Period: ${tasks.length}
-    - Total Leave Days in Period: ${leaves.length}
+      Data:
+      - Total EOD Reports Submitted in Period: ${reports.length}
+      - Reports Marked as Late: ${reports.filter(r => r.isLate).length}
+      - Total Completed Tasks in Period: ${tasks.length}
+      - Total Leave Days in Period: ${leaves.length}
 
-    EOD Report Details:
-    ${JSON.stringify(sanitizedReports, null, 2)}
+      EOD Report Details:
+      ${JSON.stringify(sanitizedReports, null, 2)}
 
-    Completed Task Details:
-    ${JSON.stringify(sanitizedTasks, null, 2)}
+      Completed Task Details:
+      ${JSON.stringify(sanitizedTasks, null, 2)}
 
-    Instructions:
-    1.  **Overall Summary:** Start with a brief paragraph summarizing the employee's performance, mentioning consistency, task management, and any standout achievements or areas for improvement.
-    2.  **Reporting Consistency:** Analyze their EOD reporting habits. Mention their consistency, punctuality (late reports), and the quality of their reports if discernible from the tasks completed and challenges.
-    3.  **Task Management:** Evaluate their task completion. Mention the volume and priority of tasks handled.
-    4.  **Key Achievements:** Based on the "Tasks Completed" in reports and the list of completed tasks, identify and list 2-3 key achievements as bullet points.
-    5.  **Areas for Improvement:** Based on "Challenges Faced" in reports or patterns of late submissions/overdue tasks, identify 1-2 constructive areas for improvement as bullet points.
-    6.  **Attendance:** Briefly mention their attendance based on the number of leaves taken.
-  `;
-  
-  const response = await ai.models.generateContent({
-    model: 'gemini-2.5-flash',
-    contents: prompt,
-  });
+      Instructions:
+      1.  **Overall Summary:** Start with a brief paragraph summarizing the employee's performance, mentioning consistency, task management, and any standout achievements or areas for improvement.
+      2.  **Reporting Consistency:** Analyze their EOD reporting habits. Mention their consistency, punctuality (late reports), and the quality of their reports if discernible from the tasks completed and challenges.
+      3.  **Task Management:** Evaluate their task completion. Mention the volume and priority of tasks handled.
+      4.  **Key Achievements:** Based on the "Tasks Completed" in reports and the list of completed tasks, identify and list 2-3 key achievements as bullet points.
+      5.  **Areas for Improvement:** Based on "Challenges Faced" in reports or patterns of late submissions/overdue tasks, identify 1-2 constructive areas for improvement as bullet points.
+      6.  **Attendance:** Briefly mention their attendance based on the number of leaves taken.
+    `;
+    
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+    });
 
-  return response.text;
+    return response.text;
+  } catch (error) {
+    console.error('generatePerformanceReviewSummary failed:', error);
+    throw normalizeGeminiError(error);
+  }
 };
 
 export const generatePerformanceSnapshotSummary = async (employee: User, reports: EODReport[], tasks: Task[], leaves: LeaveRecord[], dateRange: DateRange): Promise<string> => {
   const apiKey = getApiKey();
-  if (!apiKey) throw new Error("API key is not configured. Please set it up to use AI features.");
-  const ai = new GoogleGenAI({ apiKey });
-  
-  const prompt = `
-    Analyze the following performance data for employee "${employee.name}" from ${dateRange.startDate} to ${dateRange.endDate} and provide a very concise, 2-3 bullet point snapshot for a manager's dashboard.
-    Focus on key metrics and actionable insights.
+  if (!apiKey) throw new Error(GEMINI_KEY_MISSING_MESSAGE);
+  try {
+    const ai = new GoogleGenAI({ apiKey });
+    
+    const prompt = `
+      Analyze the following performance data for employee "${employee.name}" from ${dateRange.startDate} to ${dateRange.endDate} and provide a very concise, 2-3 bullet point snapshot for a manager's dashboard.
+      Focus on key metrics and actionable insights.
 
-    Data:
-    - EOD Reports Submitted: ${reports.length}
-    - Late Reports: ${reports.filter(r => r.isLate).length}
-    - Completed Tasks: ${tasks.length}
-    - High Priority Tasks Completed: ${tasks.filter(t => t.priority === TaskPriority.High).length}
-    - Days on Leave: ${leaves.length}
-    - Key tasks completed titles: ${tasks.map(t => t.title).slice(0, 5).join(', ')}
+      Data:
+      - EOD Reports Submitted: ${reports.length}
+      - Late Reports: ${reports.filter(r => r.isLate).length}
+      - Completed Tasks: ${tasks.length}
+      - High Priority Tasks Completed: ${tasks.filter(t => t.priority === TaskPriority.High).length}
+      - Days on Leave: ${leaves.length}
+      - Key tasks completed titles: ${tasks.map(t => t.title).slice(0, 5).join(', ')}
 
-    Example Output Format:
-    - **Reporting:** Submitted 18/20 reports, with 2 late. Good consistency.
-    - **Task Output:** Completed 15 tasks, including 5 high-priority. Key accomplishment was closing the "Project X" deal.
-    - **Attendance:** Took 1 day of planned leave. Reliable attendance.
-  `;
-  
-  const response = await ai.models.generateContent({
-    model: 'gemini-2.5-flash',
-    contents: prompt,
-  });
+      Example Output Format:
+      - **Reporting:** Submitted 18/20 reports, with 2 late. Good consistency.
+      - **Task Output:** Completed 15 tasks, including 5 high-priority. Key accomplishment was closing the "Project X" deal.
+      - **Attendance:** Took 1 day of planned leave. Reliable attendance.
+    `;
+    
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+    });
 
-  return response.text;
+    return response.text;
+  } catch (error) {
+    console.error('generatePerformanceSnapshotSummary failed:', error);
+    throw normalizeGeminiError(error);
+  }
 };
 
 export const getLeaveRecordsByEmployee = async (employeeId: string): Promise<LeaveRecord[]> => (await getLeaveRecords()).filter(l => l.employeeId === employeeId);
@@ -2130,9 +2680,9 @@ export const cancelSingleMeeting = async (meetingId: string, dateToCancel: strin
         updatedBy: actor.id
     };
     
-    await meetingRepository.update(meetingId, updatedMeeting);
+  await meetingRepository.update(meetingId, updatedMeeting);
 
-    await addActivityLog({
+  await addActivityLog({
         timestamp: updatedMeeting.updatedAt,
         actorId: actor.id,
         actorName: actor.name,
@@ -2141,7 +2691,21 @@ export const cancelSingleMeeting = async (meetingId: string, dateToCancel: strin
         targetId: updatedMeeting.id,
         targetName: formatDateDDMonYYYY(dateToCancel),
         isCrucial: true,
+  });
+
+  for (const attendeeId of meeting.attendeeIds) {
+    if (attendeeId === actor.id) continue;
+    await addNotification({
+      userId: attendeeId,
+      message: `${actor.name} ended the "${meeting.title}" recurring series.`,
+      type: 'info',
+      link: `/meetings/${meetingId}`,
+      actors: [{ id: actor.id, name: actor.name }],
+      targetId: meetingId,
+      targetType: 'meeting',
+      isCrucial: true
     });
+  }
 
     for (const attendeeId of updatedMeeting.attendeeIds) {
         if (attendeeId !== actor.id) {

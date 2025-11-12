@@ -1,0 +1,20 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function userTenantId() {
+      return isAuthenticated() ? request.auth.token.tenantId : null;
+    }
+
+    match /tenants/{tenantId}/{allPaths=**} {
+      allow read, write: if isAuthenticated() && tenantId == userTenantId();
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

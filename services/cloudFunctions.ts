@@ -45,6 +45,14 @@ export interface GetTenantLogsRequest {
   limit?: number;
 }
 
+export interface SubmitDemoRequestPayload {
+  name: string;
+  email: string;
+  contactNumber: string;
+  companyName: string;
+  companySize: string;
+}
+
 /**
  * Call Cloud Function to fix all user custom claims
  * This migration sets isTenantAdmin flag for all existing Admin role users
@@ -126,6 +134,23 @@ export const callUpdateTenantPlan = async (request: UpdateTenantPlanRequest): Pr
 };
 
 /**
+ * Public callable used by the landing page to request a live demo.
+ */
+export const callSubmitDemoRequest = async (payload: SubmitDemoRequestPayload): Promise<{ success: boolean; message: string; requestId: string }> => {
+  try {
+    const submitDemoFunction = httpsCallable<SubmitDemoRequestPayload, { success: boolean; message: string; requestId: string }>(
+      functions,
+      'submitDemoRequest'
+    );
+    const result = await submitDemoFunction(payload);
+    return result.data;
+  } catch (error: any) {
+    console.error('Error submitting demo request:', error);
+    throw new Error(error.message || 'Failed to submit demo request');
+  }
+};
+
+/**
  * Call Cloud Function to get tenant operations logs
  */
 export const callGetTenantLogs = async (request: GetTenantLogsRequest = {}): Promise<{ success: boolean; logs: any[] }> => {
@@ -187,6 +212,7 @@ export interface CreateUserRequest {
   name: string;
   roleId: string;
   roleName?: string;
+  notificationEmail?: string;
   businessUnitId?: string;
   businessUnitName?: string;
   designation?: string;
@@ -209,8 +235,37 @@ export const callCreateUser = async (request: CreateUserRequest): Promise<Create
     const result = await createUserFunction(request);
     return result.data;
   } catch (error: any) {
-    console.error('Error calling createUser function:', error);
-    throw new Error(error.message || 'Failed to create user');
+    // Firebase Functions errors expose a code/message/details structure.
+    const normalizedMessage = (() => {
+      const rawMessage =
+        (typeof error?.message === 'string' && error.message.trim()) ||
+        (typeof error?.details === 'string' && error.details.trim()) ||
+        (typeof error?.details?.message === 'string' && error.details.message.trim()) ||
+        '';
+      if (rawMessage && rawMessage.toLowerCase() !== 'internal') {
+        return rawMessage;
+      }
+      const errorCode = error?.code || error?.status;
+
+      switch (errorCode) {
+        case 'functions/permission-denied':
+        case 'permission-denied':
+          return 'You do not have permission to create users.';
+        case 'functions/already-exists':
+        case 'already-exists':
+          return 'A user with this email already exists.';
+        case 'functions/invalid-argument':
+        case 'invalid-argument':
+          return 'One or more fields are invalid. Please double-check and try again.';
+        default:
+          if (errorCode) {
+            return `Failed to create user. (${errorCode})`;
+          }
+          return 'Failed to create user. Please try again.';
+      }
+    })();
+
+    throw new Error(normalizedMessage);
   }
 };
 
@@ -221,6 +276,8 @@ export interface SetCustomClaimsRequest {
   userId: string;
   tenantId: string;
   isPlatformAdmin?: boolean;
+  isTenantAdmin?: boolean;
+  canManageAnnouncements?: boolean;
 }
 
 export interface SetCustomClaimsResponse {

@@ -1,5 +1,6 @@
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 import * as admin from 'firebase-admin';
+import * as sgMail from '@sendgrid/mail';
 
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -27,6 +28,8 @@ const PLAN_LIMITS = {
 type TenantPlan = 'Starter' | 'Professional' | 'Enterprise';
 type TenantStatus = 'Active' | 'Suspended' | 'Inactive';
 
+const ANNOUNCEMENT_PERMISSION = 'CAN_MANAGE_ANNOUNCEMENTS';
+
 // Request interfaces
 interface CreateTenantRequest {
   companyName: string;
@@ -51,6 +54,15 @@ interface TenantOperationLog {
 const generateId = (prefix: string): string => {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 };
+
+// Configure SendGrid if available
+const SENDGRID_API_KEY = functions.config()?.sendgrid?.key || '';
+const SENDGRID_FROM_EMAIL = functions.config()?.sendgrid?.from || 'no-reply@syncly.app';
+if (SENDGRID_API_KEY) {
+  sgMail.setApiKey(SENDGRID_API_KEY);
+} else {
+  console.warn('[SendGrid] No API key configured. Demo request alerts will be logged only.');
+}
 
 // Helper function to log tenant operations
 const logTenantOperation = async (logData: Omit<TenantOperationLog, 'id' | 'timestamp'>) => {
@@ -142,7 +154,39 @@ const getDefaultRoles = (tenantId: string) => {
         'CAN_VIEW_OWN_CALENDAR',
         'CAN_MANAGE_BUSINESS_UNITS',
         'CAN_VIEW_TRIGGER_LOG',
-        'CAN_USE_PERFORMANCE_HUB'
+        'CAN_USE_PERFORMANCE_HUB',
+        'CAN_MANAGE_ANNOUNCEMENTS'
+      ],
+      createdAt: timestamp,
+      isDefault: true
+    },
+    {
+      id: generateId('role'),
+      tenantId,
+      name: 'HR',
+      description: 'People operations lead with announcement and wellbeing controls',
+      permissions: [
+        'CAN_SUBMIT_OWN_EOD',
+        'CAN_VIEW_OWN_REPORTS',
+        'CAN_VIEW_ALL_REPORTS',
+        'CAN_MANAGE_TEAM_REPORTS',
+        'CAN_ACKNOWLEDGE_REPORTS',
+        'CAN_USE_PERFORMANCE_HUB',
+        'CAN_VIEW_LEADERBOARD',
+        'CAN_MANAGE_ALL_LEAVES',
+        'CAN_GRANT_LEAVE_ACCESS',
+        'CAN_MANAGE_WEEKLY_OFF',
+        'CAN_DEFINE_LEAVE_REVOKE_RULES',
+        'CAN_SUBMIT_OWN_LEAVE',
+        'CAN_MANAGE_TEAM_TASKS',
+        'CAN_CREATE_PERSONAL_TASKS',
+        'CAN_VIEW_OWN_TASKS',
+        'CAN_MANAGE_TEAM_MEETINGS',
+        'CAN_VIEW_OWN_MEETINGS',
+        'CAN_VIEW_TEAM_CALENDAR',
+        'CAN_VIEW_OWN_CALENDAR',
+        'CAN_USE_GOOGLE_CALENDAR',
+        'CAN_MANAGE_ANNOUNCEMENTS'
       ],
       createdAt: timestamp,
       isDefault: true
@@ -238,7 +282,8 @@ export const createTenant = functions.https.onCall(async (data: CreateTenantRequ
       tenantId: tenantId,
       isPlatformAdmin: false,
       isTenantAdmin: true,  // Tenant admin can manage users in their tenant
-      role: 'Admin'
+      role: 'Admin',
+      canManageAnnouncements: true
     });
     console.log(`Custom claims set for admin user: ${userRecord.uid} (isTenantAdmin: true)`);
 
@@ -950,6 +995,7 @@ export const createUser = functions.https.onCall(async (data: {
   name: string;
   roleId: string;
   roleName?: string;
+  notificationEmail?: string;
   businessUnitId?: string;
   businessUnitName?: string;
   designation?: string;
@@ -960,7 +1006,21 @@ export const createUser = functions.https.onCall(async (data: {
     throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
   }
 
-  const { email, password, name, roleId, roleName, businessUnitId, businessUnitName, designation, tenantId } = data;
+  const {
+    email,
+    password,
+    name,
+    roleId,
+    roleName,
+    notificationEmail,
+    businessUnitId,
+    businessUnitName,
+    designation,
+    tenantId
+  } = data;
+
+  let resolvedRoleName = roleName || 'Employee';
+  let assignedRolePermissions: string[] = [];
 
   // Validate required fields
   if (!email || !password || !name || !roleId || !tenantId) {
@@ -969,17 +1029,59 @@ export const createUser = functions.https.onCall(async (data: {
 
   // Verify caller has permission (must be from same tenant OR platform admin)
   const callerUid = context.auth.uid;
+  const callerClaims = context.auth.token || {};
+  let isPlatformAdmin = callerClaims.isPlatformAdmin === true;
+  let callerTenantId: string | null = (callerClaims.tenantId as string | undefined) || null;
+  const tenantAdminClaim = callerClaims.isTenantAdmin === true;
+
   const callerDoc = await admin.firestore().collection(COLLECTIONS.USERS).doc(callerUid).get();
-  
   if (!callerDoc.exists) {
-    throw new functions.https.HttpsError('permission-denied', 'Caller user not found');
+    throw new functions.https.HttpsError('permission-denied', 'Caller user profile not found');
   }
 
   const callerData = callerDoc.data();
-  const isPlatformAdmin = callerData?.isPlatformAdmin === true;
-  
-  if (!isPlatformAdmin && callerData?.tenantId !== tenantId) {
-    throw new functions.https.HttpsError('permission-denied', 'Cannot create users for other tenants');
+  if (!isPlatformAdmin && callerData?.isPlatformAdmin === true) {
+    isPlatformAdmin = true;
+  }
+
+  if (!callerTenantId) {
+    callerTenantId = (callerData?.tenantId as string | undefined) || null;
+  }
+
+  let callerRoleName = (callerData?.roleName || callerData?.role || '') as string;
+  const callerRoleId = (callerData?.roleId as string | undefined) || null;
+  let callerPermissions: string[] = [];
+  const rawCallerPermissions = callerData?.permissions;
+  if (Array.isArray(rawCallerPermissions)) {
+    callerPermissions = rawCallerPermissions as string[];
+  }
+
+  if (callerRoleId && (!callerRoleName || callerPermissions.length === 0)) {
+    const callerRoleDoc = await admin.firestore().collection(COLLECTIONS.ROLES).doc(callerRoleId).get();
+    if (callerRoleDoc.exists) {
+      const roleData = callerRoleDoc.data();
+      if (!callerRoleName && typeof roleData?.name === 'string') {
+        callerRoleName = roleData.name;
+      }
+      if (callerPermissions.length === 0 && Array.isArray(roleData?.permissions)) {
+        callerPermissions = roleData.permissions as string[];
+      }
+    }
+  }
+
+  const hasManageUsersPermission = callerPermissions.includes('CAN_MANAGE_USERS');
+  const isTenantAdminEffective =
+    tenantAdminClaim === true ||
+    callerData?.isTenantAdmin === true ||
+    callerRoleName === 'Admin';
+
+  if (!isPlatformAdmin) {
+    if (!callerTenantId || callerTenantId !== tenantId) {
+      throw new functions.https.HttpsError('permission-denied', 'Cannot create users for other tenants');
+    }
+    if (!isTenantAdminEffective && !hasManageUsersPermission) {
+      throw new functions.https.HttpsError('permission-denied', 'You do not have permission to manage users');
+    }
   }
 
   // Track created resources for rollback
@@ -992,6 +1094,13 @@ export const createUser = functions.https.onCall(async (data: {
       if (!roleDoc.exists) {
         throw new functions.https.HttpsError('invalid-argument', `Role ${roleId} does not exist`);
       }
+      const roleData = roleDoc.data();
+      if (typeof roleData?.name === 'string') {
+        resolvedRoleName = roleData.name;
+      }
+      if (Array.isArray(roleData?.permissions)) {
+        assignedRolePermissions = roleData.permissions as string[];
+      }
     }
     
     if (businessUnitId) {
@@ -1003,8 +1112,11 @@ export const createUser = functions.https.onCall(async (data: {
     
     // 2. Create Firebase Auth user
     console.log(`Creating Firebase Auth user: ${email}`);
+    const normalizedEmail = email.toLowerCase();
+    const normalizedNotificationEmail = (notificationEmail || email).toLowerCase();
+
     const userRecord = await admin.auth().createUser({
-      email: email.toLowerCase(),
+      email: normalizedEmail,
       password: password,
       emailVerified: false,
       disabled: false
@@ -1016,31 +1128,40 @@ export const createUser = functions.https.onCall(async (data: {
     // 3. Set custom claims for tenant isolation (CRITICAL - must succeed)
     try {
       // Set isTenantAdmin flag based on role (Admin role gets tenant admin permissions)
-      const isTenantAdmin = roleName === 'Admin';
+      const isTenantAdmin = resolvedRoleName === 'Admin';
+      const canManageAnnouncements =
+        isTenantAdmin || assignedRolePermissions.includes(ANNOUNCEMENT_PERMISSION);
       
       await admin.auth().setCustomUserClaims(createdAuthUserId, {
         tenantId: tenantId,
         isPlatformAdmin: false,
-        isTenantAdmin: isTenantAdmin
+        isTenantAdmin: isTenantAdmin,
+        canManageAnnouncements
       });
-      console.log(`Custom claims set for user: ${createdAuthUserId} (isTenantAdmin: ${isTenantAdmin})`);
+      console.log(
+        `Custom claims set for user: ${createdAuthUserId} (isTenantAdmin: ${isTenantAdmin}, canManageAnnouncements: ${canManageAnnouncements})`
+      );
     } catch (claimError: any) {
       // CRITICAL: Roll back Auth user if claims fail
       console.error('Failed to set custom claims, rolling back Auth user:', claimError);
       await admin.auth().deleteUser(createdAuthUserId);
-      throw new functions.https.HttpsError('internal', 'Failed to set user permissions. Please try again.');
+      const claimReason = typeof claimError?.message === 'string' ? claimError.message : 'Unknown reason';
+      throw new functions.https.HttpsError(
+        'internal',
+        `Failed to set user permissions. ${claimReason}`
+      );
     }
 
     // 4. Create Firestore user document (use Firebase Auth UID as document ID)
     const newUser = {
       id: createdAuthUserId,  // CRITICAL: Same as document ID for login to work
       tenantId: tenantId,
-      email: email.toLowerCase(),
-      notificationEmail: email.toLowerCase(),
+      email: normalizedEmail,
+      notificationEmail: normalizedNotificationEmail,
       name: name,
       roleId: roleId,
-      roleName: roleName || 'Employee',
-      role: roleName || 'Employee', // For security rules fallback
+      roleName: resolvedRoleName,
+      role: resolvedRoleName, // For security rules fallback
       businessUnitId: businessUnitId || '',
       businessUnitName: businessUnitName || '',
       designation: designation || '',
@@ -1063,7 +1184,13 @@ export const createUser = functions.https.onCall(async (data: {
       // CRITICAL: Roll back Auth user if Firestore write fails
       console.error('Failed to create Firestore document, rolling back:', firestoreError);
       await admin.auth().deleteUser(createdAuthUserId);
-      throw new functions.https.HttpsError('internal', 'Failed to create user profile. Please try again.');
+      const firestoreReason = typeof firestoreError?.message === 'string'
+        ? firestoreError.message
+        : 'Unknown reason';
+      throw new functions.https.HttpsError(
+        'internal',
+        `Failed to create user profile. ${firestoreReason}`
+      );
     }
 
     return {
@@ -1093,7 +1220,10 @@ export const createUser = functions.https.onCall(async (data: {
       throw error;
     }
     
-    throw new functions.https.HttpsError('internal', `Failed to create user: ${error.message}`);
+    const fallbackMessage = typeof error?.message === 'string' && error.message.trim().length > 0
+      ? error.message.trim()
+      : 'Unknown error';
+    throw new functions.https.HttpsError('internal', `Failed to create user. ${fallbackMessage}`);
   }
 });
 
@@ -1108,6 +1238,7 @@ export const setUserCustomClaims = functions.https.onCall(async (data: {
   tenantId: string;
   isPlatformAdmin?: boolean;
   isTenantAdmin?: boolean;
+  canManageAnnouncements?: boolean;
 }, context) => {
   // Verify authentication
   if (!context.auth) {
@@ -1120,7 +1251,7 @@ export const setUserCustomClaims = functions.https.onCall(async (data: {
     throw new functions.https.HttpsError('permission-denied', 'Only platform admin can set custom claims');
   }
 
-  const { userId, tenantId, isPlatformAdmin, isTenantAdmin } = data;
+  const { userId, tenantId, isPlatformAdmin, isTenantAdmin, canManageAnnouncements } = data;
 
   if (!userId) {
     throw new functions.https.HttpsError('invalid-argument', 'userId is required');
@@ -1128,13 +1259,19 @@ export const setUserCustomClaims = functions.https.onCall(async (data: {
 
   try {
     // Set custom claims
+    const announcementClaim =
+      (isTenantAdmin ?? false) || (canManageAnnouncements ?? false);
+
     await admin.auth().setCustomUserClaims(userId, {
       tenantId: tenantId || null,
       isPlatformAdmin: isPlatformAdmin || false,
-      isTenantAdmin: isTenantAdmin || false
+      isTenantAdmin: isTenantAdmin || false,
+      canManageAnnouncements: announcementClaim
     });
 
-    console.log(`Custom claims set for user ${userId}: tenantId=${tenantId}, isPlatformAdmin=${isPlatformAdmin}, isTenantAdmin=${isTenantAdmin}`);
+    console.log(
+      `Custom claims set for user ${userId}: tenantId=${tenantId}, isPlatformAdmin=${isPlatformAdmin}, isTenantAdmin=${isTenantAdmin}, canManageAnnouncements=${announcementClaim}`
+    );
 
     // Update Firestore document to reflect claims are set
     await admin.firestore()
@@ -1315,7 +1452,8 @@ export const emergencyFixPlatformAdmin = functions.https.onRequest((request, res
       // Set custom claims
       await admin.auth().setCustomUserClaims(adminUid, {
         isPlatformAdmin: true,
-        tenantId: null
+        tenantId: null,
+        canManageAnnouncements: true
       });
 
       // Update Firestore to mark claims as set
@@ -1621,6 +1759,7 @@ export const fixAllUserClaims = functions.https.onCall(async (data, context) => 
       errors: 0,
       details: [] as any[]
     };
+    const rolePermissionCache = new Map<string, string[]>();
 
     // Process each user
     for (const doc of usersSnapshot.docs) {
@@ -1642,12 +1781,26 @@ export const fixAllUserClaims = functions.https.onCall(async (data, context) => 
       try {
         // Determine if user should have isTenantAdmin flag
         const isTenantAdmin = userData.roleName === 'Admin';
+        let rolePermissions: string[] = Array.isArray(userData.permissions) ? userData.permissions : [];
+        const roleIdForUser = userData.roleId as string | undefined;
+        if (rolePermissions.length === 0 && roleIdForUser) {
+          if (!rolePermissionCache.has(roleIdForUser)) {
+            const roleDoc = await admin.firestore().collection(COLLECTIONS.ROLES).doc(roleIdForUser).get();
+            const roleData = roleDoc.data();
+            const permissions = Array.isArray(roleData?.permissions) ? (roleData.permissions as string[]) : [];
+            rolePermissionCache.set(roleIdForUser, permissions);
+          }
+          rolePermissions = rolePermissionCache.get(roleIdForUser) ?? [];
+        }
+
+        const canManageAnnouncements = isTenantAdmin || rolePermissions.includes(ANNOUNCEMENT_PERMISSION);
         
         // Set custom claims
         await admin.auth().setCustomUserClaims(userId, {
           tenantId: userData.tenantId || null,
           isPlatformAdmin: false,
-          isTenantAdmin: isTenantAdmin
+          isTenantAdmin: isTenantAdmin,
+          canManageAnnouncements
         });
 
         // Update Firestore to mark claims as set
@@ -1667,11 +1820,12 @@ export const fixAllUserClaims = functions.https.onCall(async (data, context) => 
           action: 'updated',
           claims: {
             tenantId: userData.tenantId,
-            isTenantAdmin: isTenantAdmin
+            isTenantAdmin: isTenantAdmin,
+            canManageAnnouncements
           }
         });
 
-        console.log(`✅ Updated claims for ${userData.email}: isTenantAdmin=${isTenantAdmin}`);
+        console.log(`✅ Updated claims for ${userData.email}: isTenantAdmin=${isTenantAdmin}, canManageAnnouncements=${canManageAnnouncements}`);
 
       } catch (error: any) {
         results.errors++;
@@ -1920,4 +2074,82 @@ export const generateTelegramLinkingCode = functions.https.onCall(async (data, c
     console.error('Error generating linking code:', error);
     throw new functions.https.HttpsError('internal', error.message);
   }
+});
+
+/**
+ * Cloud Function: Submit Demo Request (public landing page)
+ * Stores inbound demo requests for follow-up.
+ */
+export const submitDemoRequest = functions.https.onCall(async (data, context) => {
+  const {
+    name,
+    email,
+    contactNumber,
+    companyName,
+    companySize
+  } = data || {};
+
+  if (
+    !name ||
+    !email ||
+    !contactNumber ||
+    !companyName ||
+    !companySize
+  ) {
+    throw new functions.https.HttpsError('invalid-argument', 'All fields are required.');
+  }
+
+  const docId = generateId('demo');
+  const payload = {
+    id: docId,
+    name: String(name).trim(),
+    email: String(email).trim().toLowerCase(),
+    contactNumber: String(contactNumber).trim(),
+    companyName: String(companyName).trim(),
+    companySize: String(companySize).trim(),
+    userAgent: context?.rawRequest?.headers?.['user-agent'],
+    createdAt: admin.firestore.FieldValue.serverTimestamp()
+  };
+
+  await admin.firestore()
+    .collection('demoRequests')
+    .doc(docId)
+    .set(payload);
+
+  console.log('[DemoRequest] New submission received', {
+    id: docId,
+    email: payload.email,
+    company: payload.companyName
+  });
+
+  if (SENDGRID_API_KEY) {
+    const emailSubject = `New Live Demo Request from ${payload.companyName}`;
+    const emailBody = `
+      <p><strong>Name:</strong> ${payload.name}</p>
+      <p><strong>Email:</strong> ${payload.email}</p>
+      <p><strong>Phone:</strong> ${payload.contactNumber}</p>
+      <p><strong>Company:</strong> ${payload.companyName}</p>
+      <p><strong>Company Size:</strong> ${payload.companySize}</p>
+      <p><strong>User Agent:</strong> ${payload.userAgent || 'N/A'}</p>
+      <p><strong>Request ID:</strong> ${docId}</p>
+      <p>The lead is waiting for a call-back. Please respond as soon as possible.</p>
+    `;
+
+    try {
+      await sgMail.send({
+        to: 'syncly19@gmail.com',
+        from: SENDGRID_FROM_EMAIL,
+        subject: emailSubject,
+        html: emailBody
+      });
+    } catch (emailError: any) {
+      console.error('[SendGrid] Failed to send demo notification:', emailError);
+    }
+  }
+
+  return {
+    success: true,
+    message: 'Demo request saved successfully',
+    requestId: docId
+  };
 });

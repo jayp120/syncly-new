@@ -32,19 +32,27 @@ export enum Permission {
 
   // ========== Leave Management ==========
   CAN_MANAGE_ALL_LEAVES = 'CAN_MANAGE_ALL_LEAVES', // Broad: view, approve, reject, manage
+  CAN_SUBMIT_OWN_LEAVE = 'CAN_SUBMIT_OWN_LEAVE',
 
   // ========== Meeting & Calendar Management ==========
   CAN_MANAGE_TEAM_MEETINGS = 'CAN_MANAGE_TEAM_MEETINGS', // Broad: schedule, view team meetings, manage calendar
   CAN_VIEW_OWN_MEETINGS = 'CAN_VIEW_OWN_MEETINGS',
   CAN_VIEW_OWN_CALENDAR = 'CAN_VIEW_OWN_CALENDAR',
+  CAN_VIEW_TEAM_CALENDAR = 'CAN_VIEW_TEAM_CALENDAR',
 
   // ========== Performance & Analytics ==========
   CAN_USE_PERFORMANCE_HUB = 'CAN_USE_PERFORMANCE_HUB',
+  CAN_VIEW_LEADERBOARD = 'CAN_VIEW_LEADERBOARD',
 
   // ========== Integration Access ==========
   CAN_USE_GOOGLE_CALENDAR = 'CAN_USE_GOOGLE_CALENDAR',
   CAN_USE_TELEGRAM_BOT = 'CAN_USE_TELEGRAM_BOT',
   CAN_USE_GEMINI_AI = 'CAN_USE_GEMINI_AI',
+  CAN_GRANT_LEAVE_ACCESS = 'CAN_GRANT_LEAVE_ACCESS',
+  CAN_MANAGE_WEEKLY_OFF = 'CAN_MANAGE_WEEKLY_OFF',
+  CAN_DEFINE_LEAVE_REVOKE_RULES = 'CAN_DEFINE_LEAVE_REVOKE_RULES',
+  CAN_MANAGE_ANNOUNCEMENTS = 'CAN_MANAGE_ANNOUNCEMENTS',
+  CAN_VIEW_TRIGGER_LOG = 'CAN_VIEW_TRIGGER_LOG',
 }
 
 export interface Role {
@@ -264,9 +272,49 @@ export interface Notification {
   isCrucial?: boolean;
   // Fields for aggregation and interactivity
   targetId?: string; // e.g., task ID, report ID
-  targetType?: 'task' | 'report' | 'meeting';
+  targetType?: 'task' | 'report' | 'meeting' | 'announcement';
   actors?: { id: string, name: string }[];
   actionType?: 'ACKNOWLEDGE_REPORT' | 'TASK_COMMENT_ADDED' | 'EOD_ACKNOWLEDGED';
+}
+
+export type AnnouncementAudienceType = 'all' | 'businessUnits' | 'users';
+
+export type AnnouncementStatus = 'scheduled' | 'active' | 'expired';
+
+export interface AnnouncementMedia {
+  id: string;
+  storageUrl: string;
+  storagePath: string;
+  caption?: string;
+  ratio?: 'square' | 'portrait' | 'landscape';
+}
+
+export interface Announcement {
+  id: string;
+  tenantId: string;
+  title: string;
+  content: string;
+  createdBy: string;
+  createdByName: string;
+  targetType: AnnouncementAudienceType;
+  targetBusinessUnitIds?: string[];
+  targetUserIds?: string[];
+  startsAt: number;
+  endsAt: number;
+  status: AnnouncementStatus;
+  media?: AnnouncementMedia[];
+  createdAt: number;
+  updatedAt: number;
+  requireAcknowledgement?: boolean;
+}
+
+export interface AnnouncementView {
+  id: string;
+  tenantId: string;
+  announcementId: string;
+  userId: string;
+  viewedAt: number;
+  acknowledgedAt?: number;
 }
 
 export interface DateRange {
@@ -391,9 +439,13 @@ export enum ActivityLogActionType {
 
     // Leave Actions
     LEAVE_MARKED_BY_EMPLOYEE = 'LEAVE_MARKED_BY_EMPLOYEE',
+    LEAVE_MARKED_BY_MANAGER = 'LEAVE_MARKED_BY_MANAGER',
     LEAVE_REVOKED_BY_EMPLOYEE = 'LEAVE_REVOKED_BY_EMPLOYEE',
+    LEAVE_REVOKED_BY_MANAGER = 'LEAVE_REVOKED_BY_MANAGER',
     LEAVE_FUTURE_SCHEDULED_BY_EMPLOYEE = 'LEAVE_FUTURE_SCHEDULED_BY_EMPLOYEE',
     LEAVE_FUTURE_CANCELED_BY_EMPLOYEE = 'LEAVE_FUTURE_CANCELED_BY_EMPLOYEE',
+    LEAVE_FUTURE_SCHEDULED_BY_MANAGER = 'LEAVE_FUTURE_SCHEDULED_BY_MANAGER',
+    LEAVE_FUTURE_CANCELED_BY_MANAGER = 'LEAVE_FUTURE_CANCELED_BY_MANAGER',
 
     // System/Automatic Actions
     WEEKLY_OFF_AUTO = 'WEEKLY_OFF_AUTO',
@@ -441,6 +493,11 @@ export enum ActivityLogActionType {
 
     // Admin/HR Actions
     COMPLETION_LETTER_GENERATED = 'COMPLETION_LETTER_GENERATED',
+    ANNOUNCEMENT_PUBLISHED = 'ANNOUNCEMENT_PUBLISHED',
+    ANNOUNCEMENT_UPDATED = 'ANNOUNCEMENT_UPDATED',
+    ANNOUNCEMENT_DELETED = 'ANNOUNCEMENT_DELETED',
+    ANNOUNCEMENT_VIEWED = 'ANNOUNCEMENT_VIEWED',
+    ANNOUNCEMENT_ACKNOWLEDGED = 'ANNOUNCEMENT_ACKNOWLEDGED',
 
     // User Management Actions
     USER_CREATED = 'USER_CREATED',

@@ -1,7 +1,3 @@
-
-
-
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../Auth/AuthContext';
 import Sidebar from './Sidebar';
@@ -9,70 +5,12 @@ import Header from './Header';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import { runScheduledChecks } from '../../services/notificationScheduler';
 import * as DataService from '../../services/dataService';
-import { MEETINGS_KEY } from '../../constants';
+import { ANNOUNCEMENTS_KEY, MEETINGS_KEY } from '../../constants';
 import eventBus from '../../services/eventBus';
 import { useToast } from '../../contexts/ToastContext';
 import MeetingStartToast from '../Manager/MeetingStartToast';
-import { Meeting, User } from '../../types';
-import Modal from '../Common/Modal';
-import Input from '../Common/Input';
-import Button from '../Common/Button';
-import Alert from '../Common/Alert';
-
-const ApiKeyManager: React.FC<{ onKeySet: () => void }> = ({ onKeySet }) => {
-    const [apiKey, setApiKey] = useState('');
-    const [showModal, setShowModal] = useState(false);
-
-    useEffect(() => {
-        const key = sessionStorage.getItem('GEMINI_API_KEY');
-        const envKey = (import.meta as any)?.env?.API_KEY || (typeof process !== 'undefined' ? process.env.API_KEY : null);
-        if (!key && !envKey) {
-            setShowModal(true);
-        }
-    }, []);
-
-    const handleSaveKey = () => {
-        if (apiKey.trim()) {
-            sessionStorage.setItem('GEMINI_API_KEY', apiKey.trim());
-            setShowModal(false);
-            onKeySet(); // Notify parent to re-render if needed
-        }
-    };
-
-    if (!showModal) return null;
-
-    return (
-        <Modal
-            isOpen={true}
-            onClose={() => { /* Disallow closing without providing a key for simplicity */ }}
-            title="Setup Gemini API Key"
-            size="md"
-            footer={
-                <Button onClick={handleSaveKey} disabled={!apiKey.trim()}>
-                    Save Key & Continue
-                </Button>
-            }
-        >
-            <Alert type="info" message="An API key is required for AI features." className="mb-4">
-                <p className="text-sm">
-                    This app uses the Google Gemini API for features like AI summaries and task generation.
-                    Your key is stored only in your browser's session storage and is never sent to our servers.
-                </p>
-            </Alert>
-            <Input
-                label="Your Google Gemini API Key"
-                type="password"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                placeholder="Enter your API key here"
-                autoFocus
-            />
-             <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline mt-2 inline-block">
-                Get your API key from Google AI Studio &rarr;
-            </a>
-        </Modal>
-    );
-};
+import { Announcement, Meeting, User } from '../../types';
+import AnnouncementBoardModal from '../Announcements/AnnouncementBoardModal';
 
 
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -84,6 +22,8 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // State for desktop collapsible sidebar
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useLocalStorage('sidebar_collapsed', false);
   const [hasUnseenMeetings, setHasUnseenMeetings] = useState(false);
+  const [boardAnnouncements, setBoardAnnouncements] = useState<Announcement[]>([]);
+  const [isAnnouncementBoardVisible, setIsAnnouncementBoardVisible] = useState(false);
 
 
   useEffect(() => {
@@ -102,17 +42,48 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     }
   }, [currentUser]);
 
+  const refreshAnnouncementBoard = useCallback(async () => {
+    if (!currentUser || currentUser.isPlatformAdmin) {
+        setBoardAnnouncements([]);
+        setIsAnnouncementBoardVisible(false);
+        return;
+    }
+    try {
+        const [activeAnnouncements, views] = await Promise.all([
+            DataService.getActiveAnnouncementsForUser(currentUser),
+            DataService.getAnnouncementViewsForUser(currentUser.id),
+        ]);
+        const pending = activeAnnouncements.filter((announcement) => {
+            const view = views[announcement.id];
+            if (!view) return true;
+            const lastInteraction = view.acknowledgedAt || view.viewedAt;
+            return (announcement.updatedAt || announcement.startsAt) > (lastInteraction || 0);
+        });
+        setBoardAnnouncements(pending);
+        setIsAnnouncementBoardVisible(pending.length > 0);
+    } catch (error) {
+        console.error('Unable to refresh announcement board', error);
+    }
+  }, [currentUser]);
+
   useEffect(() => {
       checkUnseenMeetings();
       // Also listen for changes
       const handleDataChange = (data?: any) => {
-          if (data && data.keyChanged === MEETINGS_KEY) {
+          if (data?.keyChanged === MEETINGS_KEY) {
               checkUnseenMeetings();
+          }
+          if (data?.keyChanged === ANNOUNCEMENTS_KEY) {
+              refreshAnnouncementBoard();
           }
       };
       const unsubscribe = eventBus.on('appDataChanged', handleDataChange);
       return () => unsubscribe();
-  }, [checkUnseenMeetings]);
+  }, [checkUnseenMeetings, refreshAnnouncementBoard]);
+
+  useEffect(() => {
+    refreshAnnouncementBoard();
+  }, [refreshAnnouncementBoard]);
 
   // --- Real-time Cross-Tab Synchronization ---
   useEffect(() => {
@@ -206,7 +177,6 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   return (
     <div className="flex h-screen bg-transparent">
-      <ApiKeyManager onKeySet={() => {}} />
       <Sidebar 
         isOpen={isSidebarOpen} 
         onClose={() => setIsSidebarOpen(false)}
@@ -222,6 +192,15 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       >
         <Header 
           onToggleSidebar={toggleSidebar} 
+        />
+        <AnnouncementBoardModal
+          announcements={boardAnnouncements}
+          isOpen={isAnnouncementBoardVisible}
+          onDismiss={async (announcement, acknowledge) => {
+            if (!currentUser) return;
+            await DataService.markAnnouncementViewed(announcement.id, currentUser, { acknowledge });
+            await refreshAnnouncementBoard();
+          }}
         />
         <main className="flex-1 overflow-x-hidden overflow-y-auto animate-fade-in-up">
           {children}

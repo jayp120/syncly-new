@@ -31,6 +31,47 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.token.isTenantAdmin == true;
     }
 
+    function announcementUserDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function announcementRoleDoc(roleId) {
+      return get(/databases/$(database)/documents/roles/$(roleId));
+    }
+
+    function userOrRoleHasAnnouncementPermission(userDoc) {
+      return userDoc.data.permissions != null
+        && userDoc.data.permissions.hasAny(['CAN_MANAGE_ANNOUNCEMENTS'])
+        || (
+          userDoc.data.roleId != null
+          && exists(/databases/$(database)/documents/roles/$(userDoc.data.roleId))
+          && announcementRoleDoc(userDoc.data.roleId).data.permissions != null
+          && announcementRoleDoc(userDoc.data.roleId).data.permissions.hasAny(['CAN_MANAGE_ANNOUNCEMENTS'])
+        );
+    }
+
+    function hasAnnouncementPermissionViaProfile(targetTenantId) {
+      return isAuthenticated()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && announcementUserDoc().data.tenantId == targetTenantId
+        && userOrRoleHasAnnouncementPermission(announcementUserDoc());
+    }
+
+    function hasAnnouncementClaim() {
+      return isAuthenticated() && request.auth.token.canManageAnnouncements == true;
+    }
+
+    function hasAnnouncementWriteAccess(targetTenantId) {
+      return isPlatformAdmin() ||
+        (isAuthenticated() &&
+          targetTenantId == getUserTenantId() &&
+          (
+            request.auth.token.isTenantAdmin == true ||
+            request.auth.token.canManageAnnouncements == true ||
+            hasAnnouncementPermissionViaProfile(targetTenantId)
+          ));
+    }
+
     // ---- USERS collection ----
     match /users/{userId} {
       // READ (get + list/query)
@@ -285,6 +326,37 @@ service cloud.firestore {
       allow update, delete: if false; // Events are immutable
     }
     
+    // ANNOUNCEMENTS Collection
+    match /announcements/{announcementId} {
+      allow read: if isPlatformAdmin() || (isAuthenticated() && resource.data.tenantId == getUserTenantId());
+      allow create: if hasAnnouncementWriteAccess(request.resource.data.tenantId);
+      allow update: if hasAnnouncementWriteAccess(resource.data.tenantId)
+        && request.resource.data.tenantId == resource.data.tenantId;
+      allow delete: if hasAnnouncementWriteAccess(resource.data.tenantId);
+    }
+
+    // ANNOUNCEMENT VIEWS Collection
+    match /announcementViews/{viewId} {
+      allow read: if isPlatformAdmin()
+        || (isAuthenticated()
+          && resource.data.tenantId == getUserTenantId()
+          && (
+            isTenantAdmin()
+            || hasAnnouncementClaim()
+            || resource.data.userId == request.auth.uid
+          ));
+      allow create: if isAuthenticated()
+        && request.resource.data.tenantId == getUserTenantId()
+        && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated()
+        && resource.data.tenantId == getUserTenantId()
+        && request.resource.data.tenantId == resource.data.tenantId
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == resource.data.userId;
+      allow delete: if isPlatformAdmin()
+        || (isTenantAdmin() && resource.data.tenantId == getUserTenantId());
+    }
+
     // PERFORMANCE METRICS Collection (for monitoring - optional, gracefully degrade if fails)
     match /performanceMetrics/{metricId} {
       // Platform admin can read all metrics

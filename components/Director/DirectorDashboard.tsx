@@ -7,10 +7,10 @@ import Card from '../Common/Card';
 import Button from '../Common/Button';
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import Leaderboard from '../Shared/Leaderboard';
-import TodaysWeeklyOffStatusCard from '../Manager/TodaysWeeklyOffStatusCard';
 import TodaysLeaveStatusCard from '../Manager/TodaysLeaveStatusCard';
+import WeeklyOffRestingCard from '../Manager/WeeklyOffRestingCard';
 import ReportDetailModal from '../Shared/ReportDetailModal';
-import { LEAVE_RECORDS_KEY, ACTIVITY_LOG_KEY_PREFIX, REPORTS_KEY, TASKS_KEY } from '../../constants';
+import { LEAVE_RECORDS_KEY, ACTIVITY_LOG_KEY_PREFIX, REPORTS_KEY, TASKS_KEY, ANNOUNCEMENTS_KEY } from '../../constants';
 import { formatDateTimeDDMonYYYYHHMM, getNextOccurrence, formatDateDDMonYYYY } from '../../utils/dateUtils';
 import TimelineDisplay from '../Shared/TimelineDisplay';
 import Spinner from '../Common/Spinner';
@@ -100,15 +100,24 @@ const DirectorDashboard: React.FC = () => {
       setAllLeaveRecords(leaves);
       setAllMeetings(meetings);
       setAllBusinessUnits(businessUnits);
-      
-      const employeeIds = users.filter(u => u.roleName === 'Employee' && !u.isSuspended).map(u => u.id);
-      const directorAndEmployeeIds = [...employeeIds, currentUser.id];
-      
-      const relevantTasks = tasks.filter(t => t.createdBy === currentUser.id || t.assignedTo.some(id => employeeIds.includes(id)));
-      setAllTasks(relevantTasks);
-      setPinnedTasks(relevantTasks.filter(t => t.pinnedBy.includes(currentUser.id)).sort((a,b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()));
 
-      const activityLogs = await Promise.all(directorAndEmployeeIds.map(id => DataService.getUserActivityLog(id)));
+      const timelineRoles = ['Employee', 'Manager', 'Team Lead'];
+      const timelineSourceIds = users
+        .filter(u => u.roleName && timelineRoles.includes(u.roleName) && !u.isSuspended)
+        .map(u => u.id);
+      const directorAndTeamIds = Array.from(new Set([...timelineSourceIds, currentUser.id]));
+
+      const relevantTasks = tasks.filter(
+        t => t.createdBy === currentUser.id || t.assignedTo.some(id => timelineSourceIds.includes(id))
+      );
+      setAllTasks(relevantTasks);
+      setPinnedTasks(
+        relevantTasks
+          .filter(t => t.pinnedBy.includes(currentUser.id))
+          .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
+      );
+
+      const activityLogs = await Promise.all(directorAndTeamIds.map(id => DataService.getUserActivityLog(id)));
       const combinedLogs = activityLogs.flat().sort((a, b) => b.timestamp - a.timestamp);
 
       const uniqueLogs = Array.from(new Map(combinedLogs.map(item => [item.id, item])).values());
@@ -122,7 +131,7 @@ const DirectorDashboard: React.FC = () => {
     setIsLoading(true);
     fetchData().finally(() => setIsLoading(false));
 
-    const keysToWatch = [REPORTS_KEY, LEAVE_RECORDS_KEY, TASKS_KEY, ACTIVITY_LOG_KEY_PREFIX];
+    const keysToWatch = [REPORTS_KEY, LEAVE_RECORDS_KEY, TASKS_KEY, ACTIVITY_LOG_KEY_PREFIX, ANNOUNCEMENTS_KEY];
     const handleDataChange = (data?: any) => {
         const keyChanged = data?.keyChanged;
         if(keyChanged?.startsWith(keysToWatch.find(k => keyChanged.startsWith(k)) || '')) {
@@ -289,8 +298,16 @@ const DirectorDashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <TodaysLeaveStatusCard allUsers={filteredEmployees.length > 0 ? filteredEmployees : activeEmployees} allLeaveRecords={allLeaveRecords} />
-        <TodaysWeeklyOffStatusCard users={filteredEmployees.length > 0 ? filteredEmployees : activeEmployees} reports={allReports} />
+        <TodaysLeaveStatusCard
+          allUsers={filteredEmployees.length > 0 ? filteredEmployees : activeEmployees}
+          allLeaveRecords={allLeaveRecords}
+          onLeaveUpdated={fetchData}
+          scope="tenant"
+        />
+        <WeeklyOffRestingCard
+          allUsers={filteredEmployees.length > 0 ? filteredEmployees : activeEmployees}
+          scope="tenant"
+        />
       </div>
 
       <Leaderboard />

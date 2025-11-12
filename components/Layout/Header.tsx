@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../Auth/AuthContext';
-import { User, Notification as AppNotification, ReportStatus } from '../../types';
+import { User, Notification as AppNotification, ReportStatus, Permission } from '../../types';
 import * as DataService from '../../services/dataService';
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from '../Common/ThemeToggle';
@@ -9,6 +9,7 @@ import { useToast } from '../../contexts/ToastContext';
 import Button from '../Common/Button';
 import ConfirmationModal from '../Common/ConfirmationModal';
 import Modal from '../Common/Modal';
+import Alert from '../Common/Alert';
 import { useRealTimeNotifications } from '../../hooks/useRealTimeNotifications';
 
 interface HeaderProps {
@@ -84,7 +85,7 @@ const groupNotifications = (notifications: AppNotification[], currentUserId: str
 
 
 const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout, hasPermission } = useAuth();
   const { addToast } = useToast();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -100,6 +101,63 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
+  const [aiApiKey, setAiApiKey] = useState('');
+  const [isSavingApiKey, setIsSavingApiKey] = useState(false);
+  const [apiKeyError, setApiKeyError] = useState<string | null>(null);
+  const [hasStoredGeminiKey, setHasStoredGeminiKey] = useState(false);
+  const canManageAiKey = !!currentUser && (currentUser.isPlatformAdmin || (typeof hasPermission === 'function' && hasPermission(Permission.CAN_USE_GEMINI_AI)));
+
+  useEffect(() => {
+    if (!isApiKeyModalOpen) {
+      return;
+    }
+
+    const currentKey = DataService.getGeminiApiKey();
+    setAiApiKey(currentKey ?? '');
+    setHasStoredGeminiKey(Boolean(currentKey));
+    setApiKeyError(null);
+
+    const unsubscribe = DataService.onGeminiKeyChange((value) => {
+      setAiApiKey(value ?? '');
+      setHasStoredGeminiKey(Boolean(value));
+      setApiKeyError(null);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [isApiKeyModalOpen]);
+
+  const handleSaveApiKey = useCallback(() => {
+    const trimmed = aiApiKey.trim();
+    if (!trimmed) {
+      setApiKeyError('Please paste a valid Google Gemini API key to enable AI features.');
+      return;
+    }
+
+    setIsSavingApiKey(true);
+    setApiKeyError(null);
+    try {
+      DataService.setGeminiApiKey(trimmed);
+      addToast('Gemini API key saved to this device. AI tools are ready to use.', 'success');
+      setHasStoredGeminiKey(true);
+      setIsApiKeyModalOpen(false);
+    } catch (error) {
+      console.error('Failed to store Gemini API key:', error);
+      setApiKeyError('Could not save the API key on this device. Please try again.');
+    } finally {
+      setIsSavingApiKey(false);
+    }
+  }, [aiApiKey, addToast]);
+
+  const handleClearApiKey = useCallback(() => {
+    DataService.clearGeminiApiKey();
+    setAiApiKey('');
+    setApiKeyError(null);
+    setHasStoredGeminiKey(false);
+    addToast('Gemini API key removed from this device.', 'info');
+  }, [addToast]);
 
   // ✨ NEW: Use real-time notifications hook for instant updates
   const {
@@ -383,6 +441,14 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
                 <p className="text-xs">{currentUser.email}</p>
                  <p className="text-xs mt-1 bg-surface-secondary dark:bg-dark-surface-secondary text-text-secondary dark:text-dark-text-secondary inline-block px-2 py-0.5 rounded-full">{currentUser.roleName || 'Platform Admin'}</p> 
               </div>
+              {canManageAiKey && (
+                <button
+                  onClick={() => { setIsApiKeyModalOpen(true); setDropdownOpen(false); }}
+                  className="w-full text-left block px-4 py-2 text-sm text-text-primary dark:text-dark-text hover:bg-surface-hover dark:hover:bg-dark-surface-hover"
+                >
+                  <i className="fas fa-robot mr-2"></i>Manage AI API Key
+                </button>
+              )}
               <button
                 onClick={() => { setIsPasswordChangeOpen(true); setDropdownOpen(false); }}
                 className="w-full text-left block px-4 py-2 text-sm text-text-primary dark:text-dark-text hover:bg-surface-hover dark:hover:bg-dark-surface-hover"
@@ -410,6 +476,88 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
       >
         <p>Are you sure you want to clear all your notifications? This action cannot be undone.</p>
     </ConfirmationModal>
+
+    <Modal
+      isOpen={isApiKeyModalOpen}
+      onClose={() => {
+        if (isSavingApiKey) return;
+        setIsApiKeyModalOpen(false);
+        setAiApiKey('');
+        setApiKeyError(null);
+      }}
+      title="Manage AI API Key"
+    >
+      <div className="space-y-4">
+        <Alert
+          type="info"
+          message="Enable AI assistance with Google Gemini"
+          className="mb-2"
+        >
+          <p className="text-sm">
+            Paste your personal Google Gemini API key to unlock AI-powered summaries and task helpers. The key stays on this device only and is never sent to Syncly servers.
+          </p>
+          <p className="text-sm">
+            Need a key?&nbsp;
+            <a
+              href="https://aistudio.google.com/app/apikey"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              Generate one in Google AI Studio &rarr;
+            </a>
+          </p>
+        </Alert>
+
+        <div>
+          <label className="block text-sm font-medium text-text-primary dark:text-dark-text mb-1">
+            Google Gemini API Key
+          </label>
+          <input
+            type="password"
+            value={aiApiKey}
+            onChange={(e) => setAiApiKey(e.target.value)}
+            className="w-full px-3 py-2 border border-border-primary dark:border-dark-border rounded-lg bg-surface-primary dark:bg-dark-surface-secondary text-text-primary dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-accent"
+            placeholder="Paste your API key here"
+            disabled={isSavingApiKey}
+          />
+        </div>
+
+        {apiKeyError && (
+          <p className="text-red-500 text-sm">{apiKeyError}</p>
+        )}
+
+        <div className="flex flex-wrap justify-end gap-2 mt-4">
+          <Button
+            variant="secondary"
+            onClick={() => {
+              if (isSavingApiKey) return;
+              setIsApiKeyModalOpen(false);
+              setAiApiKey('');
+              setApiKeyError(null);
+            }}
+            disabled={isSavingApiKey}
+          >
+            Close
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={handleClearApiKey}
+            disabled={isSavingApiKey || !hasStoredGeminiKey}
+          >
+            Remove Key
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleSaveApiKey}
+            disabled={isSavingApiKey || !aiApiKey.trim()}
+            isLoading={isSavingApiKey}
+          >
+            Save Key
+          </Button>
+        </div>
+      </div>
+    </Modal>
 
     <Modal
       isOpen={isPasswordChangeOpen}

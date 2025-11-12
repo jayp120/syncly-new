@@ -21,6 +21,7 @@ export const MEETING_INSTANCES_KEY = 'eod_meeting_instances';
 export const MEETING_UPDATES_KEY = 'eod_meeting_updates';
 export const ROLES_KEY = 'eod_roles';
 export const SYNC_QUEUE_KEY = 'eod_sync_queue';
+export const ANNOUNCEMENTS_KEY = 'eod_announcements';
 
 
 export const WEEK_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -86,6 +87,9 @@ export const PERMISSION_GROUPS = {
     label: 'Leave Management',
     permissions: [
       Permission.CAN_MANAGE_ALL_LEAVES,
+      Permission.CAN_GRANT_LEAVE_ACCESS,
+      Permission.CAN_MANAGE_WEEKLY_OFF,
+      Permission.CAN_DEFINE_LEAVE_REVOKE_RULES,
     ],
   },
   meetingManagement: {
@@ -108,6 +112,14 @@ export const PERMISSION_GROUPS = {
       Permission.CAN_USE_GOOGLE_CALENDAR,
       Permission.CAN_USE_TELEGRAM_BOT,
       Permission.CAN_USE_GEMINI_AI,
+      Permission.CAN_MANAGE_ANNOUNCEMENTS,
+    ],
+  },
+  communications: {
+    label: 'Communications & Culture',
+    permissions: [
+      Permission.CAN_MANAGE_ANNOUNCEMENTS,
+      Permission.CAN_VIEW_LEADERBOARD,
     ],
   },
 };
@@ -138,7 +150,7 @@ export const DEFAULT_BUSINESS_UNITS: BusinessUnit[] = [
 ];
 
 // ========== System Roles (Cannot be deleted or renamed) ==========
-export const SYSTEM_ROLE_IDS = ['tenant_admin', 'manager', 'team_lead', 'employee'];
+export const SYSTEM_ROLE_IDS = ['tenant_admin', 'manager', 'team_lead', 'employee', 'director', 'hr'];
 
 export const DEFAULT_ROLES: Role[] = [
   {
@@ -175,6 +187,9 @@ export const DEFAULT_ROLES: Role[] = [
       
       // Leave Management - Full Control
       Permission.CAN_MANAGE_ALL_LEAVES,
+      Permission.CAN_GRANT_LEAVE_ACCESS,
+      Permission.CAN_MANAGE_WEEKLY_OFF,
+      Permission.CAN_DEFINE_LEAVE_REVOKE_RULES,
       
       // Meetings & Calendar - Full Control
       Permission.CAN_MANAGE_TEAM_MEETINGS,
@@ -188,6 +203,61 @@ export const DEFAULT_ROLES: Role[] = [
       Permission.CAN_USE_GOOGLE_CALENDAR,
       Permission.CAN_USE_TELEGRAM_BOT,
       Permission.CAN_USE_GEMINI_AI,
+    ],
+  },
+  {
+    id: 'director',
+    tenantId: '',
+    name: 'Director',
+    description: 'Company owner with cross-business unit visibility.',
+    permissions: [
+      Permission.CAN_VIEW_ALL_REPORTS,
+      Permission.CAN_MANAGE_TEAM_REPORTS,
+      Permission.CAN_ACKNOWLEDGE_REPORTS,
+      Permission.CAN_VIEW_OWN_REPORTS,
+      Permission.CAN_MANAGE_TEAM_TASKS,
+      Permission.CAN_CREATE_PERSONAL_TASKS,
+      Permission.CAN_EDIT_ANY_TASK_STATUS,
+      Permission.CAN_MANAGE_ALL_LEAVES,
+      Permission.CAN_GRANT_LEAVE_ACCESS,
+      Permission.CAN_MANAGE_WEEKLY_OFF,
+      Permission.CAN_SUBMIT_OWN_LEAVE,
+      Permission.CAN_MANAGE_TEAM_MEETINGS,
+      Permission.CAN_VIEW_OWN_MEETINGS,
+      Permission.CAN_VIEW_LEADERBOARD,
+      Permission.CAN_VIEW_TEAM_CALENDAR,
+      Permission.CAN_VIEW_OWN_CALENDAR,
+      Permission.CAN_USE_PERFORMANCE_HUB,
+      Permission.CAN_VIEW_TRIGGER_LOG,
+    ],
+  },
+  {
+    id: 'hr',
+    tenantId: '',
+    name: 'HR',
+    description: 'People operations role focused on wellbeing, attendance, and organization-wide communication.',
+    permissions: [
+      Permission.CAN_SUBMIT_OWN_EOD,
+      Permission.CAN_VIEW_OWN_REPORTS,
+      Permission.CAN_VIEW_ALL_REPORTS,
+      Permission.CAN_MANAGE_TEAM_REPORTS,
+      Permission.CAN_ACKNOWLEDGE_REPORTS,
+      Permission.CAN_USE_PERFORMANCE_HUB,
+      Permission.CAN_VIEW_LEADERBOARD,
+      Permission.CAN_MANAGE_ALL_LEAVES,
+      Permission.CAN_GRANT_LEAVE_ACCESS,
+      Permission.CAN_MANAGE_WEEKLY_OFF,
+      Permission.CAN_DEFINE_LEAVE_REVOKE_RULES,
+      Permission.CAN_SUBMIT_OWN_LEAVE,
+      Permission.CAN_MANAGE_TEAM_TASKS,
+      Permission.CAN_CREATE_PERSONAL_TASKS,
+      Permission.CAN_VIEW_OWN_TASKS,
+      Permission.CAN_MANAGE_TEAM_MEETINGS,
+      Permission.CAN_VIEW_OWN_MEETINGS,
+      Permission.CAN_VIEW_TEAM_CALENDAR,
+      Permission.CAN_VIEW_OWN_CALENDAR,
+      Permission.CAN_USE_GOOGLE_CALENDAR,
+      Permission.CAN_MANAGE_ANNOUNCEMENTS,
     ],
   },
   {
@@ -210,7 +280,8 @@ export const DEFAULT_ROLES: Role[] = [
       
       // Leave Management - Approval Authority
       Permission.CAN_MANAGE_ALL_LEAVES,
-      
+      Permission.CAN_GRANT_LEAVE_ACCESS,
+      Permission.CAN_MANAGE_WEEKLY_OFF,
       // Meetings & Calendar - Team Level
       Permission.CAN_MANAGE_TEAM_MEETINGS,
       Permission.CAN_VIEW_OWN_MEETINGS,
@@ -273,6 +344,7 @@ export const DEFAULT_USERS: Omit<User, 'businessUnitName' | 'id' | 'roleName'>[]
   { email: 'manager.tech@mittaleod.com', notificationEmail: 'anita.s.manager@example.com', name: 'Anita S.', roleId: 'manager', designation: 'Tech Lead', businessUnitId: 'bu_tech', status: UserStatus.ACTIVE },
   { email: 'manager.ops@mittaleod.com', notificationEmail: 'vikram.r.manager@example.com', name: 'Vikram R.', roleId: 'manager', designation: 'Operations Head', businessUnitId: 'bu_ops', status: UserStatus.ACTIVE },
   { email: 'manager.hr@mittaleod.com', notificationEmail: 'sunita.m.manager@example.com', name: 'Sunita M.', roleId: 'manager', designation: 'HR Manager', businessUnitId: 'bu_hr', status: UserStatus.ACTIVE },
+  { email: 'hr@mittaleod.com', notificationEmail: 'peopleops@example.com', name: 'Nisha P. (HR)', roleId: 'hr', designation: 'Lead HR Partner', businessUnitId: 'bu_hr', status: UserStatus.ACTIVE },
 
   { email: 'alok.sharma@mittaleod.com', notificationEmail: 'alok.sharma@example.com', name: 'Alok Sharma', roleId: 'employee', designation: 'Sales Lead', weeklyOffDay: 'Sunday', businessUnitId: 'bu_sales', status: UserStatus.ACTIVE },
   { email: 'priya.mehta@mittaleod.com', notificationEmail: 'priya.mehta@example.com', name: 'Priya Mehta', roleId: 'employee', designation: 'Marketing Executive', weeklyOffDay: manager001TeamWeeklyOffDay, businessUnitId: 'bu_sales', status: UserStatus.ACTIVE },
@@ -304,10 +376,14 @@ export const TIMELINE_EVENT_ICONS: { [key in ActivityLogActionType]: string } = 
     [ActivityLogActionType.EOD_LATE_SUBMITTED]: 'fas fa-clock text-orange-500 dark:text-orange-400',
     [ActivityLogActionType.EOD_EDITED]: 'fas fa-edit text-secondary dark:text-violet-400',
     [ActivityLogActionType.EOD_ACKNOWLEDGED]: 'fas fa-check-circle text-green-500 dark:text-emerald-400',
-    [ActivityLogActionType.LEAVE_MARKED_BY_EMPLOYEE]: 'fas fa-plane-departure text-teal-500 dark:text-teal-400',
-    [ActivityLogActionType.LEAVE_REVOKED_BY_EMPLOYEE]: 'fas fa-undo text-gray-500 dark:text-slate-400',
-    [ActivityLogActionType.LEAVE_FUTURE_SCHEDULED_BY_EMPLOYEE]: 'fas fa-calendar-plus text-teal-500 dark:text-teal-400',
-    [ActivityLogActionType.LEAVE_FUTURE_CANCELED_BY_EMPLOYEE]: 'fas fa-calendar-times text-gray-500 dark:text-slate-400',
+  [ActivityLogActionType.LEAVE_MARKED_BY_EMPLOYEE]: 'fas fa-plane-departure text-teal-500 dark:text-teal-400',
+  [ActivityLogActionType.LEAVE_MARKED_BY_MANAGER]: 'fas fa-user-check text-indigo-500 dark:text-indigo-400',
+  [ActivityLogActionType.LEAVE_REVOKED_BY_EMPLOYEE]: 'fas fa-undo text-gray-500 dark:text-slate-400',
+  [ActivityLogActionType.LEAVE_REVOKED_BY_MANAGER]: 'fas fa-user-slash text-indigo-400 dark:text-indigo-300',
+  [ActivityLogActionType.LEAVE_FUTURE_SCHEDULED_BY_EMPLOYEE]: 'fas fa-calendar-plus text-teal-500 dark:text-teal-400',
+  [ActivityLogActionType.LEAVE_FUTURE_CANCELED_BY_EMPLOYEE]: 'fas fa-calendar-times text-gray-500 dark:text-slate-400',
+  [ActivityLogActionType.LEAVE_FUTURE_SCHEDULED_BY_MANAGER]: 'fas fa-calendar-plus text-indigo-500 dark:text-indigo-400',
+  [ActivityLogActionType.LEAVE_FUTURE_CANCELED_BY_MANAGER]: 'fas fa-calendar-minus text-indigo-400 dark:text-indigo-300',
     [ActivityLogActionType.WEEKLY_OFF_AUTO]: 'fas fa-bed text-indigo-500 dark:text-indigo-400',
     [ActivityLogActionType.TASK_CREATED]: 'fas fa-tasks text-primary dark:text-sky-400',
     [ActivityLogActionType.TASK_EDITED]: 'fas fa-pen text-secondary dark:text-violet-400',
@@ -337,6 +413,11 @@ export const TIMELINE_EVENT_ICONS: { [key in ActivityLogActionType]: string } = 
     [ActivityLogActionType.USER_ARCHIVED]: 'fas fa-user-lock text-gray-500 dark:text-slate-400',
     [ActivityLogActionType.USER_UNARCHIVED]: 'fas fa-user-unlock text-gray-500 dark:text-slate-400',
     [ActivityLogActionType.USER_PERMANENTLY_DELETED]: 'fas fa-user-slash text-red-700 dark:text-red-500',
+    [ActivityLogActionType.ANNOUNCEMENT_PUBLISHED]: 'fas fa-bullhorn text-primary dark:text-sky-400',
+    [ActivityLogActionType.ANNOUNCEMENT_UPDATED]: 'fas fa-bullhorn text-amber-500 dark:text-amber-400',
+    [ActivityLogActionType.ANNOUNCEMENT_DELETED]: 'fas fa-bullhorn text-red-500 dark:text-red-400',
+    [ActivityLogActionType.ANNOUNCEMENT_VIEWED]: 'fas fa-eye text-indigo-400 dark:text-indigo-300',
+    [ActivityLogActionType.ANNOUNCEMENT_ACKNOWLEDGED]: 'fas fa-check-circle text-emerald-500 dark:text-emerald-400',
     [ActivityLogActionType.USER_ROLE_CHANGED]: 'fas fa-user-tag text-indigo-500 dark:text-indigo-400',
     [ActivityLogActionType.USER_NOTIFICATION_EMAIL_CHANGED]: 'fas fa-envelope text-blue-500 dark:text-blue-400',
     [ActivityLogActionType.USER_LOGIN]: 'fas fa-sign-in-alt text-green-500 dark:text-emerald-400',
@@ -362,3 +443,5 @@ export const BADGE_DEFINITIONS: { [key in BadgeType]: { icon: string; title: str
       earnedTooltipText: 'Consistency King/Queen! You reported on every working day of a month.',
     },
 };
+
+

@@ -317,6 +317,7 @@ const MentionTextarea: React.FC<MentionTextareaProps> = ({
     }
   };
 
+  const getBusinessUnitLabel = (user?: User) => (user?.businessUnitName?.trim() ? user.businessUnitName : 'No BU');
   const filteredSuggestions = availableUsers.filter(user =>
     user.name.toLowerCase().includes(suggestionQuery)
   );
@@ -382,7 +383,9 @@ const MentionTextarea: React.FC<MentionTextareaProps> = ({
                   : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100'
               }`}
             >
-              <div className="font-medium">{user.name}</div>
+              <div className="font-medium">
+                {user.name} <span className="text-xs font-normal opacity-80">({getBusinessUnitLabel(user)})</span>
+              </div>
               <div className={`text-xs ${index === highlightedIndex ? 'text-indigo-200' : 'text-gray-500 dark:text-gray-400'}`}>
                 {user.email}
               </div>

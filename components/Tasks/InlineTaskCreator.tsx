@@ -13,6 +13,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import Spinner from '../Common/Spinner';
 import Alert from '../Common/Alert';
 import { formatDateDDMonYYYY } from '../../utils/dateUtils';
+import * as DataService from '../../services/dataService';
 
 interface InlineTaskCreatorProps {
   currentUser: User;
@@ -31,6 +32,7 @@ const InlineTaskCreator: React.FC<InlineTaskCreatorProps> = ({ currentUser, team
   const [priority, setPriority] = useState<TaskPriority>(TaskPriority.Medium);
   
   const [isAiMode, setIsAiMode] = useState(false);
+  const [hasGeminiKey, setHasGeminiKey] = useState(DataService.isAiConfigured());
   const [aiState, setAiState] = useState<{
     prompt: string;
     isGenerating: boolean;
@@ -67,6 +69,24 @@ const InlineTaskCreator: React.FC<InlineTaskCreatorProps> = ({ currentUser, team
 
   const mentionedUserIds = useMemo(() => parseMentions(description), [description]);
   const isTeamTaskAttempt = isManagerView && mentionedUserIds.length > 1;
+
+  useEffect(() => {
+    const unsubscribe = DataService.onGeminiKeyChange(() => {
+      const configured = DataService.isAiConfigured();
+      setHasGeminiKey(configured);
+      setAiState(prev => ({ ...prev, error: null }));
+      if (!configured) {
+        setIsAiMode(false);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (isAiMode && !hasGeminiKey) {
+      setIsAiMode(false);
+    }
+  }, [isAiMode, hasGeminiKey]);
 
   const resetForm = useCallback(() => {
     setTitle('');
@@ -109,15 +129,19 @@ const InlineTaskCreator: React.FC<InlineTaskCreatorProps> = ({ currentUser, team
 
   const handleGenerateTask = useCallback(async () => {
     if (!aiState.prompt.trim()) { addToast("Please describe the task for the AI.", 'error'); return; }
-    if (!process.env.API_KEY) {
-      setAiState(prev => ({ ...prev, error: "AI features are not configured (API_KEY missing)." }));
+    const apiKey = DataService.getGeminiApiKey();
+    if (!apiKey) {
+      setAiState(prev => ({
+        ...prev,
+        error: "AI features are not configured yet. Open your profile menu -> Manage AI API Key to paste a Google Gemini key.",
+      }));
       return;
     }
     
     setAiState(prev => ({ ...prev, isGenerating: true, error: null, generatedTask: null }));
   
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey });
       const today = new Date();
   
       const systemInstruction = `You are a task management assistant. Analyze the user's request and create a structured JSON task object. The output must be valid JSON.
@@ -144,7 +168,11 @@ const InlineTaskCreator: React.FC<InlineTaskCreatorProps> = ({ currentUser, team
       setAiState(prev => ({ ...prev, isGenerating: false, generatedTask: parsedTask as any }));
     } catch (err: any) {
       console.error("AI task generation failed:", err);
-      setAiState(prev => ({ ...prev, isGenerating: false, error: `AI task generation failed: ${err.message || 'Unknown error'}` }));
+      const message = typeof err?.message === 'string' ? err.message : 'Unknown error';
+      const friendlyMessage = /429|RESOURCE_EXHAUSTED/i.test(message)
+        ? "Google Gemini is rate-limiting this key right now. Try again shortly or paste a different key in the profile menu."
+        : `AI task generation failed: ${message}`;
+      setAiState(prev => ({ ...prev, isGenerating: false, error: friendlyMessage }));
     }
   }, [aiState.prompt, addToast]);
   
@@ -169,8 +197,23 @@ const InlineTaskCreator: React.FC<InlineTaskCreatorProps> = ({ currentUser, team
           <button onClick={() => { setIsExpanded(true); setIsAiMode(false); }} className="flex-1 p-3 bg-white dark:bg-slate-800 rounded-lg border-2 border-dashed hover:border-primary text-gray-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors flex items-center justify-center">
             <i className="fas fa-plus mr-2"></i> Assign a Task Manually
           </button>
-          <button onClick={() => { setIsExpanded(true); setIsAiMode(true); }} className="flex-1 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-2 border-dashed hover:border-blue-500 dark:hover:border-blue-400 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors flex items-center justify-center">
-            <span className="text-xl mr-2">🧠</span> Create Task with AI
+          <button
+            onClick={() => {
+              if (!hasGeminiKey) {
+                addToast("Add your Google Gemini API key from the profile menu before using the AI assistant.", "warning");
+                return;
+              }
+              setIsExpanded(true);
+              setIsAiMode(true);
+            }}
+            className={`flex-1 p-3 rounded-lg border-2 border-dashed transition-colors flex items-center justify-center ${
+              hasGeminiKey
+                ? 'bg-blue-50 dark:bg-blue-900/20 hover:border-blue-500 dark:hover:border-blue-400 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300'
+                : 'bg-slate-100 dark:bg-slate-800/40 border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'
+            }`}
+            disabled={!hasGeminiKey}
+          >
+            <i className="fas fa-robot mr-2" aria-hidden="true"></i> Create Task with AI
           </button>
         </div>
       ) : (
@@ -194,6 +237,12 @@ const InlineTaskCreator: React.FC<InlineTaskCreatorProps> = ({ currentUser, team
           </div>
           <h3 className="font-semibold text-primary mb-2">AI Task Assistant</h3>
           {aiState.error && <Alert type="error" message={aiState.error} onClose={() => setAiState(prev=>({...prev, error: null}))} />}
+          {!hasGeminiKey && (
+            <Alert
+              type="info"
+              message="Paste your Google Gemini API key from the profile menu to enable the AI assistant."
+            />
+          )}
           {!aiState.generatedTask && (
             <div className="flex items-start space-x-2">
               <textarea
@@ -202,13 +251,19 @@ const InlineTaskCreator: React.FC<InlineTaskCreatorProps> = ({ currentUser, team
                 value={aiState.prompt}
                 onChange={e => setAiState(prev => ({ ...prev, prompt: e.target.value, error: null }))}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleGenerateTask(); } }}
-                disabled={aiState.isGenerating}
+                disabled={aiState.isGenerating || !hasGeminiKey}
                 className="flex-grow w-full px-3 py-2 bg-slate-50 dark:bg-slate-700/50 text-gray-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary placeholder:text-slate-400 text-sm transition resize-none overflow-hidden"
                 rows={1}
                 style={{ minHeight: '44px', padding: '10px' }}
                 autoFocus
               />
-              <Button onClick={handleGenerateTask} isLoading={aiState.isGenerating} disabled={!aiState.prompt.trim()}>Generate</Button>
+              <Button
+                onClick={handleGenerateTask}
+                isLoading={aiState.isGenerating}
+                disabled={!aiState.prompt.trim() || aiState.isGenerating || !hasGeminiKey}
+              >
+                Generate
+              </Button>
             </div>
           )}
           {aiState.isGenerating && <Spinner message="AI is processing your task..." />}
@@ -233,9 +288,20 @@ const InlineTaskCreator: React.FC<InlineTaskCreatorProps> = ({ currentUser, team
           {isManagerView && (
             <button
               type="button"
-              onClick={() => setIsAiMode(true)}
-              className="absolute top-1 right-2 z-10 flex items-center text-xs text-pink-600 dark:text-pink-400 bg-pink-100 dark:bg-pink-900/50 hover:bg-pink-200 dark:hover:bg-pink-900/80 px-2 py-1 rounded-full whitespace-nowrap"
+              onClick={() => {
+                if (!hasGeminiKey) {
+                  addToast("Add your Google Gemini API key from the profile menu before using the AI assistant.", "warning");
+                  return;
+                }
+                setIsAiMode(true);
+              }}
+              className={`absolute top-1 right-2 z-10 flex items-center text-xs px-2 py-1 rounded-full whitespace-nowrap ${
+                hasGeminiKey
+                  ? 'text-pink-600 dark:text-pink-400 bg-pink-100 dark:bg-pink-900/50 hover:bg-pink-200 dark:hover:bg-pink-900/80'
+                  : 'text-slate-400 dark:text-slate-500 bg-slate-200/60 dark:bg-slate-800/40 cursor-not-allowed'
+              }`}
               aria-label="Switch to AI task assistant"
+              disabled={!hasGeminiKey}
             >
               <i className="fas fa-brain mr-1.5 text-pink-500"></i>
               AI Assistant
@@ -271,3 +337,5 @@ const InlineTaskCreator: React.FC<InlineTaskCreatorProps> = ({ currentUser, team
 };
 
 export default InlineTaskCreator;
+
+

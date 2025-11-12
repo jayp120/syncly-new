@@ -346,10 +346,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           Permission.CAN_SUBMIT_OWN_EOD,
           Permission.CAN_VIEW_OWN_REPORTS,
           Permission.CAN_MANAGE_ALL_LEAVES,
+          Permission.CAN_GRANT_LEAVE_ACCESS,
           Permission.CAN_MANAGE_TEAM_MEETINGS,
           Permission.CAN_VIEW_OWN_MEETINGS,
           Permission.CAN_VIEW_OWN_CALENDAR,
           Permission.CAN_USE_PERFORMANCE_HUB
+        ].includes(permission);
+      }
+      
+      if (roleName === 'director') {
+        return [
+          Permission.CAN_VIEW_ALL_REPORTS,
+          Permission.CAN_MANAGE_TEAM_REPORTS,
+          Permission.CAN_ACKNOWLEDGE_REPORTS,
+          Permission.CAN_VIEW_OWN_REPORTS,
+          Permission.CAN_MANAGE_TEAM_TASKS,
+          Permission.CAN_CREATE_PERSONAL_TASKS,
+          Permission.CAN_EDIT_ANY_TASK_STATUS,
+          Permission.CAN_MANAGE_ALL_LEAVES,
+          Permission.CAN_GRANT_LEAVE_ACCESS,
+          Permission.CAN_MANAGE_WEEKLY_OFF,
+          Permission.CAN_SUBMIT_OWN_LEAVE,
+          Permission.CAN_MANAGE_TEAM_MEETINGS,
+          Permission.CAN_VIEW_OWN_MEETINGS,
+          Permission.CAN_VIEW_LEADERBOARD,
+          Permission.CAN_VIEW_TEAM_CALENDAR,
+          Permission.CAN_VIEW_OWN_CALENDAR,
+          Permission.CAN_USE_PERFORMANCE_HUB,
+          Permission.CAN_VIEW_TRIGGER_LOG,
         ].includes(permission);
       }
       
@@ -453,3 +477,5 @@ export const RequireAllPermissions: React.FC<RequireAllPermissionsProps> = ({ pe
   const hasAll = useHasAllPermissions(permissions);
   return hasAll ? <>{children}</> : <>{fallback}</>;
 };
+
+

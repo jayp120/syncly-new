@@ -55,6 +55,8 @@ const createDefaultRoles = async (tenantId: string): Promise<Role[]> => {
         Permission.CAN_CREATE_PERSONAL_TASKS,
         Permission.CAN_EDIT_ANY_TASK_STATUS,
         Permission.CAN_MANAGE_ALL_LEAVES,
+        Permission.CAN_GRANT_LEAVE_ACCESS,
+        Permission.CAN_MANAGE_WEEKLY_OFF,
         Permission.CAN_SUBMIT_OWN_LEAVE,
         Permission.CAN_MANAGE_TEAM_MEETINGS,
         Permission.CAN_VIEW_OWN_MEETINGS,
@@ -63,6 +65,35 @@ const createDefaultRoles = async (tenantId: string): Promise<Role[]> => {
         Permission.CAN_VIEW_OWN_CALENDAR,
         Permission.CAN_USE_PERFORMANCE_HUB,
         Permission.CAN_VIEW_TRIGGER_LOG
+      ]
+    },
+    {
+      id: generateFirestoreId('role'),
+      tenantId,
+      name: 'HR',
+      description: 'People operations lead with announcement and wellbeing controls',
+      permissions: [
+        Permission.CAN_SUBMIT_OWN_EOD,
+        Permission.CAN_VIEW_OWN_REPORTS,
+        Permission.CAN_VIEW_ALL_REPORTS,
+        Permission.CAN_MANAGE_TEAM_REPORTS,
+        Permission.CAN_ACKNOWLEDGE_REPORTS,
+        Permission.CAN_USE_PERFORMANCE_HUB,
+        Permission.CAN_VIEW_LEADERBOARD,
+        Permission.CAN_MANAGE_ALL_LEAVES,
+        Permission.CAN_GRANT_LEAVE_ACCESS,
+        Permission.CAN_MANAGE_WEEKLY_OFF,
+        Permission.CAN_DEFINE_LEAVE_REVOKE_RULES,
+        Permission.CAN_SUBMIT_OWN_LEAVE,
+        Permission.CAN_MANAGE_TEAM_TASKS,
+        Permission.CAN_CREATE_PERSONAL_TASKS,
+        Permission.CAN_VIEW_OWN_TASKS,
+        Permission.CAN_MANAGE_TEAM_MEETINGS,
+        Permission.CAN_VIEW_OWN_MEETINGS,
+        Permission.CAN_VIEW_TEAM_CALENDAR,
+        Permission.CAN_VIEW_OWN_CALENDAR,
+        Permission.CAN_USE_GOOGLE_CALENDAR,
+        Permission.CAN_MANAGE_ANNOUNCEMENTS
       ]
     },
     {

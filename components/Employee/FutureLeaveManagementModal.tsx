@@ -86,7 +86,7 @@ const FutureLeaveManagementModal: React.FC<FutureLeaveManagementModalProps> = ({
             skippedCount++;
         } else {
             try {
-                await DataService.addLeaveRecord(currentUser.id, dateStr, newLeaveReason);
+                await DataService.addLeaveRecord(currentUser.id, dateStr, newLeaveReason, currentUser);
                 successCount++;
             } catch (error: any) {
                 // If it fails because it already exists, count it as a skip.
@@ -128,7 +128,7 @@ const FutureLeaveManagementModal: React.FC<FutureLeaveManagementModalProps> = ({
     setFeedback(null);
     setIsLoading(true);
     try {
-      const success = await DataService.deleteLeaveRecord(leaveToCancel.id);
+      const success = await DataService.deleteLeaveRecord(leaveToCancel.id, currentUser);
       if (success) {
         setFeedback({ type: 'success', message: 'Future leave cancelled successfully.' });
         await fetchFutureLeaves(); 
@@ -241,3 +241,4 @@ const FutureLeaveManagementModal: React.FC<FutureLeaveManagementModalProps> = ({
 };
 
 export default FutureLeaveManagementModal;
+

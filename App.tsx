@@ -7,6 +7,7 @@ import SuperAdminDashboard from './components/Admin/SuperAdminDashboard';
 // FIX: Corrected import from ManagerDashboard to include newly exported page components.
 import ManagerDashboard, { ManagerReportListPage, ManagerDelinquentPage, ManagerCalendarPage, ManagerPerformanceHubPage } from './components/Manager/ManagerDashboard';
 import DirectorDashboard from './components/Director/DirectorDashboard';
+import HRDashboard from './components/HR/HRDashboard';
 import EmployeeDashboard, { EmployeeMyReportsPage, EmployeeSubmitEODPage, EmployeeEditEODPage, EmployeeCalendarPage } from './components/Employee/EmployeeDashboard';
 import { MyTasksPage } from './components/Tasks/MyTasksPage';
 import { TeamTasksPage } from './components/Manager/TeamTasksPage';
@@ -32,6 +33,7 @@ import AboutPage from './components/Legal/AboutPage';
 import ErrorBoundary from './components/Common/ErrorBoundary';
 import FixUsers from './src/pages/FixUsers';
 import LandingPage from './components/Landing/LandingPage';
+import AnnouncementManagerPage from './components/HR/AnnouncementManager';
 
 
 // This component contains the main application content, rendered within the layout
@@ -48,6 +50,7 @@ const AppContent: React.FC = () => {
     if (currentUser?.isPlatformAdmin) return <SuperAdminDashboard />;
     // Regular tenant users get role-based dashboards
     if (hasPermission(Permission.CAN_MANAGE_USERS)) return <AdminDashboard />;
+    if (currentUser?.roleName === 'HR') return <HRDashboard />;
     if (currentUser?.roleName === 'Director') return <DirectorDashboard />;
     if (hasPermission(Permission.CAN_MANAGE_TEAM_REPORTS)) return <ManagerDashboard />;
     return <EmployeeDashboard />;
@@ -69,6 +72,8 @@ const AppContent: React.FC = () => {
       {hasPermission(Permission.CAN_VIEW_ALL_REPORTS) && <Route path="/all-reports" element={<AdminAllReportsPage />} />}
       {hasPermission(Permission.CAN_MANAGE_USERS) && <Route path="/admin-trigger-log" element={<AdminTriggerLogPage />} />}
       {hasPermission(Permission.CAN_MANAGE_ALL_LEAVES) && <Route path="/admin/leave-records" element={<AdminLeaveManagementPage />} />}
+      {currentUser?.roleName === 'HR' && <Route path="/hr-dashboard" element={<HRDashboard />} />}
+      {hasPermission(Permission.CAN_MANAGE_ANNOUNCEMENTS) && <Route path="/announcements" element={<AnnouncementManagerPage />} />}
 
       {/* Manager Routes */}
       {hasPermission(Permission.CAN_MANAGE_TEAM_REPORTS) && <Route path="/manage-reports" element={<ManagerReportListPage />} />}
