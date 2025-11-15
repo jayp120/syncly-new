@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { callSubmitDemoRequest } from '../../services/cloudFunctions';
+import JayAssistant from '../Assistant/JayAssistant';
+import { canRenderJay, subscribeToJayAvailability } from '../../services/aiAssistantService';
+import { onGeminiKeyChange } from '../../services/dataService';
+
+const LANDING_JAY_ENABLED =
+  !(((import.meta as any)?.env?.VITE_SHOW_JAY_LANDING ?? 'true').toString().toLowerCase() === 'false');
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -10,6 +16,10 @@ const LandingPage: React.FC = () => {
   const [isSubmittingDemo, setIsSubmittingDemo] = useState(false);
   const [demoError, setDemoError] = useState('');
   const [demoSuccessMessage, setDemoSuccessMessage] = useState('');
+  const [isJayAvailable, setIsJayAvailable] = useState(() => {
+    if (!LANDING_JAY_ENABLED || typeof window === 'undefined') return false;
+    return canRenderJay();
+  });
   const [demoForm, setDemoForm] = useState({
     name: '',
     email: '',
@@ -25,6 +35,24 @@ const LandingPage: React.FC = () => {
     
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (!LANDING_JAY_ENABLED || typeof window === 'undefined') return;
+    setIsJayAvailable(canRenderJay());
+
+    const unsubscribeJay = subscribeToJayAvailability((snapshot) => {
+      setIsJayAvailable(snapshot.canAccessJay && !snapshot.isTemporarilyDisabled);
+    });
+
+    const unsubscribeKey = onGeminiKeyChange(() => {
+      setIsJayAvailable(canRenderJay());
+    });
+
+    return () => {
+      unsubscribeJay();
+      unsubscribeKey();
+    };
   }, []);
 
   const scrollToSection = (sectionId: string) => {
@@ -1135,6 +1163,13 @@ const LandingPage: React.FC = () => {
           }
         }
       `}</style>
+      {LANDING_JAY_ENABLED && isJayAvailable && (
+        <JayAssistant
+          variant="landing"
+          currentUser={null}
+          onDeactivate={() => setIsJayAvailable(false)}
+        />
+      )}
     </div>
   );
 };

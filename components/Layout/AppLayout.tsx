@@ -12,7 +12,6 @@ import MeetingStartToast from '../Manager/MeetingStartToast';
 import { Announcement, Meeting, User } from '../../types';
 import AnnouncementBoardModal from '../Announcements/AnnouncementBoardModal';
 
-
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { currentUser } = useAuth();
   const { addToast, removeToast } = useToast();
@@ -24,7 +23,6 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [hasUnseenMeetings, setHasUnseenMeetings] = useState(false);
   const [boardAnnouncements, setBoardAnnouncements] = useState<Announcement[]>([]);
   const [isAnnouncementBoardVisible, setIsAnnouncementBoardVisible] = useState(false);
-
 
   useEffect(() => {
     // Platform admin doesn't need users list (they see Super Admin Dashboard)

@@ -52,6 +52,7 @@ import { parseMentions } from '../utils/mentionUtils';
 import * as leaderboardService from './leaderboardService';
 import { ensureFirestoreReady as migrateToFirestore } from './firestoreMigration';
 import { getCurrentTenantId, requireTenantId } from './tenantContext';
+import { getEnvString } from './env';
 import { 
   userRepository, 
   roleRepository, 
@@ -224,7 +225,7 @@ const getApiKey = (): string | null => {
     }
   }
 
-  const envKey = (import.meta as any)?.env?.API_KEY || (typeof process !== 'undefined' ? process.env.API_KEY : null);
+  const envKey = getEnvString('VITE_GEMINI_API_KEY', 'GEMINI_API_KEY', 'API_KEY');
   if (envKey) {
     return envKey;
   }

@@ -1,6 +1,7 @@
 import * as functions from 'firebase-functions/v1';
 import * as admin from 'firebase-admin';
 import * as sgMail from '@sendgrid/mail';
+import { GoogleGenAI } from '@google/genai';
 
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -29,6 +30,101 @@ type TenantPlan = 'Starter' | 'Professional' | 'Enterprise';
 type TenantStatus = 'Active' | 'Suspended' | 'Inactive';
 
 const ANNOUNCEMENT_PERMISSION = 'CAN_MANAGE_ANNOUNCEMENTS';
+const JAY_MODEL = 'gemini-2.5-flash';
+const JAY_SYSTEM_PROMPT = `
+You are Jay, Syncly's AI guide. Provide clear, confident, and concise answers focused on Syncly's capabilities:
+- Workforce operations platform with AI-powered EOD reports, leave management, announcements, tasks, meetings, and performance coaching.
+- Highlight practical steps inside Syncly (e.g., "Manager Dashboard → Performance Hub").
+- When asked for data you cannot access, say so and point to the relevant module.
+- Keep tone warm, professional, and never hallucinate features that do not exist.
+`;
+
+const getServerGeminiKey = (): string | null => {
+  return (
+    process.env.GEMINI_API_KEY ||
+    functions.config()?.gemini?.key ||
+    null
+  );
+};
+
+type JayProxyMessage = {
+  role: 'user' | 'assistant';
+  content: string;
+};
+
+type JayVariant = 'app' | 'landing';
+
+const MAX_JAY_HISTORY = 8;
+const MAX_JAY_CHARS = 1800;
+
+const sanitizeProxyMessages = (messages: any): JayProxyMessage[] => {
+  if (!Array.isArray(messages)) return [];
+  return messages
+    .filter(
+      (message) =>
+        message &&
+        typeof message.content === 'string' &&
+        (message.role === 'user' || message.role === 'assistant')
+    )
+    .map((message) => ({
+      role: message.role,
+      content: String(message.content).trim().slice(0, MAX_JAY_CHARS),
+    }))
+    .filter((message) => message.content.length > 0)
+    .slice(-MAX_JAY_HISTORY);
+};
+
+const buildJayPrompt = (history: JayProxyMessage[], variant: JayVariant): string => {
+  const visitorDescriptor =
+    variant === 'landing'
+      ? 'You are chatting with a prospective customer browsing the public Syncly marketing site before signup.'
+      : 'You are chatting with an authenticated Syncly user inside the product.';
+
+  const conversation = history
+    .map((message) => `${message.role === 'user' ? 'User' : 'Jay'}: ${message.content}`)
+    .join('\n\n');
+
+  return `
+${JAY_SYSTEM_PROMPT}
+
+Audience context:
+${visitorDescriptor}
+
+Conversation so far:
+${conversation || 'Jay: Hello!'}
+
+Respond as Jay with concise, actionable guidance rooted in Syncly.`;
+};
+
+const toLowerMessage = (value: unknown): string =>
+  (value?.toString() ?? '').toLowerCase();
+
+const isJayQuotaError = (error: any): boolean => {
+  const message = toLowerMessage(error?.message);
+  return (
+    error?.code === 429 ||
+    error?.status === 429 ||
+    /quota/.test(message) ||
+    /resource exhausted/.test(message) ||
+    /rate limit/.test(message)
+  );
+};
+
+const isJayOverloadedError = (error: any): boolean => {
+  const message = toLowerMessage(error?.message);
+  return (
+    error?.code === 503 ||
+    error?.status === 503 ||
+    /model is overloaded/.test(message) ||
+    /unavailable/.test(message) ||
+    /overload/.test(message)
+  );
+};
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const JAY_PROXY_MAX_RETRIES = 2;
+const JAY_PROXY_RETRY_DELAY_MS = 800;
 
 // Request interfaces
 interface CreateTenantRequest {
@@ -2075,6 +2171,89 @@ export const generateTelegramLinkingCode = functions.https.onCall(async (data, c
     throw new functions.https.HttpsError('internal', error.message);
   }
 });
+
+/**
+ * Jay Assistant Proxy (public HTTP endpoint)
+ * Accepts chat history and streams the response from Gemini using a server-held key.
+ */
+export const jayAssistantProxy = functions
+  .runWith({ secrets: ['GEMINI_API_KEY'] })
+  .https.onRequest(async (req, res) => {
+    corsHandler(req, res, async () => {
+      res.set('Cache-Control', 'private, max-age=0, s-maxage=0');
+
+      if (req.method === 'OPTIONS') {
+        res.status(204).send('');
+        return;
+      }
+
+      if (req.method !== 'POST') {
+        res.status(405).json({ error: 'method_not_allowed' });
+        return;
+      }
+
+      const apiKey = getServerGeminiKey();
+      if (!apiKey) {
+        res.status(500).json({ error: 'jay_not_configured' });
+        return;
+      }
+
+      const { messages, variant = 'app' } = req.body || {};
+      const sanitized = sanitizeProxyMessages(messages);
+
+      if (!sanitized.length) {
+        res.status(400).json({ error: 'messages_required' });
+        return;
+      }
+
+      const jayVariant: JayVariant = variant === 'landing' ? 'landing' : 'app';
+
+      for (let attempt = 0; attempt <= JAY_PROXY_MAX_RETRIES; attempt += 1) {
+        try {
+          const ai = new GoogleGenAI({ apiKey });
+          const response = await ai.models.generateContent({
+            model: JAY_MODEL,
+            contents: buildJayPrompt(sanitized, jayVariant),
+          });
+
+          const text = response?.text?.trim();
+          if (!text) {
+            res.status(502).json({ error: 'empty_response' });
+            return;
+          }
+
+          res.status(200).json({ success: true, text });
+          return;
+        } catch (error: any) {
+          if (isJayOverloadedError(error) && attempt < JAY_PROXY_MAX_RETRIES) {
+            await sleep(JAY_PROXY_RETRY_DELAY_MS * (attempt + 1));
+            continue;
+          }
+
+          console.error('[JayAssistantProxy] Failed to generate response:', error);
+
+          if (isJayQuotaError(error)) {
+            res.status(429).json({ error: 'quota_exceeded' });
+            return;
+          }
+
+          if (isJayOverloadedError(error)) {
+            res.status(503).json({
+              error: 'model_overloaded',
+              message: 'Jay is at capacity right now. Please try again shortly.',
+            });
+            return;
+          }
+
+          res.status(500).json({
+            error: 'internal_error',
+            message: error?.message || 'Unable to contact Jay right now.',
+          });
+          return;
+        }
+      }
+    });
+  });
 
 /**
  * Cloud Function: Submit Demo Request (public landing page)
