@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Routes, Route, Navigate, HashRouter } from 'react-router-dom';
+import { Routes, Route, Navigate, BrowserRouter } from 'react-router-dom';
 import { AuthProvider, useAuth } from './components/Auth/AuthContext';
 import LoginForm from './components/Auth/LoginForm';
 import AdminDashboard, { AdminUserManagementPage, AdminAllReportsPage, AdminTriggerLogPage, AdminBusinessUnitManagementPage, AdminRolesPermissionsPage } from './components/Admin/AdminDashboard';
@@ -160,13 +160,13 @@ const App: React.FC = () => {
   return (
     <ErrorBoundary>
       <ToastProvider>
-          <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <AuthProvider>
                   <GoogleCalendarProvider>
                       <MainAppContent />
                   </GoogleCalendarProvider>
               </AuthProvider>
-          </HashRouter>
+          </BrowserRouter>
           <ToastContainer />
       </ToastProvider>
     </ErrorBoundary>

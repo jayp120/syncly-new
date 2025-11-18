@@ -343,6 +343,7 @@ service cloud.firestore {
           && (
             isTenantAdmin()
             || hasAnnouncementClaim()
+            || hasAnnouncementPermissionViaProfile(resource.data.tenantId)
             || resource.data.userId == request.auth.uid
           ));
       allow create: if isAuthenticated()
@@ -355,6 +356,13 @@ service cloud.firestore {
         && request.resource.data.userId == resource.data.userId;
       allow delete: if isPlatformAdmin()
         || (isTenantAdmin() && resource.data.tenantId == getUserTenantId());
+    }
+
+    // USER INTEGRATIONS (per-user integration metadata)
+    match /userIntegrations/{userId} {
+      allow get: if isAuthenticated() && request.auth.uid == userId;
+      allow list: if false;
+      allow create, update, delete: if false;
     }
 
     // PERFORMANCE METRICS Collection (for monitoring - optional, gracefully degrade if fails)

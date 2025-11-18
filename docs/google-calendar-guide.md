@@ -1,8 +1,6 @@
 # Step-by-Step Guide: Implementing Google Calendar Sync
 
-This guide provides a clear path to integrating Google Calendar into the EOD Manager application. This implementation will use Google's client-side JavaScript library, which is suitable for a proof-of-concept.
-
-**Note for Production:** A real-world, production-ready application should **always** use a backend server to handle authentication tokens securely. Storing user access tokens in the browser's local storage is not secure.
+This guide explains how Syncly integrates with Google Calendar using a **production-safe architecture**. Instead of storing OAuth tokens in the browser, we now rely on Firebase Cloud Functions to exchange authorization codes, persist refresh tokens inside `userIntegrations/{userId}`, and proxy every Calendar API call from the backend.
 
 ---
 
@@ -45,48 +43,72 @@ Before writing any code, you need to configure a project in the Google Cloud Pla
 
 ### **Part 2: Step-by-Step Code Implementation**
 
-Now, let's integrate the Google Calendar functionality into our React application.
+Now, let's walk through the updated implementation.
 
-#### **Step 1: Load the Google API Client Library**
+#### **Step 1: Load Google Identity Services (GIS)**
 
-We need to load Google's special JavaScript library to handle authentication and API calls.
+The browser only needs the lightweight GIS script to request an OAuth authorization code. Add this once in `index.html`:
 
-*   **Action:** Modify `index.html` to include the `gapi` script. Add this line in the `<head>` section, preferably before your main app script:
-    ```html
-    <script src="https://apis.google.com/js/api.js" async defer></script>
-    ```
+```html
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+```
 
-#### **Step 2: Create a Service for Google Calendar Logic**
+We no longer embed the deprecated `gapi` client—every Calendar API call flows through the backend.
 
-It's best practice to keep all Google Calendar logic separate.
+#### **Step 2: Configure the Secure Backend Exchange**
 
-*   **Action:** Create a new file: `services/calendarService.ts`. This file will contain functions to initialize the client, sign in, sign out, and create events.
+1. **Provide the OAuth secrets via `.env` files:**
 
-    *You will need to paste your **Client ID** from Part 1 into this file.*
+   ```
+   cd functions
+   cp .env.example .env.<your-project-id>
+   # Example for production:
+   #   cp .env.example .env.syncly-473404
+   # Then edit the file:
+   GOOGLE_CALENDAR_CLIENT_ID="YOUR_WEB_CLIENT_ID"
+   GOOGLE_CALENDAR_CLIENT_SECRET="YOUR_WEB_CLIENT_SECRET"
+   GOOGLE_CALENDAR_REDIRECT_URI="postmessage"
+   ```
 
-#### **Step 3: Manage Authentication State with a React Context**
+   The Firebase CLI automatically uploads project-scoped `.env.*` files during `firebase deploy`, so no secrets live in source control and we avoid the deprecated `functions.config()` API.
 
-We need a way to know if the user is signed into Google across our entire app. A React Context is perfect for this.
+2. **Deploy the Cloud Functions** shipped in `functions/src/index.ts`:
+   * `exchangeGoogleCalendarCode` – exchanges the OAuth code for tokens and writes them to `userIntegrations/{uid}.googleCalendar`.
+   * `unlinkGoogleCalendar` – revokes tokens and clears saved credentials.
+   * `createGoogleCalendarEvent`, `updateGoogleCalendarEvent`, `getGoogleCalendarInstance` – proxy Calendar REST calls on behalf of the authenticated user after refreshing tokens when needed.
 
-*   **Action:** Create a new file `contexts/GoogleCalendarContext.tsx`. This will manage the sign-in state and provide the service functions to any component that needs them.
+All tokens remain server-side; Firestore only exposes metadata (status, display name, avatar) to the client.
 
-#### **Step 4: Integrate into the `SmartMeetingModal` Component**
+#### **Step 3: Manage Authentication State with `GoogleCalendarContext`**
 
-This is where the user will interact with the feature.
+`contexts/GoogleCalendarContext.tsx` now:
 
-1.  **Wrap the App in the Provider:** In `App.tsx`, wrap your application's routes with the `GoogleCalendarProvider` you created in the previous step.
+* Listens to `userIntegrations/{currentUser.id}` via Firestore to keep every tab in sync.
+* Boots a GIS `codeClient` with `VITE_GOOGLE_CLIENT_ID` and requests an OAuth **code** (not an access token).
+* Calls `calendarService.exchangeAuthCode(code)` to trigger the backend exchange.
+* Offers `signIn`, `signOut`, `createEvent`, and reactive status (`isSignedIn`, `googleUser`) to consumers.
 
-2.  **Use the Context in `SmartMeetingModal.tsx`:**
-    *   Access the sign-in state and functions from the context: `const { isSignedIn, signIn, createEvent } = useGoogleCalendar();`
-    *   **Modify the "Sync with Calendar" checkbox:**
-        *   If the user is **not** signed into Google, show a "Sign in with Google to Sync" button instead of the checkbox. Clicking this button will call the `signIn()` function from your context.
-        *   If the user **is** signed in, show the "Sync with Calendar" checkbox.
+Because Firestore broadcasts updates, connecting Google Calendar in one tab instantly updates every other tab (and even other devices signed into the same account).
 
-3.  **Trigger Event Creation:**
-    *   In the `handleEndMeeting` function within `SmartMeetingModal.tsx`, check if the "Sync with Calendar" checkbox is checked and if the user is signed in.
-    *   If both are true, gather all the meeting details (title, description, start/end times, attendee emails).
-    *   Format these details into a Google Calendar event object. The start and end times need to be in ISO 8601 format (e.g., `2024-09-21T10:00:00`).
-    *   Call your `createCalendarEvent` function from the service with this event object.
-    *   Use `try...catch` to handle the API response and show a success or error notification to the user.
+#### **Step 4: Use the Context & Service in UI flows**
 
-By following these steps, you will have a working proof-of-concept for Google Calendar integration in the application.
+1. **Wrap the App:** In `App.tsx`, ensure `<GoogleCalendarProvider>` already wraps the authenticated portion of the UI (it sits under `<AuthProvider>` so it can read the current user).
+
+2. **Integrations Screen:** `components/Integrations/IntegrationsPage.tsx` surfaces the new status. When users click “Connect Google Calendar,” we call `signIn()` which launches the GIS popup. Disconnect uses `signOut()` which maps to `unlinkGoogleCalendar`.
+
+3. **Meeting & Task Flows:** Components such as `ScheduleMeetingForm` and `MeetingWorkspacePage` call:
+
+   ```ts
+   const { isSignedIn, createEvent, signIn } = useGoogleCalendar();
+   ```
+
+   * When scheduling a meeting with sync enabled, we first ensure the integration is connected, then call `calendarService.createEvent(...)`. The result includes the Google event ID so Syncly can store it.
+   * During live meeting finalization or catch-up posts, Syncly calls `calendarService.getInstance` and `calendarService.updateEvent` (both hit the backend) to keep Google Calendar descriptions aligned with the latest notes/tasks.
+
+With this pattern we have:
+
+* Zero long-lived tokens in the browser.
+* Automatic cross-tab updates (thanks to Firestore listeners and the existing `storage` sync).
+* Server-controlled refresh tokens so reconnecting after a page reload “just works.”
+
+You now have a full production-ready Google Calendar integration that satisfies security, reliability, and multi-tab consistency requirements.

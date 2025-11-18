@@ -1,7 +1,9 @@
+import 'dotenv/config';
 import * as functions from 'firebase-functions/v1';
 import * as admin from 'firebase-admin';
 import * as sgMail from '@sendgrid/mail';
 import { GoogleGenAI } from '@google/genai';
+import axios, { AxiosRequestConfig } from 'axios';
 
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -42,7 +44,7 @@ You are Jay, Syncly's AI guide. Provide clear, confident, and concise answers fo
 const getServerGeminiKey = (): string | null => {
   return (
     process.env.GEMINI_API_KEY ||
-    functions.config()?.gemini?.key ||
+    process.env.GOOGLE_GENAI_API_KEY ||
     null
   );
 };
@@ -152,8 +154,8 @@ const generateId = (prefix: string): string => {
 };
 
 // Configure SendGrid if available
-const SENDGRID_API_KEY = functions.config()?.sendgrid?.key || '';
-const SENDGRID_FROM_EMAIL = functions.config()?.sendgrid?.from || 'no-reply@syncly.app';
+const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY || '';
+const SENDGRID_FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || 'no-reply@syncly.app';
 if (SENDGRID_API_KEY) {
   sgMail.setApiKey(SENDGRID_API_KEY);
 } else {
@@ -2331,4 +2333,369 @@ export const submitDemoRequest = functions.https.onCall(async (data, context) =>
     message: 'Demo request saved successfully',
     requestId: docId
   };
+});
+
+/**
+ * ---------------------------------------------------------------------------
+ * Google Calendar Integration
+ * Secure, backend-only implementation for token exchange and event management.
+ * ---------------------------------------------------------------------------
+ */
+
+const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
+const GOOGLE_REVOKE_URL = 'https://oauth2.googleapis.com/revoke';
+const GOOGLE_USERINFO_URL = 'https://www.googleapis.com/oauth2/v3/userinfo';
+const GOOGLE_CALENDAR_API_BASE = 'https://www.googleapis.com/calendar/v3';
+const USER_INTEGRATIONS_COLLECTION = 'userIntegrations';
+const TOKEN_EXPIRY_BUFFER_MS = 60 * 1000;
+
+interface GoogleOAuthConfig {
+  clientId: string;
+  clientSecret: string;
+  redirectUri: string;
+}
+
+type GoogleCalendarIntegrationData = {
+  status?: 'connected' | 'disconnected';
+  email?: string;
+  name?: string;
+  picture?: string;
+  grantedScopes?: string[];
+  accessToken?: string;
+  refreshToken?: string;
+  expiresAt?: number;
+  linkedAt?: FirebaseFirestore.FieldValue | FirebaseFirestore.Timestamp | number;
+  disconnectedAt?: FirebaseFirestore.FieldValue | FirebaseFirestore.Timestamp | number;
+  updatedAt?: FirebaseFirestore.FieldValue | FirebaseFirestore.Timestamp | number;
+};
+
+const getGoogleOAuthConfig = (): GoogleOAuthConfig => {
+  const envClientId =
+    process.env.GOOGLE_CALENDAR_CLIENT_ID ||
+    process.env.GOOGLE_OAUTH_CLIENT_ID ||
+    process.env.VITE_GOOGLE_CLIENT_ID;
+  const envClientSecret =
+    process.env.GOOGLE_CALENDAR_CLIENT_SECRET ||
+    process.env.GOOGLE_OAUTH_CLIENT_SECRET;
+  const envRedirectUri =
+    process.env.GOOGLE_CALENDAR_REDIRECT_URI ||
+    process.env.GOOGLE_OAUTH_REDIRECT_URI ||
+    'postmessage';
+
+  if (!envClientId || !envClientSecret) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'Google OAuth credentials are not configured. Set GOOGLE_CALENDAR_CLIENT_ID and GOOGLE_CALENDAR_CLIENT_SECRET.'
+    );
+  }
+
+  return {
+    clientId: envClientId,
+    clientSecret: envClientSecret,
+    redirectUri: envRedirectUri,
+  };
+};
+
+const assertAuthenticated = (context: functions.https.CallableContext): string => {
+  const uid = context.auth?.uid;
+  if (!uid) {
+    throw new functions.https.HttpsError('unauthenticated', 'Authentication required.');
+  }
+  return uid;
+};
+
+const userIntegrationsCollection = admin.firestore().collection(USER_INTEGRATIONS_COLLECTION);
+
+const loadGoogleIntegration = async (uid: string): Promise<{
+  docRef: FirebaseFirestore.DocumentReference;
+  integration?: GoogleCalendarIntegrationData;
+}> => {
+  const docRef = userIntegrationsCollection.doc(uid);
+  const snapshot = await docRef.get();
+  const integration = snapshot.exists ? snapshot.data()?.googleCalendar : undefined;
+  return { docRef, integration };
+};
+
+const refreshGoogleAccessToken = async (refreshToken: string) => {
+  const { clientId, clientSecret } = getGoogleOAuthConfig();
+  const params = new URLSearchParams({
+    client_id: clientId,
+    client_secret: clientSecret,
+    refresh_token: refreshToken,
+    grant_type: 'refresh_token'
+  });
+
+  const response = await axios.post(GOOGLE_TOKEN_URL, params.toString(), {
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+  });
+
+  return response.data;
+};
+
+const ensureGoogleAccessToken = async (uid: string) => {
+  const { docRef, integration } = await loadGoogleIntegration(uid);
+
+  if (!integration || integration.status !== 'connected') {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'Google Calendar is not linked for this account.'
+    );
+  }
+
+  let { accessToken, refreshToken, expiresAt } = integration;
+
+  if (!accessToken || !expiresAt || expiresAt - TOKEN_EXPIRY_BUFFER_MS <= Date.now()) {
+    if (!refreshToken) {
+      throw new functions.https.HttpsError(
+        'failed-precondition',
+        'Missing refresh token. Disconnect Google Calendar and connect it again.'
+      );
+    }
+
+    try {
+      const refreshed = await refreshGoogleAccessToken(refreshToken);
+      accessToken = refreshed.access_token;
+      expiresAt = Date.now() + (Number(refreshed.expires_in || 0) * 1000);
+
+      await docRef.update({
+        'googleCalendar.accessToken': accessToken,
+        'googleCalendar.expiresAt': expiresAt,
+        'googleCalendar.updatedAt': admin.firestore.FieldValue.serverTimestamp()
+      });
+    } catch (error: any) {
+      console.error('[GoogleCalendar] Failed to refresh token:', error);
+      throw new functions.https.HttpsError(
+        'internal',
+        'Unable to refresh Google Calendar session. Please reconnect the integration.'
+      );
+    }
+  }
+
+  return { accessToken, docRef, integration };
+};
+
+const callGoogleCalendarApi = async <T = any>(
+  uid: string,
+  request: AxiosRequestConfig
+): Promise<T> => {
+  const { accessToken } = await ensureGoogleAccessToken(uid);
+
+  try {
+    const response = await axios({
+      baseURL: GOOGLE_CALENDAR_API_BASE,
+      ...request,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        ...(request.headers || {})
+      }
+    });
+
+    return response.data;
+  } catch (error: any) {
+    const status = error?.response?.status;
+    const details = error?.response?.data;
+    console.error('[GoogleCalendar] API request failed:', details || error);
+
+    if (status === 401 || status === 403) {
+      throw new functions.https.HttpsError(
+        'permission-denied',
+        'Google Calendar rejected the request. Please reconnect the integration.'
+      );
+    }
+
+    throw new functions.https.HttpsError(
+      'internal',
+      'Google Calendar request failed.',
+      details || error?.message
+    );
+  }
+};
+
+export const exchangeGoogleCalendarCode = functions.https.onCall(async (data, context) => {
+  const uid = assertAuthenticated(context);
+  const code = typeof data?.code === 'string' ? data.code.trim() : '';
+  if (!code) {
+    throw new functions.https.HttpsError('invalid-argument', 'Missing authorization code.');
+  }
+
+  const { clientId, clientSecret, redirectUri } = getGoogleOAuthConfig();
+  const params = new URLSearchParams({
+    code,
+    client_id: clientId,
+    client_secret: clientSecret,
+    redirect_uri: redirectUri,
+    grant_type: 'authorization_code'
+  });
+
+  let tokenResponse: any;
+  try {
+    tokenResponse = await axios.post(GOOGLE_TOKEN_URL, params.toString(), {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+  } catch (error: any) {
+    console.error('[GoogleCalendar] Token exchange failed:', error?.response?.data || error);
+    throw new functions.https.HttpsError(
+      'internal',
+      'Unable to exchange authorization code with Google.'
+    );
+  }
+
+  const tokens = tokenResponse?.data;
+  if (!tokens?.access_token) {
+    throw new functions.https.HttpsError(
+      'internal',
+      'Google did not return an access token.'
+    );
+  }
+
+  const profileResponse = await axios.get(GOOGLE_USERINFO_URL, {
+    headers: { Authorization: `Bearer ${tokens.access_token}` }
+  });
+
+  const profile = profileResponse?.data || {};
+  const { docRef, integration: existing } = await loadGoogleIntegration(uid);
+  const refreshToken = tokens.refresh_token || existing?.refreshToken;
+
+  if (!refreshToken) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'Google did not provide a refresh token. Remove Syncly from your Google Account permissions and try again.'
+    );
+  }
+
+  const expiresAt = Date.now() + (Number(tokens.expires_in || 0) * 1000);
+  const grantedScopes = (tokens.scope || existing?.grantedScopes || '')
+    .toString()
+    .split(' ')
+    .filter(Boolean);
+
+  await docRef.set({
+    googleCalendar: {
+      status: 'connected',
+      email: profile.email || existing?.email || null,
+      name: profile.name || profile.given_name || existing?.name || null,
+      picture: profile.picture || existing?.picture || null,
+      grantedScopes,
+      accessToken: tokens.access_token,
+      refreshToken,
+      expiresAt,
+      linkedAt: existing?.linkedAt || admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    }
+  }, { merge: true });
+
+  return {
+    success: true,
+    profile: {
+      email: profile.email,
+      name: profile.name,
+      picture: profile.picture
+    }
+  };
+});
+
+export const unlinkGoogleCalendar = functions.https.onCall(async (data, context) => {
+  const uid = assertAuthenticated(context);
+  const { docRef, integration } = await loadGoogleIntegration(uid);
+
+  const tokenToRevoke = integration?.refreshToken || integration?.accessToken;
+  if (tokenToRevoke) {
+    try {
+      const revokeParams = new URLSearchParams({ token: tokenToRevoke });
+      await axios.post(GOOGLE_REVOKE_URL, revokeParams.toString(), {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      });
+    } catch (error: any) {
+      console.warn('[GoogleCalendar] Failed to revoke token:', error?.response?.data || error);
+    }
+  }
+
+  await docRef.set({
+    googleCalendar: {
+      status: 'disconnected',
+      email: integration?.email || null,
+      name: integration?.name || null,
+      picture: integration?.picture || null,
+      disconnectedAt: admin.firestore.FieldValue.serverTimestamp()
+    }
+  }, { merge: true });
+
+  await docRef.update({
+    'googleCalendar.accessToken': admin.firestore.FieldValue.delete(),
+    'googleCalendar.refreshToken': admin.firestore.FieldValue.delete(),
+    'googleCalendar.expiresAt': admin.firestore.FieldValue.delete(),
+    'googleCalendar.grantedScopes': admin.firestore.FieldValue.delete()
+  }).catch(() => {
+    // Doc may not exist yet; ignore.
+  });
+
+  return { success: true };
+});
+
+export const createGoogleCalendarEvent = functions.https.onCall(async (data, context) => {
+  const uid = assertAuthenticated(context);
+  if (!data?.event || typeof data.event !== 'object') {
+    throw new functions.https.HttpsError('invalid-argument', 'Event payload is required.');
+  }
+
+  const calendarId = typeof data?.calendarId === 'string' && data.calendarId.trim()
+    ? data.calendarId.trim()
+    : 'primary';
+
+  const event = await callGoogleCalendarApi(uid, {
+    method: 'post',
+    url: `/calendars/${encodeURIComponent(calendarId)}/events`,
+    data: data.event,
+    params: { sendUpdates: data?.sendUpdates || 'all' }
+  });
+
+  return { result: event };
+});
+
+export const updateGoogleCalendarEvent = functions.https.onCall(async (data, context) => {
+  const uid = assertAuthenticated(context);
+  const eventId = typeof data?.eventId === 'string' ? data.eventId.trim() : '';
+  if (!eventId) {
+    throw new functions.https.HttpsError('invalid-argument', 'eventId is required.');
+  }
+  if (!data?.eventPatch || typeof data.eventPatch !== 'object') {
+    throw new functions.https.HttpsError('invalid-argument', 'eventPatch is required.');
+  }
+
+  const calendarId = typeof data?.calendarId === 'string' && data.calendarId.trim()
+    ? data.calendarId.trim()
+    : 'primary';
+
+  const event = await callGoogleCalendarApi(uid, {
+    method: 'patch',
+    url: `/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`,
+    data: data.eventPatch,
+    params: { sendUpdates: data?.sendUpdates || 'all' }
+  });
+
+  return { result: event };
+});
+
+export const getGoogleCalendarInstance = functions.https.onCall(async (data, context) => {
+  const uid = assertAuthenticated(context);
+  const eventId = typeof data?.eventId === 'string' ? data.eventId.trim() : '';
+  const occurrenceDate = typeof data?.occurrenceDate === 'string' ? data.occurrenceDate.trim() : '';
+
+  if (!eventId || !occurrenceDate) {
+    throw new functions.https.HttpsError(
+      'invalid-argument',
+      'eventId and occurrenceDate are required.'
+    );
+  }
+
+  const timeMin = new Date(`${occurrenceDate}T00:00:00Z`).toISOString();
+  const timeMax = new Date(`${occurrenceDate}T23:59:59Z`).toISOString();
+
+  const instances = await callGoogleCalendarApi(uid, {
+    method: 'get',
+    url: `/calendars/primary/events/${encodeURIComponent(eventId)}/instances`,
+    params: { timeMin, timeMax }
+  });
+
+  return { result: instances };
 });

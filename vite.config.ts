@@ -1,9 +1,10 @@
 import path from 'path';
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 
 export default defineConfig(({ mode }) => {
-    const replitDomain = process.env.REPLIT_DEV_DOMAIN;
-    const devPort = Number(process.env.PORT) || 5173;
+    const env = loadEnv(mode, process.cwd(), '');
+    const replitDomain = env.REPLIT_DEV_DOMAIN;
+    const devPort = Number(env.PORT) || 5173;
 
     return {
       server: {

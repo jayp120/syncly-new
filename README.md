@@ -18,43 +18,45 @@ Syncly is a modern, comprehensive web application designed for team collaboratio
 
 ---
 
-## ðŸš€ Getting Started: Running Locally in VS Code
+## Getting Started (Vite Dev Server)
 
-This project is designed to be run easily without a complex build setup, using modern browser features like import maps. The recommended way to run it locally is with the **Live Server** extension in Visual Studio Code.
+Syncly now runs via the standard Vite toolchain so local development mirrors production and secrets remain in env files rather than static bundles.
 
 ### Prerequisites
 
-- [Visual Studio Code](https://code.visualstudio.com/)
-- A modern web browser (Chrome, Firefox, Edge)
+- [Node.js 18+](https://nodejs.org/) (npm ships with Node)
+- Modern browser (Chrome, Firefox, Edge)
 
-### Step-by-Step Instructions
+### 1. Configure Environment Variables
 
-1.  **Install Live Server Extension:**
-    -   Open VS Code.
-    -   Go to the Extensions view (click the icon in the sidebar or press `Ctrl+Shift+X`).
-    -   Search for `Live Server` by Ritwick Dey.
-    -   Click **Install**.
+1. Copy the template file and populate it with your real credentials:
+   ```bash
+   cp .env.example .env.local
+   ```
+2. Fill in the Firebase, Google OAuth, Gemini, and Jay proxy settings. `.env*` files are git-ignored—do **not** commit your secrets.
 
-2.  **Open the Project:**
-    -   Open the root folder of the Syncly application in VS Code.
+### 2. Install Dependencies
 
-3.  **Launch the Application:**
-    -   In the VS Code Explorer, find the `index.html` file.
-    -   **Right-click** on `index.html`.
-    -   Select **"Open with Live Server"** from the context menu.
+```bash
+npm install
+```
 
-    
+### 3. Run the Dev Server
 
-    -   Your default web browser will automatically open a new tab with the application running (e.g., at `http://127.0.0.1:5500`).
+```bash
+npm run dev
+```
 
-### 4. Configure Your Gemini API Key
+Vite prints both the local and LAN URLs (defaults to `http://localhost:5173`). Hot Module Reloading (HMR) and env variable injection work automatically.
 
-The first time you run the app, you will be prompted to enter your Google Gemini API key. This is required for all AI-powered features.
+### 4. Gemini / Jay Assistant Keys
 
--   **Get your key:** If you don't have one, you can get it from [Google AI Studio](https://aistudio.google.com/app/apikey).
--   **Enter the key:** Paste your API key into the input field in the modal that appears and click "Save Key".
+Gemini credentials are resolved in this order:
 
-The key will be stored securely in your browser's **session storage** and will be remembered as long as you keep the browser tab open. You will need to re-enter it if you close the tab and open a new one. **Your key is not stored anywhere else and is not sent to any server other than Google's API.**
+1. Environment variables (`VITE_GEMINI_API_KEY` / `GEMINI_API_KEY`)
+2. Keys entered in the in-app modal (stored in local/session storage)
+
+If you front Gemini with a Jay proxy service, set `VITE_JAY_PROXY_URL` (or `JAY_PROXY_URL` in server contexts). Otherwise provide the direct Gemini key.
 
 ---
 

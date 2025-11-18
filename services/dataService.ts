@@ -2791,10 +2791,6 @@ async function syncMeetingNotesToCalendar(meeting: Meeting | null, instance: Mee
         return { calendarSynced: false };
     }
     
-    if (!calendarService.isSignedIn()) {
-        return { calendarSynced: false, error: "Not signed in to Google Calendar" };
-    }
-
     try {
         const instanceResponse = await calendarService.getInstance(meeting.googleEventId, instance.occurrenceDate);
         if (!instanceResponse || !instanceResponse.result || !instanceResponse.result.items || instanceResponse.result.items.length === 0) {
@@ -2818,7 +2814,11 @@ async function syncMeetingNotesToCalendar(meeting: Meeting | null, instance: Mee
         return { calendarSynced: true };
     } catch (e: any) {
         console.error("Calendar sync failed:", e);
-        const errorMessage = e?.result?.error?.message || e?.message || "An unknown error occurred during calendar sync.";
+        const errorMessage =
+            e?.result?.error?.message ||
+            e?.details ||
+            e?.message ||
+            "An unknown error occurred during calendar sync.";
         return { calendarSynced: false, error: errorMessage };
     }
 }

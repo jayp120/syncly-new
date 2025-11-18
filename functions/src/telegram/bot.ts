@@ -5,7 +5,6 @@
  */
 
 import { Telegraf } from 'telegraf';
-import * as functions from 'firebase-functions';
 import { registerCommands } from './commands';
 import { unlinkTelegramUser } from './auth';
 
@@ -13,10 +12,9 @@ import { unlinkTelegramUser } from './auth';
  * Create and configure bot instance
  */
 export function createBot(): Telegraf {
-  // Try Firebase Functions config first (production), then env var (development)
-  const token = functions.config().telegram?.bot_token || process.env.TELEGRAM_BOT_TOKEN;
+  const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) {
-    throw new Error('TELEGRAM_BOT_TOKEN not configured. Run: firebase functions:config:set telegram.bot_token="YOUR_TOKEN"');
+    throw new Error('TELEGRAM_BOT_TOKEN environment variable is not set');
   }
   
   // Create bot with webhook configuration
