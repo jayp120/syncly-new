@@ -13,6 +13,9 @@ interface SentNotifications {
   [key: string]: number; // key is a unique ID for the notification, value is timestamp
 }
 
+// In-memory session guard to prevent duplicate dispatches even if localStorage is slow or unavailable.
+const sessionSent = new Set<string>();
+
 const getSentNotifications = (): SentNotifications => {
   try {
     const item = localStorage.getItem(SCHEDULED_NOTIFICATIONS_KEY);
@@ -23,6 +26,7 @@ const getSentNotifications = (): SentNotifications => {
 };
 
 const markAsSent = (key: string) => {
+  sessionSent.add(key);
   const sent = getSentNotifications();
   sent[key] = Date.now();
   try {
@@ -33,8 +37,11 @@ const markAsSent = (key: string) => {
 };
 
 const hasBeenSent = (key: string): boolean => {
+  if (sessionSent.has(key)) return true;
   const sent = getSentNotifications();
-  return !!sent[key];
+  const already = !!sent[key];
+  if (already) sessionSent.add(key);
+  return already;
 };
 
 const cleanupOldSentMarkers = () => {
@@ -56,40 +63,44 @@ const cleanupOldSentMarkers = () => {
 // --- Notification Checkers ---
 
 /**
- * Meeting Start Reminder (10 and 5 minutes before)
+ * Meeting Start Reminder (10, 5, and 1 minute before) scoped to the signed-in user.
+ * Only organizers or attendees should see these nudges.
  */
-const checkMeetingStartReminder = async (now: Date) => {
-  const meetings = await DataService.getMeetings();
+const checkMeetingStartReminder = async (user: User, now: Date) => {
+  const meetings = await DataService.getMeetingsForUser(user.id);
   
   for (const meeting of meetings) {
     const nextOccurrenceDate = getNextOccurrence(meeting);
+    if (!nextOccurrenceDate) continue;
 
-    if (nextOccurrenceDate) {
-      const timeDiff = nextOccurrenceDate.getTime() - now.getTime();
-      const minutesUntil = Math.floor(timeDiff / (1000 * 60));
+    const timeDiff = nextOccurrenceDate.getTime() - now.getTime();
+    if (timeDiff <= 0) continue;
 
-      if ((minutesUntil === 10 || minutesUntil === 5) && timeDiff > 0) {
-        const key = `meeting-reminder-${meeting.id}-${nextOccurrenceDate.toISOString()}-${minutesUntil}m`;
+    const minutesRemaining = timeDiff / (1000 * 60);
+
+    for (const targetWindow of [10, 5, 1]) {
+      if (minutesRemaining <= targetWindow && minutesRemaining > targetWindow - 1) {
+        const key = `meeting-reminder-${user.id}-${meeting.id}-${nextOccurrenceDate.toISOString()}-${targetWindow}m`;
         if (hasBeenSent(key)) continue;
 
-        // Managers get an interactive toast
-        if (meeting.createdBy) {
-            const toastId = Date.now() + Math.random();
-            eventBus.emit('show-meeting-reminder', { meeting, occurrenceDate: nextOccurrenceDate, toastId });
+        const toastId = Date.now() + Math.random();
+        eventBus.emit('show-meeting-reminder', { meeting, occurrenceDate: nextOccurrenceDate, toastId, minutesUntil: targetWindow });
+
+        await DataService.addNotification({
+          userId: user.id,
+          message: `Meeting starting in ${targetWindow} mins: "${meeting.title}"`,
+          type: 'reminder',
+          link: `/meetings/${meeting.id}`,
+          isCrucial: true,
+        });
+
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification('Syncly Meeting Reminder', {
+            body: `"${meeting.title}" starts in ${targetWindow} min${targetWindow === 1 ? '' : 's'}.`,
+            tag: `meeting-${meeting.id}-${user.id}-${targetWindow}`,
+          });
         }
-        
-        // Other attendees get a standard notification
-        for (const userId of meeting.attendeeIds) {
-          if (userId !== meeting.createdBy) {
-            await DataService.addNotification({
-              userId,
-              message: `Meeting starting in ${minutesUntil} mins: "${meeting.title}"`,
-              type: 'reminder',
-              link: `/meetings/${meeting.id}`,
-              isCrucial: true,
-            });
-          }
-        }
+
         markAsSent(key);
       }
     }
@@ -327,7 +338,15 @@ export const runScheduledChecks = async (user: User) => {
   if (user.isPlatformAdmin) {
     return;
   }
-  
+
+  // Throttle to avoid duplicate runs from rapid re-mounts or multiple triggers in the same tab.
+  // NOTE: Tabs still coordinate via localStorage markers, but this prevents back-to-back runs.
+  const THROTTLE_MS = 45_000;
+  const nowMs = Date.now();
+  const lastRun = (window as any).__SYNCLY_LAST_SCHEDULED_CHECK__ as number | undefined;
+  if (lastRun && nowMs - lastRun < THROTTLE_MS) return;
+  (window as any).__SYNCLY_LAST_SCHEDULED_CHECK__ = nowMs;
+
   const now = new Date();
   
   // Fetch tasks once for all checks
@@ -343,7 +362,7 @@ export const runScheduledChecks = async (user: User) => {
   await checkAnnouncementAlerts(user, now);
   
   // Run global checks (idempotent checks are safe here)
-  await checkMeetingStartReminder(now);
+  await checkMeetingStartReminder(user, now);
   await checkMeetingAgendaReminder(now);
   
   // Cleanup old markers occasionally (e.g., once an hour)

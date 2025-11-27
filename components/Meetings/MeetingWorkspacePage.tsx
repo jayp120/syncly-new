@@ -303,14 +303,21 @@ const MeetingWorkspacePage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
             <div className="lg:col-span-2">
                 <Card title="Live Notes & Task Creation" className="h-full flex flex-col">
-                    <MentionTextarea 
-                        value={liveNotes}
-                        onChange={setLiveNotes}
-                        placeholder="Type notes... Use / to create tasks."
-                        className="flex-grow !border-0 !p-0 focus:!ring-0"
-                        wrapperClassName="flex-grow"
-                        availableUsers={attendees}
-                    />
+                    <div className="rounded-2xl border border-indigo-50 bg-white/80 shadow-[0_14px_50px_-28px_rgba(79,70,229,0.45)] px-4 py-3 space-y-2 flex flex-col flex-grow">
+                        <div className="flex items-center justify-between text-xs text-slate-500">
+                            <span className="font-semibold text-indigo-600">Capture decisions, blockers, and /tasks</span>
+                            <span className="text-slate-400">Shift+Enter for a new line</span>
+                        </div>
+                        <MentionTextarea 
+                            value={liveNotes}
+                            onChange={setLiveNotes}
+                            rows={8}
+                            placeholder="Type notes... use /task to convert lines into action items, and @ to mention teammates."
+                            className="min-h-[260px] text-[15px] leading-7 !border !border-indigo-100 !bg-white rounded-xl px-4 py-3 shadow-inner focus:!ring-2 focus:!ring-indigo-300 focus:!border-indigo-400"
+                            wrapperClassName="flex-grow"
+                            availableUsers={attendees}
+                        />
+                    </div>
                 </Card>
             </div>
             <div className="lg:col-span-2">

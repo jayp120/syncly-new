@@ -177,7 +177,7 @@ const TermsOfServicePage: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex items-center space-x-3">
                   <i className="fas fa-envelope text-indigo-600"></i>
-                  <span className="text-gray-700">Email: <a href="mailto:syncly19@gmail.com" className="text-indigo-600 hover:underline font-semibold">syncly19@gmail.com</a></span>
+                  <span className="text-gray-700">Email: <a href="mailto:support@syncly.one" className="text-indigo-600 hover:underline font-semibold">support@syncly.one</a></span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <i className="fas fa-phone text-indigo-600"></i>

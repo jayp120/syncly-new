@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../Auth/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import useLocalStorage from '../../hooks/useLocalStorage';
@@ -14,6 +15,7 @@ import AnnouncementBoardModal from '../Announcements/AnnouncementBoardModal';
 
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
   const { addToast, removeToast } = useToast();
   const [allUsers, setAllUsers] = useState<User[]>([]);
   // State for mobile overlay sidebar
@@ -83,6 +85,16 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     refreshAnnouncementBoard();
   }, [refreshAnnouncementBoard]);
 
+  // Redirect platform admin to Super Admin panel to avoid tenant-scoped calls
+  useEffect(() => {
+    if (currentUser?.isPlatformAdmin) {
+      const path = window.location.pathname;
+      if (!path.startsWith('/super-admin')) {
+        navigate('/super-admin', { replace: true });
+      }
+    }
+  }, [currentUser, navigate]);
+
   // --- Real-time Cross-Tab Synchronization ---
   useEffect(() => {
     const syncTabs = (event: StorageEvent) => {
@@ -129,13 +141,14 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   // --- NEW: Meeting Reminder Listener ---
   useEffect(() => {
-    const handleShowReminder = (data: { meeting: Meeting; occurrenceDate: Date; toastId: number }) => {
+    const handleShowReminder = (data: { meeting: Meeting; occurrenceDate: Date; toastId: number; minutesUntil?: number }) => {
         const toastId = data.toastId;
         addToast(
             <MeetingStartToast 
                 meeting={data.meeting} 
                 occurrenceDate={data.occurrenceDate}
                 allUsers={allUsers}
+                minutesUntil={data.minutesUntil}
                 onClose={() => removeToast(toastId)} 
             />,
             'custom',
@@ -149,7 +162,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   // --- Notification Scheduler ---
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUser || currentUser.isPlatformAdmin) return;
     
     // Run checks immediately on login/layout mount
     runScheduledChecks(currentUser);

@@ -247,4 +247,4 @@ If you encounter issues:
 
 **Created:** October 23, 2025  
 **Project:** Syncly (syncly-19)  
-**Contact:** syncly19@gmail.com
+**Contact:** support@syncly.one

@@ -23,7 +23,7 @@ interface ScheduleMeetingFormProps {
 
 const ScheduleMeetingForm: React.FC<ScheduleMeetingFormProps> = ({ manager, teamMembers, onSuccess, onCancel, meetingToEdit }) => {
   const { addToast } = useToast();
-  const { isSignedIn: isGoogleSignedIn, createEvent } = useGoogleCalendar();
+  const { isSignedIn: isGoogleSignedIn } = useGoogleCalendar();
   
   const [activeTab, setActiveTab] = useState<'internal' | 'external'>('internal');
   const [title, setTitle] = useState('');
@@ -92,61 +92,8 @@ const ScheduleMeetingForm: React.FC<ScheduleMeetingFormProps> = ({ manager, team
 
     setIsSubmitting(true);
     try {
-        let googleEventId: string | undefined = undefined;
 
-        // Step 1: Create Google Calendar event if requested
-        if (syncWithCalendar && isGoogleSignedIn && !isEditMode) {
-            const allUsers = await DataService.getUsers();
-            const finalAttendees = isExternalMeeting 
-                ? externalGuests.map(email => ({ email }))
-                : allUsers
-                    .filter(tm => attendeeIds.includes(tm.id))
-                    .map(tm => ({ email: tm.notificationEmail }));
-            
-            const managerUser = allUsers.find(u => u.id === manager.id);
-            if (managerUser && managerUser.notificationEmail) {
-                finalAttendees.push({ email: managerUser.notificationEmail });
-            }
-
-            const meetingLink = `${window.location.origin}/#/meetings/TEMP_ID`;
-            const structuredDescription = `MEETING AGENDA\n-----------------------------------\n${agenda || 'No agenda provided.'}\n\n-----------------------------------\n✅ View this meeting in Syncly: ${meetingLink}`;
-
-            const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            const calendarEvent: any = {
-                summary: title,
-                description: structuredDescription,
-                start: { dateTime: new Date(meetingDateTime).toISOString(), timeZone: userTimeZone },
-                end: { dateTime: new Date(new Date(meetingDateTime).getTime() + 60 * 60 * 1000).toISOString(), timeZone: userTimeZone },
-                attendees: finalAttendees,
-            };
-
-            if (recurrenceRule !== 'none') {
-                let rruleString = `RRULE:FREQ=${recurrenceRule.toUpperCase()}`;
-                if (recurrenceEndType === 'on' && recurrenceEndDate) {
-                    const untilDate = new Date(recurrenceEndDate);
-                    untilDate.setUTCHours(23, 59, 59, 999);
-                    const untilStringForRrule = (untilDate.toISOString().split('.')[0] + 'Z').replace(/[-:]/g, '');
-                    rruleString += `;UNTIL=${untilStringForRrule}`;
-                } else if (recurrenceEndType === 'after' && recurrenceCount > 0) {
-                    rruleString += `;COUNT=${recurrenceCount}`;
-                }
-                calendarEvent.recurrence = [rruleString];
-            }
-
-            try {
-                const eventResponse = await createEvent(calendarEvent);
-                googleEventId = eventResponse?.result?.id;
-                if (googleEventId) {
-                    addToast('Event created in Google Calendar!', 'info');
-                }
-            } catch (e: any) {
-                const errorMessage = e?.result?.error?.message || e?.message || 'An unknown error occurred.';
-                addToast(`Could not sync to Google Calendar: ${errorMessage}`, 'error');
-                // Continue without calendar sync
-            }
-        }
-
-        // Step 2: Create or update the Syncly meeting with the Google Event ID if available
+        // Step 1: Create or update the Syncly meeting`r`n
         if (isEditMode && meetingToEdit) {
             const payload: Partial<Meeting> = {
                 title,
@@ -181,20 +128,75 @@ const ScheduleMeetingForm: React.FC<ScheduleMeetingFormProps> = ({ manager, team
                 payload.recurrenceCount = recurrenceCount;
             }
             
-            // Only include googleEventId if it exists
-            if (googleEventId) {
-                payload.googleEventId = googleEventId;
-            }
             
             const newMeeting = await DataService.addMeeting(payload, manager);
 
-            // If a placeholder was used in the calendar link, update it now
-            if (googleEventId) {
+            if (syncWithCalendar && isGoogleSignedIn && !isEditMode) {
+                const attendeeLookup = new Map<string, User>();
+                [...teamMembers, manager].forEach(user => attendeeLookup.set(user.id, user));
+                const finalAttendees = isExternalMeeting
+                    ? externalGuests.map(email => ({ email }))
+                    : attendeeIds
+                        .map(id => attendeeLookup.get(id))
+                        .filter((user): user is User => Boolean(user))
+                        .map(user => ({
+                            email: user.notificationEmail || user.email,
+                            displayName: user.name
+                        }));
+
+                const managerUser = attendeeLookup.get(manager.id);
+                if (managerUser && (managerUser.notificationEmail || managerUser.email)) {
+                    finalAttendees.push({
+                        email: managerUser.notificationEmail || managerUser.email,
+                        displayName: managerUser.name
+                    });
+                }
+
                 const finalMeetingLink = `${window.location.origin}/#/meetings/${newMeeting.id}`;
-                const finalDescription = `MEETING AGENDA\n-----------------------------------\n${agenda || 'No agenda provided.'}\n\n-----------------------------------\n✅ View this meeting in Syncly: ${finalMeetingLink}`;
-                await calendarService.updateEvent(googleEventId, { description: finalDescription });
+                const structuredDescription = `MEETING AGENDA\n-----------------------------------\n${agenda || 'No agenda provided.'}\n\n-----------------------------------\n�o. View this meeting in Syncly: ${finalMeetingLink}`;
+                const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                const calendarEvent: any = {
+                    summary: title,
+                    description: structuredDescription,
+                    start: { dateTime: new Date(meetingDateTime).toISOString(), timeZone: userTimeZone },
+                    end: { dateTime: new Date(new Date(meetingDateTime).getTime() + 60 * 60 * 1000).toISOString(), timeZone: userTimeZone },
+                    attendees: finalAttendees,
+                    reminders: {
+                        useDefault: false,
+                        overrides: [
+                            { method: 'popup', minutes: 10 },
+                            { method: 'email', minutes: 24 * 60 },
+                        ],
+                    },
+                };
+
+                if (recurrenceRule !== 'none') {
+                    let rruleString = `RRULE:FREQ=${recurrenceRule.toUpperCase()}`;
+                    if (recurrenceEndType === 'on' && recurrenceEndDate) {
+                        const untilDate = new Date(recurrenceEndDate);
+                        untilDate.setUTCHours(23, 59, 59, 999);
+                        const untilStringForRrule = (untilDate.toISOString().split('.')[0] + 'Z').replace(/[-:]/g, '');
+                        rruleString += `;UNTIL=${untilStringForRrule}`;
+                    } else if (recurrenceEndType === 'after' && recurrenceCount > 0) {
+                        rruleString += `;COUNT=${recurrenceCount}`;
+                    }
+                    calendarEvent.recurrence = [rruleString];
+                }
+
+                calendarService.createEvent(calendarEvent)
+                    .then(async (eventResult) => {
+                        const createdEventId = eventResult?.result?.id;
+                        if (createdEventId) {
+                            await DataService.updateMeeting(newMeeting.id, { googleEventId: createdEventId }, manager);
+                            addToast('Event created in Google Calendar!', 'info');
+                        }
+                    })
+                    .catch((e: any) => {
+                        const errorMessage = e?.result?.error?.message || e?.message || 'An unknown error occurred.';
+                        addToast(`Could not sync to Google Calendar: ${errorMessage}`, 'error');
+                    });
             }
-            
+
             addToast('Formal meeting scheduled successfully!', 'success');
             onSuccess(newMeeting);
         }

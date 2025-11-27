@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && copy sw.js dist\\sw.js",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -16,7 +16,7 @@
     "autoprefixer": "^10.4.21",
     "firebase": "^12.2.1",
     "firebase-admin": "^13.5.0",
-    "firebase-tools": "^14.20.0",
+    "firebase-tools": "^14.25.1",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
     "lucide-react": "0.451.0",

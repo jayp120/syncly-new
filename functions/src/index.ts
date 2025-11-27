@@ -17,7 +17,9 @@ const COLLECTIONS = {
   USERS: 'users',
   ROLES: 'roles',
   BUSINESS_UNITS: 'businessUnits',
-  TENANT_OPERATIONS_LOG: 'tenantOperationsLog'
+  TENANT_OPERATIONS_LOG: 'tenantOperationsLog',
+  NOTIFICATIONS: 'notifications',
+  TENANT_SECRETS: 'tenantSecrets',
 };
 
 // Plan limits
@@ -127,6 +129,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const JAY_PROXY_MAX_RETRIES = 2;
 const JAY_PROXY_RETRY_DELAY_MS = 800;
+const sanitizeAscii = (value: string): string => value.replace(/[^\x20-\x7E]/g, '').trim();
 
 // Request interfaces
 interface CreateTenantRequest {
@@ -388,6 +391,8 @@ export const createTenant = functions.https.onCall(async (data: CreateTenantRequ
     // Step 2: Create tenant record with admin details
     const tenant = {
       id: tenantId,
+      // Store both companyName and name for compatibility with existing UI
+      name: companyName,
       companyName,
       plan,
       status: 'Active' as TenantStatus,
@@ -612,10 +617,10 @@ export const updateTenantPlan = functions.https.onCall(async (data: {
         updatedAt: Date.now() 
       });
 
-    await logTenantOperation({
-      tenantId,
-      operation: 'update',
-      performedBy: context.auth.uid,
+  await logTenantOperation({
+    tenantId,
+    operation: 'update',
+    performedBy: context.auth.uid,
       performedByEmail: callerData.email,
       details: { plan, userLimit: PLAN_LIMITS[plan] }
     });
@@ -624,6 +629,82 @@ export const updateTenantPlan = functions.https.onCall(async (data: {
   } catch (error: any) {
     throw new functions.https.HttpsError('internal', error.message);
   }
+});
+
+/**
+ * Cloud Function: Set Gemini API key for a tenant (platform admin only)
+ */
+export const setTenantGeminiKey = functions.https.onCall(async (data: any, context) => {
+  if (!context.auth || context.auth.token.isPlatformAdmin !== true) {
+    throw new functions.https.HttpsError('permission-denied', 'Only platform admins can set tenant AI keys');
+  }
+
+  const { tenantId, apiKey } = data || {};
+  if (typeof tenantId !== 'string' || !tenantId.trim()) {
+    throw new functions.https.HttpsError('invalid-argument', 'tenantId is required');
+  }
+  if (typeof apiKey !== 'string' || !apiKey.trim()) {
+    throw new functions.https.HttpsError('invalid-argument', 'apiKey is required');
+  }
+
+  const sanitized = sanitizeAscii(apiKey);
+  if (!sanitized) {
+    throw new functions.https.HttpsError('invalid-argument', 'apiKey must contain printable ASCII characters');
+  }
+
+  const last4 = sanitized.slice(-4);
+  const docRef = admin.firestore().collection(COLLECTIONS.TENANT_SECRETS).doc(tenantId);
+  await docRef.set(
+    {
+      geminiApiKey: sanitized,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedBy: context.auth.uid,
+      updatedByEmail: (context.auth.token as any)?.email || null,
+      last4,
+    },
+    { merge: true }
+  );
+
+  await logTenantOperation({
+    tenantId,
+    operation: 'update',
+    performedBy: context.auth.uid,
+    performedByEmail: (context.auth.token as any)?.email || 'unknown',
+    details: { action: 'setGeminiApiKey', last4 },
+  });
+
+  return { success: true, last4 };
+});
+
+/**
+ * Cloud Function: Get Gemini API key for current tenant (platform admin or tenant user)
+ */
+export const getTenantGeminiKey = functions.https.onCall(async (data: any, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
+  }
+
+  const requestedTenantId: string | undefined = typeof data?.tenantId === 'string' ? data.tenantId : undefined;
+  const callerTenantId = (context.auth.token as any)?.tenantId as string | undefined;
+  const isPlatformAdmin = context.auth.token.isPlatformAdmin === true;
+
+  const tenantIdToUse = isPlatformAdmin ? requestedTenantId || callerTenantId : callerTenantId;
+  if (!tenantIdToUse) {
+    throw new functions.https.HttpsError('failed-precondition', 'No tenant context available for this user');
+  }
+
+  if (!isPlatformAdmin && callerTenantId !== tenantIdToUse) {
+    throw new functions.https.HttpsError('permission-denied', 'You can only access your own tenant AI key');
+  }
+
+  const doc = await admin.firestore().collection(COLLECTIONS.TENANT_SECRETS).doc(tenantIdToUse).get();
+  if (!doc.exists || !doc.data()?.geminiApiKey) {
+    return { success: false, apiKey: null, last4: null };
+  }
+
+  const apiKey: string = doc.data()?.geminiApiKey;
+  const last4: string | null = doc.data()?.last4 || apiKey.slice(-4);
+  return { success: true, apiKey, last4, tenantId: tenantIdToUse };
 });
 
 /**
@@ -1094,6 +1175,7 @@ export const createUser = functions.https.onCall(async (data: {
   roleId: string;
   roleName?: string;
   notificationEmail?: string;
+  phoneNumber?: string;
   businessUnitId?: string;
   businessUnitName?: string;
   designation?: string;
@@ -1111,6 +1193,7 @@ export const createUser = functions.https.onCall(async (data: {
     roleId,
     roleName,
     notificationEmail,
+    phoneNumber,
     businessUnitId,
     businessUnitName,
     designation,
@@ -1263,6 +1346,7 @@ export const createUser = functions.https.onCall(async (data: {
       businessUnitId: businessUnitId || '',
       businessUnitName: businessUnitName || '',
       designation: designation || '',
+      phoneNumber: phoneNumber || '',
       status: 'active',
       isSuspended: false,
       isPlatformAdmin: false,
@@ -2129,6 +2213,56 @@ export const sendTelegramNotification = functions.https.onCall(async (data, cont
 });
 
 /**
+ * Firestore Trigger: Forward in-app notifications to WhatsApp
+ */
+export const notifyWhatsAppOnNotification = functions.firestore
+  .document(`${COLLECTIONS.NOTIFICATIONS}/{notificationId}`)
+  .onCreate(async (snapshot) => {
+    const notificationData = snapshot.data();
+    if (!notificationData?.userId) {
+      return;
+    }
+
+    try {
+      const { isWhatsAppConfigured, sendWhatsAppNotification } = await import('./whatsapp/notifications');
+      if (!isWhatsAppConfigured()) {
+        console.log('[WhatsApp] Integration not configured. Skipping.');
+        return;
+      }
+
+      const userDoc = await admin.firestore().collection(COLLECTIONS.USERS).doc(notificationData.userId).get();
+      if (!userDoc.exists) {
+        console.warn('[WhatsApp] User not found for notification', notificationData.userId);
+        return;
+      }
+
+      const userData = userDoc.data() || {};
+      const phoneNumber = (userData.phoneNumber || userData.contactNumber || '').toString().trim();
+      if (!phoneNumber) {
+        console.log('[WhatsApp] User has no phone number, skipping send');
+        return;
+      }
+
+      const baseUrl = process.env.APP_BASE_URL || 'https://syncly.one';
+      const notificationLink: string | undefined = notificationData.link
+        ? (notificationData.link.startsWith('http')
+            ? notificationData.link
+            : `${baseUrl}${notificationData.link.startsWith('/') ? '' : '/'}${notificationData.link}`)
+        : undefined;
+
+      await sendWhatsAppNotification({
+        phoneNumber,
+        userName: userData.name,
+        title: notificationData.type === 'reminder' ? 'Syncly Reminder' : 'Syncly Alert',
+        body: notificationData.message || 'You have a new Syncly notification.',
+        url: notificationLink
+      });
+    } catch (error) {
+      console.error('[WhatsApp] Failed to send notification:', error);
+    }
+  });
+
+/**
  * Cloud Function: Generate Telegram Linking Code
  * 
  * Creates a one-time code for linking Telegram accounts
@@ -2318,7 +2452,7 @@ export const submitDemoRequest = functions.https.onCall(async (data, context) =>
 
     try {
       await sgMail.send({
-        to: 'syncly19@gmail.com',
+        to: 'support@syncly.one',
         from: SENDGRID_FROM_EMAIL,
         subject: emailSubject,
         html: emailBody

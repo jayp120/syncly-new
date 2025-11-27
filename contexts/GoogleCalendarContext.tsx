@@ -116,9 +116,17 @@ export const GoogleCalendarProvider: React.FC<{ children: ReactNode }> = ({ chil
               return;
             }
             try {
-              await calendarService.exchangeAuthCode(response.code);
+              const result = await calendarService.exchangeAuthCode(response.code);
               addToast('Google Calendar connected!', 'success');
               setInitializationError(null);
+              setIsSignedIn(true);
+              if (result?.profile) {
+                setGoogleUser({
+                  name: result.profile.name || result.profile.email || 'Google User',
+                  email: result.profile.email || 'unknown@email.com',
+                  picture: result.profile.picture
+                });
+              }
             } catch (error: any) {
               console.error('[GoogleCalendarContext] Exchange failed:', error);
               const message =
@@ -160,7 +168,16 @@ export const GoogleCalendarProvider: React.FC<{ children: ReactNode }> = ({ chil
       return;
     }
     isLinkingRef.current = true;
-    codeClientRef.current.requestCode();
+    try {
+      codeClientRef.current.requestCode();
+      window.setTimeout(() => {
+        isLinkingRef.current = false;
+      }, 5000);
+    } catch (error) {
+      console.error('[GoogleCalendarContext] Failed to open Google auth:', error);
+      isLinkingRef.current = false;
+      setInitializationError('Browser blocked the Google sign-in popup. Please try again.');
+    }
   }, [currentUser?.id]);
 
   const signOut = useCallback(async () => {

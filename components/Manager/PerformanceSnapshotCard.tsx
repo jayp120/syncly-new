@@ -84,6 +84,25 @@ const PerformanceSnapshotCard: React.FC<PerformanceSnapshotCardProps> = ({
     }
   }, [selectedEmployeeId, selectedPeriod, teamMembers, allReports, allTasks, allLeaveRecords, addToast, getDateRange]);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    DataService.getGeminiApiKeyAsync().then((key) => {
+      if (isMounted) {
+        setIsAiAvailable(Boolean(key));
+      }
+    });
+
+    const unsubscribe = DataService.onGeminiKeyChange((value) => {
+      setIsAiAvailable(Boolean(value));
+    });
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
+  }, []);
+
   // Auto-generate on selection change
   useEffect(() => {
       if (selectedEmployeeId && isAiAvailable) {
@@ -95,7 +114,7 @@ const PerformanceSnapshotCard: React.FC<PerformanceSnapshotCardProps> = ({
 
 
   return (
-    <Card title="⚡️ Performance Snapshot" titleIcon={<i className="fas fa-bolt"/>} className="h-full flex flex-col">
+    <Card title="Performance Snapshot" titleIcon={<i className="fas fa-bolt"/>} className="h-full flex flex-col">
       <div className="flex flex-col sm:flex-row gap-4 mb-4">
         <Select
           label="Select Employee"

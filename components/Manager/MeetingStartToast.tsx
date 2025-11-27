@@ -12,9 +12,10 @@ interface MeetingStartToastProps {
   occurrenceDate: Date;
   allUsers: User[];
   onClose: () => void;
+  minutesUntil?: number;
 }
 
-const MeetingStartToast: React.FC<MeetingStartToastProps> = ({ meeting, occurrenceDate, allUsers, onClose }) => {
+const MeetingStartToast: React.FC<MeetingStartToastProps> = ({ meeting, occurrenceDate, allUsers, onClose, minutesUntil }) => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const { addToast } = useToast();
@@ -43,7 +44,7 @@ const MeetingStartToast: React.FC<MeetingStartToastProps> = ({ meeting, occurren
       </h4>
       <p className="font-semibold text-lg my-1 text-secondary dark:text-slate-200">{meeting.title}</p>
       <p className="text-sm text-slate-600 dark:text-slate-300">
-        at {occurrenceDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        {minutesUntil !== undefined ? `Starting in ${minutesUntil} minute${minutesUntil === 1 ? '' : 's'}` : 'Upcoming'} · {occurrenceDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
       </p>
       <div className="flex items-center -space-x-2 my-2" title={`${attendees.length} attendee(s)`}>
         {attendees.slice(0, 5).map(user => (

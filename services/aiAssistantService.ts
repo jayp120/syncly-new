@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { getGeminiApiKey } from "./dataService";
+import { getGeminiApiKey, getGeminiApiKeyAsync } from "./dataService";
 import { getEnvString } from "./env";
 
 export type JayMessage = {
@@ -217,7 +217,12 @@ export const askJay = async (
   }
 
   const proxyUrl = getProxyUrl();
-  const apiKey = proxyUrl ? null : getGeminiApiKey();
+  let apiKey = proxyUrl ? null : getGeminiApiKey();
+
+  // If no direct key cached yet, try to hydrate from tenant storage/server.
+  if (!proxyUrl && !apiKey) {
+    apiKey = await getGeminiApiKeyAsync();
+  }
 
   if (!proxyUrl && !apiKey) {
     throw Object.assign(new Error("Jay is not configured."), {

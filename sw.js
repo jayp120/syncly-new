@@ -1,11 +1,12 @@
 // sw.js - Service Worker
 
-const CACHE_NAME = 'syncly-cache-v1-2025-10-23'; // Fresh cache for new deployment
+const CACHE_NAME = 'syncly-cache-v1-2025-11-20'; // Fresh cache for new deployment
 const urlsToCache = [
   './',
   './index.html',
-  // Add other critical assets you want to cache for offline use
-  // e.g., './styles.css', './app.js', './manifest.json', './icons/icon-192x192.png'
+  './manifest.json',
+  './icons/icon-192x192.png',
+  './icons/icon-512x512.png',
 ];
 
 // Install event: Cache core assets

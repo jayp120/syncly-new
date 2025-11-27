@@ -21,13 +21,16 @@ const VARIANT_COPY: Record<
     badge: string;
     suggestions: string[];
     placeholder: string;
+    launcherTitle: string;
+    launcherSubtitle: string;
+    status: string;
   }
 > = {
   app: {
     greeting:
-      "Hey, I'm Jay—your Syncly co-pilot. Need help with EODs, leave flows, announcements, or performance insights? Ask away!",
+      "Hey, I'm Jay - your Syncly co-pilot. Need help with EODs, leave flows, announcements, or performance insights? Ask away!",
     subtitle: 'Smarter workflows in one chat',
-    badge: 'Jay • Syncly AI',
+    badge: 'Jay - Syncly AI',
     suggestions: [
       'Give me ideas to improve EOD consistency for my team.',
       'Walk me through setting up an HR announcement board.',
@@ -35,21 +38,28 @@ const VARIANT_COPY: Record<
       "What's the best way to plan future leaves in Syncly?",
     ],
     placeholder: 'Ask Jay anything about Syncly...',
+    launcherTitle: 'Syncly AI Assistant',
+    launcherSubtitle: 'Ask anything about Syncly',
+    status: 'Jay is connected',
   },
   landing: {
     greeting:
-      "Hey, I'm Jay—your Syncly tour guide. Curious about our AI-native workspace assistant or pricing? I can help you explore before you sign up.",
+      "Hey, I'm Jay - your Syncly tour guide. Curious about our AI-native workspace assistant or pricing? I can help you explore before you sign up.",
     subtitle: 'Ask about pricing, features, and onboarding',
-    badge: 'Chat with Jay • Syncly',
+    badge: 'Chat with Jay - Syncly',
     suggestions: [
       'How is Syncly different from other ops tools?',
       'Show me the AI features teams love.',
-      'What plans do you offer and what’s included?',
+      "What plans do you offer and what's included?",
       'How do I book a live demo with your team?',
     ],
-    placeholder: 'Ask Jay about Syncly’s product or plans...',
+    placeholder: "Ask Jay about Syncly's product or plans...",
+    launcherTitle: 'Syncly AI Assistant',
+    launcherSubtitle: 'Ask about Syncly',
+    status: 'Jay is connected',
   },
 };
+
 
 const createGreeting = (variant: JayVariant): ConversationMessage => ({
   id: `jay-greeting-${variant}`,
@@ -253,6 +263,10 @@ Use this context to tailor your advice.`,
             <div>
               <p className="text-sm font-semibold text-slate-900 dark:text-white">{copy.badge}</p>
               <p className="text-xs text-slate-500 dark:text-slate-400">{copy.subtitle}</p>
+              <p className="mt-0.5 inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[11px] font-semibold text-green-600 dark:bg-green-900/40 dark:text-green-200">
+                <span className="inline-block h-2 w-2 rounded-full bg-green-500"></span>
+                {copy.status}
+              </p>
             </div>
           </div>
           <button
@@ -282,9 +296,9 @@ Use this context to tailor your advice.`,
                 } ${message.isError ? 'border border-rose-200 dark:border-rose-400/60' : ''}`}
               >
                 {message.isPending ? (
-                  <span className="flex items-center gap-2 text-slate-500">
-                    <Loader2 size={14} className="animate-spin" />
-                    Crafting a response...
+                  <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2 text-slate-600 dark:bg-slate-800 dark:text-slate-100">
+                    <Loader2 size={14} className="animate-spin text-indigo-500" />
+                    Jay is thinking...
                   </span>
                 ) : (
                   <div className="space-y-1 whitespace-pre-line">
@@ -364,12 +378,8 @@ Use this context to tailor your advice.`,
             <Sparkles size={20} className="animate-pulse" />
           </span>
           <div className="text-left">
-            <p className="text-sm font-semibold text-slate-900 dark:text-white">
-              {variant === 'landing' ? 'Ask Jay about Syncly' : 'Jay is here'}
-            </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              {variant === 'landing' ? 'Pricing, AI features, onboarding' : 'Ask anything about Syncly'}
-            </p>
+            <p className="text-sm font-semibold text-slate-900 dark:text-white">{copy.launcherTitle}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">{copy.launcherSubtitle}</p>
           </div>
           <Bot size={22} className="text-indigo-500" />
         </button>

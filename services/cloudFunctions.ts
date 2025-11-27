@@ -53,6 +53,33 @@ export interface SubmitDemoRequestPayload {
   companySize: string;
 }
 
+export interface SetTenantGeminiKeyRequest {
+  tenantId: string;
+  apiKey: string;
+}
+
+export const callSetTenantGeminiKey = async (payload: SetTenantGeminiKeyRequest): Promise<{ success: boolean; last4: string }> => {
+  try {
+    const fn = httpsCallable<SetTenantGeminiKeyRequest, { success: boolean; last4: string }>(functions, 'setTenantGeminiKey');
+    const result = await fn(payload);
+    return result.data;
+  } catch (error: any) {
+    console.error('Error calling setTenantGeminiKey function:', error);
+    throw new Error(error.message || 'Failed to set tenant AI key');
+  }
+};
+
+export const callGetTenantGeminiKey = async (tenantId?: string): Promise<{ success: boolean; apiKey: string | null; last4: string | null; tenantId?: string }> => {
+  try {
+    const fn = httpsCallable<{ tenantId?: string }, { success: boolean; apiKey: string | null; last4: string | null; tenantId?: string }>(functions, 'getTenantGeminiKey');
+    const result = await fn({ tenantId });
+    return result.data;
+  } catch (error: any) {
+    console.error('Error calling getTenantGeminiKey function:', error);
+    throw new Error(error.message || 'Failed to get tenant AI key');
+  }
+};
+
 /**
  * Call Cloud Function to fix all user custom claims
  * This migration sets isTenantAdmin flag for all existing Admin role users
@@ -213,6 +240,7 @@ export interface CreateUserRequest {
   roleId: string;
   roleName?: string;
   notificationEmail?: string;
+  phoneNumber?: string;
   businessUnitId?: string;
   businessUnitName?: string;
   designation?: string;

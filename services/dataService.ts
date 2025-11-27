@@ -53,6 +53,7 @@ import * as leaderboardService from './leaderboardService';
 import { ensureFirestoreReady as migrateToFirestore } from './firestoreMigration';
 import { getCurrentTenantId, requireTenantId } from './tenantContext';
 import { getEnvString } from './env';
+import { callGetTenantGeminiKey, callSetTenantGeminiKey } from './cloudFunctions';
 import { 
   userRepository, 
   roleRepository, 
@@ -182,7 +183,10 @@ const sanitizeAnnouncementDraft = (draft: AnnouncementDraft): AnnouncementDraft 
 const GEMINI_KEY_STORAGE_KEY = 'GEMINI_API_KEY';
 const GEMINI_KEY_UPDATED_EVENT = 'syncly:gemini-key-updated';
 const GEMINI_KEY_MISSING_MESSAGE =
-  'AI features are not configured yet. Open your profile menu -> Manage AI API Key to paste a Google Gemini key.';
+  'AI features are not configured for this tenant yet. Please ask an admin to set the Gemini key.';
+const ALLOW_CLIENT_GEMINI_KEY =
+  ((import.meta as any)?.env?.VITE_ALLOW_CLIENT_GEMINI_KEY ?? 'false').toString().toLowerCase() === 'true';
+export const isClientGeminiKeyAllowed = (): boolean => ALLOW_CLIENT_GEMINI_KEY;
 
 const dispatchGeminiKeyUpdate = (value: string | null) => {
   if (typeof window === 'undefined') return;
@@ -197,60 +201,133 @@ const dispatchGeminiKeyUpdate = (value: string | null) => {
   }
 };
 
-const getApiKey = (): string | null => {
+const sanitizeApiKey = (key: string): string => {
+  // Strip any non-ASCII characters to avoid invalid header values.
+  return key.replace(/[^\x20-\x7E]/g, '').trim();
+};
+
+// --- Gemini rate limit guard (client-side cooldown to prevent toast spam) ---
+const GEMINI_RATE_LIMIT_COOLDOWN_MS = 60_000;
+let geminiRateLimitedUntil = 0;
+const isGeminiRateLimited = () => Date.now() < geminiRateLimitedUntil;
+const markGeminiRateLimited = () => {
+  geminiRateLimitedUntil = Date.now() + GEMINI_RATE_LIMIT_COOLDOWN_MS;
+};
+const assertGeminiNotRateLimited = () => {
+  if (isGeminiRateLimited()) {
+    throw new Error('Google Gemini rate limit reached. Please wait a moment or use a different API key.');
+  }
+};
+
+const getTenantScopedStorageKey = (): string => {
+  const tenantId = getCurrentTenantId();
+  return tenantId ? `${GEMINI_KEY_STORAGE_KEY}_${tenantId}` : GEMINI_KEY_STORAGE_KEY;
+};
+
+let tenantGeminiKeyCache: { tenantId: string | null; key: string | null; ts?: number } = { tenantId: null, key: null };
+const TENANT_KEY_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+const getCachedApiKey = (): string | null => {
+  if (!ALLOW_CLIENT_GEMINI_KEY) return null;
+  const tenantId = getCurrentTenantId();
+  // Prefer tenant-scoped cache first (with TTL)
+  if (
+    tenantGeminiKeyCache.key &&
+    tenantGeminiKeyCache.tenantId === tenantId &&
+    tenantGeminiKeyCache.ts &&
+    Date.now() - tenantGeminiKeyCache.ts < TENANT_KEY_TTL_MS
+  ) {
+    return tenantGeminiKeyCache.key || null;
+  }
+
   if (typeof window !== 'undefined') {
+    const storageKey = getTenantScopedStorageKey();
     try {
-      const localKey = window.localStorage?.getItem(GEMINI_KEY_STORAGE_KEY);
-      if (localKey) {
-        return localKey;
-      }
-    } catch (error) {
-      console.warn('Unable to read Gemini API key from localStorage:', error);
-    }
-
-    try {
-      const sessionKey = window.sessionStorage?.getItem(GEMINI_KEY_STORAGE_KEY);
-      if (sessionKey) {
-        // Backfill localStorage so the key persists across sessions.
-        try {
-          window.localStorage?.setItem(GEMINI_KEY_STORAGE_KEY, sessionKey);
-          dispatchGeminiKeyUpdate(sessionKey);
-        } catch {
-          // Ignore localStorage write errors (e.g., private browsing restrictions)
+      const cached = window.localStorage?.getItem(storageKey) || window.sessionStorage?.getItem(storageKey);
+      if (cached) {
+        const sanitized = sanitizeApiKey(cached);
+        if (sanitized) {
+          tenantGeminiKeyCache = { tenantId, key: sanitized, ts: Date.now() };
+          return sanitized;
         }
-        return sessionKey;
       }
     } catch (error) {
-      console.warn('Unable to read Gemini API key from sessionStorage:', error);
+      console.warn('Unable to read Gemini API key from storage:', error);
     }
   }
 
-  const envKey = getEnvString('VITE_GEMINI_API_KEY', 'GEMINI_API_KEY', 'API_KEY');
-  if (envKey) {
-    return envKey;
+  return null;
+};
+
+const fetchTenantGeminiKey = async (): Promise<string | null> => {
+  let tenantId: string | null = null;
+  try {
+    tenantId = requireTenantId();
+  } catch {
+    tenantId = getCurrentTenantId();
   }
+  if (!tenantId) {
+    console.warn('[Gemini] No tenantId in context while fetching tenant key.');
+    return null;
+  }
+
+  // Always prefer a fresh fetch; fall back to cached on error.
+  try {
+    const result = await callGetTenantGeminiKey(tenantId);
+    if (result?.success && typeof result.apiKey === 'string' && result.apiKey.trim()) {
+      const sanitized = sanitizeApiKey(result.apiKey);
+      if (!sanitized) return null;
+      tenantGeminiKeyCache = { tenantId, key: sanitized, ts: Date.now() };
+      dispatchGeminiKeyUpdate(sanitized);
+      return sanitized;
+    }
+  } catch (error) {
+    console.warn('Unable to fetch tenant Gemini key from server:', error);
+    if (tenantGeminiKeyCache.key && tenantGeminiKeyCache.tenantId === tenantId) {
+      return tenantGeminiKeyCache.key;
+    }
+  }
+
+  return null;
+};
+
+const getApiKeyAsync = async (): Promise<string | null> => {
+  // Always try to hydrate from the tenant-level key first so shared keys work across users/devices.
+  const tenantKey = await fetchTenantGeminiKey();
+  if (tenantKey) return tenantKey;
+
+  // Fallback to whatever is stored locally (per-device override)
+  const cached = getCachedApiKey();
+  if (cached) return cached;
+
   return null;
 };
 
 export const isAiConfigured = (): boolean => {
-  return !!getApiKey();
+  const tenantKeyAvailable =
+    tenantGeminiKeyCache.key && tenantGeminiKeyCache.tenantId === getCurrentTenantId();
+  return Boolean(tenantKeyAvailable || getCachedApiKey());
 };
 
-export const getGeminiApiKey = (): string | null => getApiKey();
+export const getGeminiApiKey = (): string | null => getCachedApiKey();
+export const getGeminiApiKeyAsync = async (): Promise<string | null> => await getApiKeyAsync();
 
 export const setGeminiApiKey = (apiKey: string): void => {
+  if (!ALLOW_CLIENT_GEMINI_KEY) return;
   if (typeof window === 'undefined') return;
-  const trimmed = apiKey.trim();
+  const trimmed = sanitizeApiKey(apiKey);
   if (!trimmed) return;
 
+  const storageKey = getTenantScopedStorageKey();
+
   try {
-    window.localStorage?.setItem(GEMINI_KEY_STORAGE_KEY, trimmed);
+    window.localStorage?.setItem(storageKey, trimmed);
   } catch (error) {
     console.warn('Unable to persist Gemini API key in localStorage:', error);
   }
 
   try {
-    window.sessionStorage?.setItem(GEMINI_KEY_STORAGE_KEY, trimmed);
+    window.sessionStorage?.setItem(storageKey, trimmed);
   } catch (error) {
     console.warn('Unable to persist Gemini API key in sessionStorage:', error);
   }
@@ -261,14 +338,16 @@ export const setGeminiApiKey = (apiKey: string): void => {
 export const clearGeminiApiKey = (): void => {
   if (typeof window === 'undefined') return;
 
+  const storageKey = getTenantScopedStorageKey();
+
   try {
-    window.localStorage?.removeItem(GEMINI_KEY_STORAGE_KEY);
+    window.localStorage?.removeItem(storageKey);
   } catch (error) {
     console.warn('Unable to remove Gemini API key from localStorage:', error);
   }
 
   try {
-    window.sessionStorage?.removeItem(GEMINI_KEY_STORAGE_KEY);
+    window.sessionStorage?.removeItem(storageKey);
   } catch (error) {
     console.warn('Unable to remove Gemini API key from sessionStorage:', error);
   }
@@ -276,15 +355,27 @@ export const clearGeminiApiKey = (): void => {
   dispatchGeminiKeyUpdate(null);
 };
 
+export const setTenantGeminiApiKey = async (apiKey: string): Promise<{ success: boolean; last4: string }> => {
+  const sanitized = sanitizeApiKey(apiKey);
+  if (!sanitized) throw new Error('API key is required');
+  const tenantId = requireTenantId();
+  const result = await callSetTenantGeminiKey({ tenantId, apiKey: sanitized });
+  tenantGeminiKeyCache = { tenantId, key: sanitized };
+  dispatchGeminiKeyUpdate(sanitized);
+  return result;
+};
+
 export const onGeminiKeyChange = (callback: (value: string | null) => void): (() => void) => {
   if (typeof window === 'undefined') return () => undefined;
+
+  const storageKey = getTenantScopedStorageKey();
 
   const handler = (event: Event) => {
     if (event instanceof CustomEvent && event.type === GEMINI_KEY_UPDATED_EVENT) {
       callback((event.detail?.value as string | null) ?? null);
     } else if (event.type === 'storage') {
       const storageEvent = event as StorageEvent;
-      if (storageEvent.key === GEMINI_KEY_STORAGE_KEY) {
+      if (storageEvent.key === storageKey) {
         callback(storageEvent.newValue);
       }
     }
@@ -317,7 +408,12 @@ const normalizeGeminiError = (error: any): Error => {
     error?.status === 429 ||
     error?.error?.code === 429
   ) {
+    markGeminiRateLimited();
     return new Error('Google Gemini rate limit reached. Please wait a moment or use a different API key.');
+  }
+
+  if (/API Key not found/i.test(message) || /API_KEY_INVALID/i.test(message)) {
+    return new Error('AI key missing or invalid for this tenant. Platform admin: set a valid Gemini key in the Super Admin panel.');
   }
 
   return new Error(message);
@@ -637,6 +733,7 @@ export const addUser = async (userData: Omit<User, 'id' | 'status' | 'roleName' 
             businessUnitId: userData.businessUnitId || '',
             businessUnitName: businessUnit?.name || '',
             designation: userData.designation || '',
+            phoneNumber: userData.phoneNumber || '',
             tenantId: tenantId
         });
         
@@ -691,6 +788,9 @@ export const updateUser = async (updatedUserData: User, actor: User): Promise<Us
     }
     if (oldUser.notificationEmail !== updatedUserData.notificationEmail) {
         changes.push({ type: ActivityLogActionType.USER_NOTIFICATION_EMAIL_CHANGED, description: `notification email was updated`});
+    }
+    if ((oldUser as any).phoneNumber !== updatedUserData.phoneNumber) {
+        changes.push({ type: ActivityLogActionType.USER_ROLE_CHANGED, description: `contact number was updated`});
     }
     if (oldUser.name !== updatedUserData.name) changes.push({ type: ActivityLogActionType.USER_ROLE_CHANGED, description: `name was updated to "${updatedUserData.name}"` });
     if (oldUser.businessUnitId !== updatedUserData.businessUnitId) changes.push({ type: ActivityLogActionType.USER_ROLE_CHANGED, description: `business unit was updated` });
@@ -2037,10 +2137,8 @@ export const finalizeMeetingInstance = async (meetingId: string, date: string, n
     const meeting = await getMeetingById(meetingId);
     if (!meeting) throw new Error("Meeting not found");
 
-    const createdTaskIds: string[] = [];
-    const createdTasks: Task[] = [];
-    for (const task of pendingTasks) {
-        const createdTask = await addTask({
+    const createdTasks: Task[] = await Promise.all(pendingTasks.map(task =>
+        addTask({
             title: task.title,
             description: task.description || '',
             dueDate: task.dueDate,
@@ -2051,10 +2149,9 @@ export const finalizeMeetingInstance = async (meetingId: string, date: string, n
             isPersonalTask: false,
             meetingId: meeting.id,
             status: TaskStatus.NotStarted
-        }, actor);
-        createdTaskIds.push(createdTask.id);
-        createdTasks.push(createdTask);
-    }
+        }, actor)
+    ));
+    const createdTaskIds = createdTasks.map(task => task.id);
 
     const tenantId = requireTenantId();
     const instanceId = generateId('inst');
@@ -2547,7 +2644,8 @@ export const getEmployeeConsistencyDetails = async (): Promise<DelinquentEmploye
 
 export const processAndCacheMonthlyAwards = async (): Promise<void> => { /* ... */ };
 export const generateReportSummary = async (reports: EODReport[]): Promise<string> => {
-  const apiKey = getApiKey();
+  assertGeminiNotRateLimited();
+  const apiKey = await getGeminiApiKeyAsync();
   if (!apiKey) throw new Error(GEMINI_KEY_MISSING_MESSAGE);
 
   try {
@@ -2567,7 +2665,8 @@ export const generateReportSummary = async (reports: EODReport[]): Promise<strin
 };
 
 export const generatePerformanceReviewSummary = async (employee: User, reports: EODReport[], tasks: Task[], leaves: LeaveRecord[], dateRange: DateRange): Promise<string> => {
-  const apiKey = getApiKey();
+  assertGeminiNotRateLimited();
+  const apiKey = await getGeminiApiKeyAsync();
   if (!apiKey) throw new Error(GEMINI_KEY_MISSING_MESSAGE);
   try {
     const ai = new GoogleGenAI({ apiKey });
@@ -2628,7 +2727,8 @@ export const generatePerformanceReviewSummary = async (employee: User, reports: 
 };
 
 export const generatePerformanceSnapshotSummary = async (employee: User, reports: EODReport[], tasks: Task[], leaves: LeaveRecord[], dateRange: DateRange): Promise<string> => {
-  const apiKey = getApiKey();
+  assertGeminiNotRateLimited();
+  const apiKey = await getGeminiApiKeyAsync();
   if (!apiKey) throw new Error(GEMINI_KEY_MISSING_MESSAGE);
   try {
     const ai = new GoogleGenAI({ apiKey });

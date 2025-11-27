@@ -79,9 +79,18 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed, onToggl
   const { currentUser, hasPermission } = useAuth();
   
   const filteredNavItems = navItems.filter(item => {
+    // Platform admin should only see platform-level navigation
+    if (currentUser?.isPlatformAdmin) {
+      return item.permission === 'dashboard' || item.permission === 'super_admin';
+    }
+
     if (item.permission === 'dashboard') return true; 
-    if (item.permission === 'super_admin') return currentUser?.roleName === 'Super Admin';
+    if (item.permission === 'super_admin') return currentUser?.isPlatformAdmin === true;
     if (item.permission === 'integrations') return hasPermission(Permission.CAN_USE_GOOGLE_CALENDAR) || hasPermission(Permission.CAN_USE_TELEGRAM_BOT);
+    // Directors should always see Team Tasks even if the role doc/permissions are missing that enum
+    if (item.permission === Permission.CAN_MANAGE_TEAM_TASKS && currentUser?.roleName?.toLowerCase() === 'director') {
+      return true;
+    }
     return hasPermission(item.permission);
   });
 

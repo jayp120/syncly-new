@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../Auth/AuthContext';
 import { User, Notification as AppNotification, ReportStatus, Permission } from '../../types';
 import * as DataService from '../../services/dataService';
+import { isClientGeminiKeyAllowed } from '../../services/dataService';
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from '../Common/ThemeToggle';
 import UserAvatar from '../Common/UserAvatar';
@@ -11,6 +12,7 @@ import ConfirmationModal from '../Common/ConfirmationModal';
 import Modal from '../Common/Modal';
 import Alert from '../Common/Alert';
 import { useRealTimeNotifications } from '../../hooks/useRealTimeNotifications';
+import { tenantRepository } from '../../services/repositories';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -85,7 +87,7 @@ const groupNotifications = (notifications: AppNotification[], currentUserId: str
 
 
 const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
-  const { currentUser, logout, hasPermission } = useAuth();
+  const { currentUser, logout, hasPermission, currentTenantId } = useAuth();
   const { addToast } = useToast();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -106,7 +108,14 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
   const [isSavingApiKey, setIsSavingApiKey] = useState(false);
   const [apiKeyError, setApiKeyError] = useState<string | null>(null);
   const [hasStoredGeminiKey, setHasStoredGeminiKey] = useState(false);
-  const canManageAiKey = !!currentUser && (currentUser.isPlatformAdmin || (typeof hasPermission === 'function' && hasPermission(Permission.CAN_USE_GEMINI_AI)));
+  const [hasTenantGeminiKey, setHasTenantGeminiKey] = useState(false);
+  const allowClientGeminiKey = isClientGeminiKeyAllowed();
+  const canManageAiKey = !!currentUser && currentUser.isPlatformAdmin;
+  const [orgLabel, setOrgLabel] = useState<string>(() => {
+    if (!currentUser) return '';
+    if (currentUser.isPlatformAdmin) return 'Syncly Platform Admin';
+    return currentUser.tenant?.companyName || 'Your organization';
+  });
 
   useEffect(() => {
     if (!isApiKeyModalOpen) {
@@ -118,10 +127,14 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
     setHasStoredGeminiKey(Boolean(currentKey));
     setApiKeyError(null);
 
+    // Check tenant-level key availability
+    DataService.getGeminiApiKeyAsync().then((key) => setHasTenantGeminiKey(Boolean(key)));
+
     const unsubscribe = DataService.onGeminiKeyChange((value) => {
       setAiApiKey(value ?? '');
       setHasStoredGeminiKey(Boolean(value));
       setApiKeyError(null);
+      setHasTenantGeminiKey(Boolean(value));
     });
 
     return () => {
@@ -129,7 +142,33 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
     };
   }, [isApiKeyModalOpen]);
 
+  useEffect(() => {
+    if (!currentUser) {
+      setOrgLabel('');
+      return;
+    }
+    if (currentUser.isPlatformAdmin) {
+      setOrgLabel('Syncly Platform Admin');
+      return;
+    }
+    const fallback = currentUser.tenant?.companyName || 'Your organization';
+    setOrgLabel(fallback);
+    if (!currentTenantId) return;
+
+    tenantRepository
+      .getById(currentTenantId)
+      .then((tenant) => {
+        if (tenant) {
+          setOrgLabel(tenant.name || (tenant as any).companyName || tenant.domain || fallback);
+        }
+      })
+      .catch(() => {
+        setOrgLabel(fallback);
+      });
+  }, [currentUser, currentTenantId]);
+
   const handleSaveApiKey = useCallback(() => {
+    if (!allowClientGeminiKey) return;
     const trimmed = aiApiKey.trim();
     if (!trimmed) {
       setApiKeyError('Please paste a valid Google Gemini API key to enable AI features.');
@@ -152,6 +191,7 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
   }, [aiApiKey, addToast]);
 
   const handleClearApiKey = useCallback(() => {
+    if (!allowClientGeminiKey) return;
     DataService.clearGeminiApiKey();
     setAiApiKey('');
     setApiKeyError(null);
@@ -342,7 +382,10 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
         >
           <i className="fas fa-bars text-xl"></i>
         </button>
-        <h2 className="text-xl font-semibold text-text-primary dark:text-dark-text hidden md:block">Welcome, {currentUser.name.split(' ')[0]}!</h2>
+        <div className="hidden md:flex flex-col leading-tight">
+          <h2 className="text-xl font-semibold text-text-primary dark:text-dark-text">Welcome, {currentUser.name.split(' ')[0]}!</h2>
+          <span className="text-xs text-text-secondary dark:text-dark-text-secondary">{orgLabel}</span>
+        </div>
       </div>
       <div className="flex items-center space-x-2 sm:space-x-4">
         <ThemeToggle />
@@ -439,14 +482,15 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
               <div className="px-4 py-3 text-sm text-text-secondary dark:text-dark-text-secondary border-b border-border-primary dark:border-dark-border/50">
                 <p className="font-semibold text-text-primary dark:text-dark-text">{currentUser.name}</p>
                 <p className="text-xs">{currentUser.email}</p>
-                 <p className="text-xs mt-1 bg-surface-secondary dark:bg-dark-surface-secondary text-text-secondary dark:text-dark-text-secondary inline-block px-2 py-0.5 rounded-full">{currentUser.roleName || 'Platform Admin'}</p> 
+                <p className="text-xs text-text-secondary dark:text-dark-text-secondary mt-1">{orgLabel}</p>
+                <p className="text-xs mt-1 bg-surface-secondary dark:bg-dark-surface-secondary text-text-secondary dark:text-dark-text-secondary inline-block px-2 py-0.5 rounded-full">{currentUser.roleName || 'Platform Admin'}</p> 
               </div>
-              {canManageAiKey && (
+              {currentUser?.isPlatformAdmin && allowClientGeminiKey && (
                 <button
                   onClick={() => { setIsApiKeyModalOpen(true); setDropdownOpen(false); }}
                   className="w-full text-left block px-4 py-2 text-sm text-text-primary dark:text-dark-text hover:bg-surface-hover dark:hover:bg-dark-surface-hover"
                 >
-                  <i className="fas fa-robot mr-2"></i>Manage AI API Key
+                  <i className="fas fa-robot mr-2"></i>Manage Tenant AI Key
                 </button>
               )}
               <button
@@ -477,87 +521,56 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
         <p>Are you sure you want to clear all your notifications? This action cannot be undone.</p>
     </ConfirmationModal>
 
-    <Modal
-      isOpen={isApiKeyModalOpen}
-      onClose={() => {
-        if (isSavingApiKey) return;
-        setIsApiKeyModalOpen(false);
-        setAiApiKey('');
-        setApiKeyError(null);
-      }}
-      title="Manage AI API Key"
-    >
-      <div className="space-y-4">
-        <Alert
-          type="info"
-          message="Enable AI assistance with Google Gemini"
-          className="mb-2"
-        >
-          <p className="text-sm">
-            Paste your personal Google Gemini API key to unlock AI-powered summaries and task helpers. The key stays on this device only and is never sent to Syncly servers.
-          </p>
-          <p className="text-sm">
-            Need a key?&nbsp;
-            <a
-              href="https://aistudio.google.com/app/apikey"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
+    {allowClientGeminiKey && (
+      <Modal
+        isOpen={isApiKeyModalOpen}
+        onClose={() => {
+          if (isSavingApiKey) return;
+          setIsApiKeyModalOpen(false);
+          setAiApiKey('');
+          setApiKeyError(null);
+        }}
+        title="Tenant AI Configuration"
+      >
+        <div className="space-y-4">
+          {hasTenantGeminiKey ? (
+            <Alert
+              type="success"
+              message="AI is configured by your organization. This tenant uses a server-managed key."
+              className="mb-2"
+            />
+          ) : (
+            <Alert
+              type="warning"
+              message="No tenant AI key is configured. Please ask a platform admin to set it in the Super Admin panel."
+              className="mb-2"
+            />
+          )}
+
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+            <p className="font-semibold text-slate-800 mb-1">How this works</p>
+            <p>- Tenant AI keys are set by platform admins in the Super Admin panel.</p>
+            <p>- Keys are stored server-side per tenant; end users do not need to paste keys.</p>
+            <p>- This view is informational; tenant users cannot add personal keys.</p>
+          </div>
+
+          <div className="flex flex-wrap justify-end gap-2 mt-4">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                if (isSavingApiKey) return;
+                setIsApiKeyModalOpen(false);
+                setAiApiKey('');
+                setApiKeyError(null);
+              }}
+              disabled={isSavingApiKey}
             >
-              Generate one in Google AI Studio &rarr;
-            </a>
-          </p>
-        </Alert>
-
-        <div>
-          <label className="block text-sm font-medium text-text-primary dark:text-dark-text mb-1">
-            Google Gemini API Key
-          </label>
-          <input
-            type="password"
-            value={aiApiKey}
-            onChange={(e) => setAiApiKey(e.target.value)}
-            className="w-full px-3 py-2 border border-border-primary dark:border-dark-border rounded-lg bg-surface-primary dark:bg-dark-surface-secondary text-text-primary dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-accent"
-            placeholder="Paste your API key here"
-            disabled={isSavingApiKey}
-          />
+              Close
+            </Button>
+          </div>
         </div>
-
-        {apiKeyError && (
-          <p className="text-red-500 text-sm">{apiKeyError}</p>
-        )}
-
-        <div className="flex flex-wrap justify-end gap-2 mt-4">
-          <Button
-            variant="secondary"
-            onClick={() => {
-              if (isSavingApiKey) return;
-              setIsApiKeyModalOpen(false);
-              setAiApiKey('');
-              setApiKeyError(null);
-            }}
-            disabled={isSavingApiKey}
-          >
-            Close
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={handleClearApiKey}
-            disabled={isSavingApiKey || !hasStoredGeminiKey}
-          >
-            Remove Key
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleSaveApiKey}
-            disabled={isSavingApiKey || !aiApiKey.trim()}
-            isLoading={isSavingApiKey}
-          >
-            Save Key
-          </Button>
-        </div>
-      </div>
-    </Modal>
+      </Modal>
+    )}
 
     <Modal
       isOpen={isPasswordChangeOpen}

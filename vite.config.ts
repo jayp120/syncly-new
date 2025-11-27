@@ -15,11 +15,9 @@ export default defineConfig(({ mode }) => {
           host: replitDomain || 'localhost'
         }
       },
-      define: {
-        'process.env.API_KEY': JSON.stringify(process.env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(process.env.GEMINI_API_KEY)
-      },
-      envPrefix: ['VITE_', 'GEMINI_'],
+      // Only expose Vite-prefixed env vars to the client bundle; never leak server secrets like GEMINI_API_KEY.
+      define: {},
+      envPrefix: ['VITE_'],
       resolve: {
         alias: {
           '@': path.resolve(__dirname, '.'),

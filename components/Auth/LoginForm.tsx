@@ -12,6 +12,7 @@ const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const { login, isLoading, currentUser } = useAuth();
   const navigate = useNavigate();
 
@@ -66,12 +67,22 @@ const LoginForm: React.FC = () => {
           <Input
             label="Password"
             id="password"
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
             required
             autoComplete="current-password"
+            trailingNode={
+              <button
+                type="button"
+                onClick={() => setShowPassword(prev => !prev)}
+                className="p-1 text-sm text-text-secondary dark:text-dark-text-secondary hover:text-text-primary dark:hover:text-white transition"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`} />
+              </button>
+            }
           />
           <Button type="submit" variant="primary" className="w-full mt-4" isLoading={isLoading} size="lg">
             {isLoading ? 'Signing In...' : 'Sign In'}

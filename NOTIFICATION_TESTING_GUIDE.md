@@ -322,7 +322,7 @@ ______________________________________
 
 **If you encounter issues:**
 
-- **Email:** syncly19@gmail.com
+- **Email:** support@syncly.one
 - **Phone:** +91 92702 79703
 
 **Documentation:**

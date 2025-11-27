@@ -208,7 +208,7 @@ Complete this 25-minute manual test:
 
 ## 📞 **Support**
 
-- **Email:** syncly19@gmail.com
+- **Email:** support@syncly.one
 - **Phone:** +91 92702 79703
 - **Firebase Project:** syncly-473404
 

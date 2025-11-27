@@ -78,7 +78,9 @@ const AppContent: React.FC = () => {
       {/* Manager Routes */}
       {hasPermission(Permission.CAN_MANAGE_TEAM_REPORTS) && <Route path="/manage-reports" element={<ManagerReportListPage />} />}
       {hasPermission(Permission.CAN_MANAGE_TEAM_REPORTS) && <Route path="/delinquent-reports" element={<ManagerDelinquentPage />} />}
-      {hasPermission(Permission.CAN_MANAGE_TEAM_TASKS) && <Route path="/team-tasks" element={<TeamTasksPage />} />}
+      {(hasPermission(Permission.CAN_MANAGE_TEAM_TASKS) || currentUser?.roleName?.toLowerCase() === 'director') && (
+        <Route path="/team-tasks" element={<TeamTasksPage />} />
+      )}
       {hasPermission(Permission.CAN_USE_PERFORMANCE_HUB) && <Route path="/performance-hub" element={<ManagerPerformanceHubPage />} />}
       {(hasPermission(Permission.CAN_USE_GOOGLE_CALENDAR) || hasPermission(Permission.CAN_USE_TELEGRAM_BOT)) && <Route path="/integrations" element={<IntegrationsPage />} />}
 
@@ -160,14 +162,15 @@ const App: React.FC = () => {
   return (
     <ErrorBoundary>
       <ToastProvider>
-          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-              <AuthProvider>
-                  <GoogleCalendarProvider>
-                      <MainAppContent />
-                  </GoogleCalendarProvider>
-              </AuthProvider>
-          </BrowserRouter>
-          <ToastContainer />
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <AuthProvider>
+            <GoogleCalendarProvider>
+              <MainAppContent />
+              {/* Toasts can use routing + auth hooks (e.g., MeetingStartToast) so keep them inside both providers. */}
+              <ToastContainer />
+            </GoogleCalendarProvider>
+          </AuthProvider>
+        </BrowserRouter>
       </ToastProvider>
     </ErrorBoundary>
   );

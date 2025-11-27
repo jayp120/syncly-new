@@ -47,14 +47,6 @@ const HRDashboard: React.FC = () => {
       hoverColor: 'hover:opacity-90',
       path: '/delinquent-reports',
     },
-    {
-      label: 'HR Taskboard',
-      description: 'Follow up on policy work',
-      icon: 'fa-list-check',
-      color: 'bg-gradient-to-br from-indigo-500 via-violet-500 to-fuchsia-500 text-white',
-      hoverColor: 'hover:opacity-90',
-      path: '/team-tasks',
-    },
   ];
 
   useEffect(() => {
@@ -89,6 +81,12 @@ const HRDashboard: React.FC = () => {
   }, [announcements]);
 
   const activeEmployees = useMemo(() => users.filter((user) => user.roleName === 'Employee'), [users]);
+  const myPendingTasks = useMemo(() => {
+    if (!currentUser) return [];
+    return tasks.filter(
+      (task) => task.status !== TaskStatus.Completed && Array.isArray(task.assignedTo) && task.assignedTo.includes(currentUser.id)
+    );
+  }, [tasks, currentUser]);
 
   if (isLoading || !currentUser) {
     return (
@@ -114,7 +112,7 @@ const HRDashboard: React.FC = () => {
       }
     >
       <Card title="HR Quick Actions" className="mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {quickActions.map((action) => (
             <Link
               key={action.label}
@@ -154,9 +152,9 @@ const HRDashboard: React.FC = () => {
         </Card>
         <Card title="Pending Tasks">
           <p className="text-3xl font-bold text-slate-900 dark:text-white">
-            {tasks.filter((task) => task.status !== TaskStatus.Completed && !task.isPersonalTask).length}
+            {myPendingTasks.length}
           </p>
-          <Link to="/team-tasks" className="text-sm text-primary hover:underline">
+          <Link to="/my-tasks" className="text-sm text-primary hover:underline">
             Go to My Tasks
           </Link>
         </Card>

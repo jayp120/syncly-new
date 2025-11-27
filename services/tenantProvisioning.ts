@@ -85,7 +85,6 @@ const createDefaultRoles = async (tenantId: string): Promise<Role[]> => {
         Permission.CAN_MANAGE_WEEKLY_OFF,
         Permission.CAN_DEFINE_LEAVE_REVOKE_RULES,
         Permission.CAN_SUBMIT_OWN_LEAVE,
-        Permission.CAN_MANAGE_TEAM_TASKS,
         Permission.CAN_CREATE_PERSONAL_TASKS,
         Permission.CAN_VIEW_OWN_TASKS,
         Permission.CAN_MANAGE_TEAM_MEETINGS,

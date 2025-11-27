@@ -6,11 +6,10 @@ const AboutPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50">
-      {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <button 
+            <button
               onClick={() => navigate('/')}
               className="flex items-center space-x-3 group"
             >
@@ -32,27 +31,34 @@ const AboutPage: React.FC = () => {
         </div>
       </header>
 
-      {/* Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h1 className="text-5xl font-extrabold text-gray-900 mb-8 text-center">About Syncly</h1>
-        
+        <h1 className="text-5xl font-extrabold text-gray-900 mb-4 text-center">About Syncly</h1>
+        <div className="text-center space-y-4 mb-8">
+          <span className="inline-flex px-4 py-1 rounded-full text-sm font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100">
+            Work Smarter with AI Intelligence
+          </span>
+          <p className="text-xl text-gray-700 leading-relaxed">
+            Transform your team's productivity with AI-powered EOD reports, intelligent consistency tracking, Telegram bot alerts,
+            Google Calendar sync, and performance insights&mdash;all in one beautiful workspace.
+          </p>
+        </div>
+
         <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 space-y-8">
           <div>
             <p className="text-xl text-gray-700 leading-relaxed mb-6">
-              Syncly is a cutting-edge, AI-powered team collaboration platform designed to revolutionize how 
-              modern teams work together. Founded with a vision to make productivity tools intelligent and 
-              intuitive, we combine advanced artificial intelligence with beautiful, minimalistic design.
+              Syncly is a cutting-edge collaboration platform purpose-built to keep modern organizations aligned.
+              We combine advanced intelligence with thoughtful experience design so distributed teams can focus on meaningful work instead of manual updates.
             </p>
           </div>
-          
+
           <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Mission</h2>
             <p className="text-lg text-gray-700 leading-relaxed">
-              To empower teams worldwide with intelligent tools that enhance productivity, foster collaboration, 
-              and provide actionable insights through AI. We believe work should be smarter, not harder.
+              We exist to empower teams worldwide with intelligent tools that enhance productivity, foster collaboration,
+              and deliver actionable AI guidance every single day. Work should be smarter, not harder.
             </p>
           </div>
-          
+
           <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-4">What We Offer</h2>
             <div className="space-y-4">
@@ -63,7 +69,7 @@ const AboutPage: React.FC = () => {
                   <p className="text-gray-600">Intelligent end-of-day reporting with automated summaries and insights</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start space-x-4 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-200">
                 <i className="fas fa-calendar-check text-emerald-600 text-2xl mt-1"></i>
                 <div>
@@ -71,15 +77,15 @@ const AboutPage: React.FC = () => {
                   <p className="text-gray-600">Seamless Google Calendar integration with live memos and action item tracking</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start space-x-4 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
                 <i className="fas fa-chart-line text-purple-600 text-2xl mt-1"></i>
                 <div>
                   <h3 className="font-bold text-gray-900 mb-1">Consistency Tracker</h3>
-                  <p className="text-gray-600">AI-driven habit tracking that helps teams maintain productivity streaks</p>
+                  <p className="text-gray-600">Intelligent consistency tracking that keeps teams on productivity streaks with AI-powered coaching</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start space-x-4 p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-xl border border-orange-200">
                 <i className="fas fa-trophy text-orange-600 text-2xl mt-1"></i>
                 <div>
@@ -89,37 +95,44 @@ const AboutPage: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Choose Syncly?</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-xl border border-indigo-200">
-                <div className="text-3xl mb-3">🔒</div>
+                <div className="text-3xl mb-3 text-indigo-600">
+                  <i className="fas fa-shield-alt"></i>
+                </div>
                 <h3 className="font-bold text-gray-900 mb-2">Enterprise-Grade Security</h3>
                 <p className="text-gray-600">Multi-tenant architecture with complete data isolation and role-based access control</p>
               </div>
-              
+
               <div className="bg-gradient-to-br from-cyan-50 to-blue-50 p-6 rounded-xl border border-cyan-200">
-                <div className="text-3xl mb-3">🤖</div>
+                <div className="text-3xl mb-3 text-cyan-600">
+                  <i className="fas fa-robot"></i>
+                </div>
                 <h3 className="font-bold text-gray-900 mb-2">Real AI Integration</h3>
-                <p className="text-gray-600">Not just buzzwords—actual machine learning that learns from your team</p>
+                <p className="text-gray-600">Practical machine learning that summarizes work, spots risks, and nudges action</p>
               </div>
-              
+
               <div className="bg-gradient-to-br from-emerald-50 to-teal-50 p-6 rounded-xl border border-emerald-200">
-                <div className="text-3xl mb-3">📱</div>
+                <div className="text-3xl mb-3 text-emerald-600">
+                  <i className="fas fa-mobile-alt"></i>
+                </div>
                 <h3 className="font-bold text-gray-900 mb-2">Mobile-First Design</h3>
-                <p className="text-gray-600">Progressive Web App that works seamlessly across all devices</p>
+                <p className="text-gray-600">Progressive Web App that works seamlessly across every device</p>
               </div>
-              
+
               <div className="bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-xl border border-orange-200">
-                <div className="text-3xl mb-3">🌍</div>
+                <div className="text-3xl mb-3 text-orange-600">
+                  <i className="fas fa-chart-line"></i>
+                </div>
                 <h3 className="font-bold text-gray-900 mb-2">Built for Scale</h3>
-                <p className="text-gray-600">From startups to enterprises—our platform grows with you</p>
+                <p className="text-gray-600">From startups to enterprises&mdash;Syncly grows with your organization</p>
               </div>
             </div>
           </div>
 
-          {/* Contact Section */}
           <div className="border-t border-gray-200 pt-8 mt-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">Get in Touch</h2>
             <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-8 rounded-2xl text-center">
@@ -129,8 +142,8 @@ const AboutPage: React.FC = () => {
               <div className="space-y-3">
                 <div className="flex items-center justify-center space-x-3">
                   <i className="fas fa-envelope text-xl"></i>
-                  <a href="mailto:syncly19@gmail.com" className="text-lg hover:text-indigo-200 transition-colors underline">
-                    syncly19@gmail.com
+                  <a href="mailto:support@syncly.one" className="text-lg hover:text-indigo-200 transition-colors underline">
+                    support@syncly.one
                   </a>
                 </div>
                 <div className="flex items-center justify-center space-x-3">
@@ -146,7 +159,6 @@ const AboutPage: React.FC = () => {
             </div>
           </div>
 
-          {/* CTA */}
           <div className="text-center pt-8">
             <button
               onClick={() => navigate('/login')}
@@ -159,10 +171,9 @@ const AboutPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Footer */}
       <footer className="bg-gray-900 text-gray-400 py-8 px-4">
         <div className="max-w-7xl mx-auto text-center">
-          <p className="text-sm">© 2025 Syncly. All rights reserved.</p>
+          <p className="text-sm">(c) 2025 Syncly. All rights reserved.</p>
         </div>
       </footer>
     </div>

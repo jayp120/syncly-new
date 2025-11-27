@@ -11,7 +11,9 @@ import {
   callCreateTenant, 
   CreateTenantRequest,
   callFixAllUserClaims,
-  callMigrateExistingData
+  callMigrateExistingData,
+  callGetTenantGeminiKey,
+  callSetTenantGeminiKey
 } from '../../services/cloudFunctions';
 import { useToast } from '../../contexts/ToastContext';
 import Button from '../Common/Button';
@@ -36,6 +38,10 @@ const SuperAdminDashboard: React.FC = () => {
   const [isFixingClaims, setIsFixingClaims] = useState(false);
   const [isMigratingData, setIsMigratingData] = useState(false);
   const [isDeletingUser, setIsDeletingUser] = useState<Record<string, boolean>>({});
+  const [aiKeyInput, setAiKeyInput] = useState('');
+  const [aiKeyLast4, setAiKeyLast4] = useState<string | null>(null);
+  const [isSavingAiKey, setIsSavingAiKey] = useState(false);
+  const [aiKeyError, setAiKeyError] = useState<string | null>(null);
 
   // New tenant form state
   const [newTenant, setNewTenant] = useState<CreateTenantRequest>({
@@ -147,7 +153,20 @@ const SuperAdminDashboard: React.FC = () => {
   const handleOpenSettings = (tenant: Tenant) => {
     setSelectedTenant(tenant);
     setNewPassword('');
+    setAiKeyInput('');
+    setAiKeyLast4(null);
+    setAiKeyError(null);
     setShowSettingsModal(true);
+    // Load existing tenant Gemini key (masked)
+    callGetTenantGeminiKey(tenant.id)
+      .then(res => {
+        if (res?.success && res.last4) {
+          setAiKeyLast4(res.last4);
+        } else {
+          setAiKeyLast4(null);
+        }
+      })
+      .catch(() => setAiKeyLast4(null));
   };
 
   const handleResetPassword = async () => {
@@ -181,6 +200,28 @@ const SuperAdminDashboard: React.FC = () => {
       addToast(`Error: ${error.message}`, 'error');
     } finally {
       setIsResettingPassword(false);
+    }
+  };
+
+  const handleSaveAiKey = async () => {
+    if (!selectedTenant) return;
+    const trimmed = aiKeyInput.trim();
+    if (!trimmed) {
+      setAiKeyError('Enter a valid Gemini API key');
+      return;
+    }
+    setIsSavingAiKey(true);
+    setAiKeyError(null);
+    try {
+      const res = await callSetTenantGeminiKey({ tenantId: selectedTenant.id, apiKey: trimmed });
+      setAiKeyLast4(res.last4);
+      setAiKeyInput('');
+      addToast(`AI key saved for ${selectedTenant.name || selectedTenant.companyName || selectedTenant.id} (ending in ${res.last4})`, 'success');
+    } catch (error: any) {
+      console.error('Failed to save AI key:', error);
+      setAiKeyError(error.message || 'Failed to save AI key');
+    } finally {
+      setIsSavingAiKey(false);
     }
   };
 
@@ -564,7 +605,9 @@ const SuperAdminDashboard: React.FC = () => {
               <tr key={tenant.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div>
-                    <div className="text-sm font-medium text-gray-900">{tenant.name}</div>
+                    <div className="text-sm font-medium text-gray-900">
+                      {tenant.name || tenant.companyName || 'Unknown organization'}
+                    </div>
                     <div className="text-sm text-gray-500">{tenant.domain || 'No domain'}</div>
                   </div>
                 </td>
@@ -707,6 +750,33 @@ const SuperAdminDashboard: React.FC = () => {
               placeholder="Enter new password (min 6 characters)"
               disabled={isResettingPassword}
             />
+
+            <div className="border rounded-lg p-4 bg-indigo-50/40 border-indigo-100">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h4 className="text-sm font-semibold text-indigo-800">Tenant Gemini API Key</h4>
+                  <p className="text-xs text-indigo-700 mt-1">
+                    Platform admin only. Stored server-side for this tenant. Current: {aiKeyLast4 ? `******${aiKeyLast4}` : 'not set'}.
+                  </p>
+                </div>
+                {aiKeyLast4 && (
+                  <span className="text-xs px-2 py-1 rounded-full bg-indigo-100 text-indigo-700">Configured</span>
+                )}
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2 mt-3">
+                <Input
+                  type="password"
+                  placeholder="Paste Gemini API key"
+                  value={aiKeyInput}
+                  onChange={(e) => setAiKeyInput(e.target.value)}
+                  className="flex-1"
+                />
+                <Button variant="primary" onClick={handleSaveAiKey} disabled={isSavingAiKey}>
+                  {isSavingAiKey ? 'Saving...' : 'Save Key'}
+                </Button>
+              </div>
+              {aiKeyError && <p className="text-xs text-red-600 mt-1">{aiKeyError}</p>}
+            </div>
 
             <div className="flex justify-end gap-3">
               <Button 

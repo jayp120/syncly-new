@@ -119,7 +119,11 @@ const AnnouncementManagerPage: React.FC = () => {
               Target specific business units or everyone, add media, and schedule go-live / expiry times.
             </p>
           </div>
-          <Button variant="secondary" onClick={openCreateModal} className="bg-white text-primary hover:bg-white/90">
+          <Button
+            variant="secondary"
+            onClick={openCreateModal}
+            className="bg-gradient-to-r from-white via-cyan-50 to-sky-100 text-sky-700 font-semibold shadow-xl shadow-sky-900/20 hover:from-sky-50 hover:via-sky-100 hover:to-white hover:-translate-y-0.5 transition-all border border-white/80"
+          >
             <i className="fas fa-plus mr-2" />
             Start drafting
           </Button>

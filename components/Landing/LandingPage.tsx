@@ -74,9 +74,9 @@ const LandingPage: React.FC = () => {
       icon: 'fa-chart-line',
       iconClass: 'fas',
       title: 'Consistency Tracker',
-      description: 'AI-powered habit tracking that learns your work patterns and helps you maintain productivity streaks across all activities.',
+      description: 'Live reporting compliance for every team. Spot missed EODs, drill into business units, and trigger nudges before issues spread.',
       gradient: 'from-indigo-500 via-purple-500 to-pink-600',
-      benefits: ['Habit analysis', 'Streak tracking', 'Smart reminders'],
+      benefits: ['Missed EOD alerts', 'Business-unit heatmaps', 'Manager nudges'],
       chipClass: 'bg-purple-500/10 text-purple-300 border-purple-500/20'
     },
     {
@@ -353,7 +353,7 @@ const LandingPage: React.FC = () => {
         </div>
         
         <div className="max-w-7xl mx-auto relative z-10">
-          <div className="max-w-3xl">
+          <div className="max-w-4xl">
             <div className="inline-flex items-center space-x-2 mb-6 px-4 py-2 bg-gradient-to-r from-cyan-50 to-indigo-50 border border-indigo-200/50 rounded-full">
               <div className="w-2 h-2 bg-gradient-to-r from-cyan-500 to-indigo-600 rounded-full animate-pulse"></div>
               <span className="text-indigo-700 font-semibold text-sm">AI-Powered Team Collaboration Platform</span>
@@ -369,7 +369,7 @@ const LandingPage: React.FC = () => {
             
             <p className="text-xl sm:text-2xl text-gray-600 mb-10 leading-relaxed">
               Transform your team's productivity with AI-powered EOD reports, intelligent consistency tracking, 
-              Telegram bot notifications, Google Calendar sync, and performance insights—all in one beautiful platform.
+              Telegram bot notifications, Google Calendar sync, and performance insights - all in one focused platform.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
@@ -451,6 +451,16 @@ const LandingPage: React.FC = () => {
             <p className="text-xl text-slate-300 max-w-2xl mx-auto">
               AI-powered insights combined with seamless integrations to supercharge your team's productivity
             </p>
+            <div className="flex flex-wrap justify-center gap-3 mt-6">
+              {['Insightful summaries', 'Accountability that sticks', 'Automation you can trust'].map(text => (
+                <span
+                  key={text}
+                  className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-slate-200 backdrop-blur-sm"
+                >
+                  {text}
+                </span>
+              ))}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
@@ -840,7 +850,7 @@ const LandingPage: React.FC = () => {
           </h2>
           <p className="text-xl text-indigo-100 mb-10 max-w-2xl mx-auto leading-relaxed">
             Join 10,000+ teams already working smarter with AI-powered collaboration. 
-            Start your free trial today—no credit card required.
+            Start your free trial today - no credit card required.
           </p>
           <button 
             onClick={() => navigate('/login')}
@@ -851,7 +861,7 @@ const LandingPage: React.FC = () => {
           </button>
           <p className="text-indigo-200 mt-6 text-sm">
             <i className="fas fa-check mr-2"></i>
-            No credit card required • Cancel anytime • 24/7 Support
+            No credit card required | Cancel anytime | 24/7 support
           </p>
         </div>
       </section>
@@ -875,8 +885,8 @@ const LandingPage: React.FC = () => {
               <div className="space-y-2 text-sm">
                 <div className="flex items-center space-x-2">
                   <i className="fas fa-envelope text-indigo-400"></i>
-                  <a href="mailto:syncly19@gmail.com" className="hover:text-indigo-400 transition-colors">
-                    syncly19@gmail.com
+                  <a href="mailto:support@syncly.one" className="hover:text-indigo-400 transition-colors">
+                    support@syncly.one
                   </a>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -935,7 +945,7 @@ const LandingPage: React.FC = () => {
                   </button>
                 </li>
                 <li>
-                  <a href="mailto:syncly19@gmail.com" className="hover:text-indigo-400 transition-colors">
+                  <a href="mailto:support@syncly.one" className="hover:text-indigo-400 transition-colors">
                     Contact Support
                   </a>
                 </li>
@@ -946,7 +956,7 @@ const LandingPage: React.FC = () => {
           <div className="border-t border-gray-800 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
               <p className="text-sm text-center md:text-left">
-                © 2025 Syncly. All rights reserved. Built with ❤️ for teams worldwide.
+                (c) 2025 Syncly. All rights reserved. Built with care for teams worldwide.
               </p>
               <div className="flex items-center space-x-6">
                 <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-400 transition-colors" aria-label="Twitter">
@@ -955,7 +965,7 @@ const LandingPage: React.FC = () => {
                 <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-400 transition-colors" aria-label="LinkedIn">
                   <i className="fab fa-linkedin text-xl"></i>
                 </a>
-                <a href="mailto:syncly19@gmail.com" className="hover:text-indigo-400 transition-colors" aria-label="Email">
+                <a href="mailto:support@syncly.one" className="hover:text-indigo-400 transition-colors" aria-label="Email">
                   <i className="fas fa-envelope text-xl"></i>
                 </a>
               </div>

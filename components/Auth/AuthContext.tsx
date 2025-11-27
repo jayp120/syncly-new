@@ -62,34 +62,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Wait for Firebase Auth state to be determined
         unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
           if (firebaseUser) {
-            // User is authenticated, load their profile from Firestore
-            if (currentUser) {
-              try {
-                // ✅ CRITICAL: Get custom claims from Firebase Auth token
-                const tokenResult = await firebaseUser.getIdTokenResult();
-                const isTenantAdmin = tokenResult.claims.isTenantAdmin === true;
-                setIsTenantAdminClaim(isTenantAdmin);
-                setIsPlatformAdmin(tokenResult.claims.isPlatformAdmin === true);
-                
-                const freshUser = await DataService.getUserById(currentUser.id);
-                if(freshUser && freshUser.status === UserStatus.ACTIVE) {
-                    setCurrentUser(freshUser);
-                    await fetchUserRole(freshUser);
-                    // CRITICAL: Set global tenant context on re-authentication
-                    updateTenantContext(freshUser.tenantId || null);
-                } else {
-                    setCurrentUser(null);
-                    setCurrentUserRole(null);
-                    updateTenantContext(null);
-                    setIsTenantAdminClaim(false);
-                }
-              } catch (error) {
-                console.error('Error loading user data:', error);
+            // User is authenticated, load their profile from Firestore using the auth UID (avoid stale cached user)
+            try {
+              const tokenResult = await firebaseUser.getIdTokenResult(true);
+              const isTenantAdmin = tokenResult.claims.isTenantAdmin === true;
+              const isPlatformAdmin = tokenResult.claims.isPlatformAdmin === true;
+              setIsTenantAdminClaim(isTenantAdmin);
+              setIsPlatformAdmin(isPlatformAdmin);
+
+              const freshUser = await DataService.getUserById(firebaseUser.uid);
+              if (freshUser && freshUser.status === UserStatus.ACTIVE) {
+                setCurrentUser(freshUser);
+                await fetchUserRole(freshUser);
+                updateTenantContext(freshUser.tenantId || null);
+
+                // Warm the Gemini key cache for this tenant so AI tools are ready immediately.
+                DataService.getGeminiApiKeyAsync().catch((error) => {
+                  console.warn('[AuthContext] Unable to hydrate Gemini key:', error);
+                });
+              } else if (isPlatformAdmin) {
+                // Fallback for platform admin if user doc missing
+                const email = firebaseUser.email || 'platform-admin@syncly.local';
+                const fallbackUser: User = {
+                  id: firebaseUser.uid,
+                  tenantId: null,
+                  isPlatformAdmin: true,
+                  email,
+                  notificationEmail: email,
+                  phoneNumber: firebaseUser.phoneNumber || '',
+                  name: firebaseUser.displayName || email,
+                  roleId: 'platform-admin',
+                  roleName: 'Platform Admin',
+                  status: UserStatus.ACTIVE,
+                  designation: 'Platform Admin',
+                  weeklyOffDay: 'Sunday'
+                };
+                setCurrentUser(fallbackUser);
+                setCurrentUserRole(null);
+                updateTenantContext(null);
+              } else {
                 setCurrentUser(null);
                 setCurrentUserRole(null);
                 updateTenantContext(null);
                 setIsTenantAdminClaim(false);
               }
+            } catch (error) {
+              console.error('Error loading user data:', error);
+              setCurrentUser(null);
+              setCurrentUserRole(null);
+              updateTenantContext(null);
+              setIsTenantAdminClaim(false);
             }
           } else {
             // No Firebase user, clear local state
@@ -211,6 +233,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return true;
       }
       
+      if (tokenResult.claims.isPlatformAdmin === true) {
+        const email = userCredential.user.email || 'platform-admin@syncly.local';
+        const fallbackUser: User = {
+          id: firebaseUid,
+          tenantId: null,
+          isPlatformAdmin: true,
+          email,
+          notificationEmail: email,
+          phoneNumber: userCredential.user.phoneNumber || '',
+          name: userCredential.user.displayName || email,
+          roleId: 'platform-admin',
+          roleName: 'Platform Admin',
+          status: UserStatus.ACTIVE,
+          designation: 'Platform Admin',
+          weeklyOffDay: 'Sunday'
+        };
+        setCurrentUser(fallbackUser);
+        updateTenantContext(null);
+        setIsTenantAdminClaim(false);
+        setIsPlatformAdmin(true);
+        setCurrentUserRole(null);
+        return true;
+      }
+
       addToast('User profile not found', 'error');
       await signOut(auth);
       return false;
@@ -257,9 +303,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [currentUser, setCurrentUser, fetchUserRole]);
 
   const hasPermission = useCallback((permission: Permission): boolean => {
-    // Platform admins have all permissions except tenant-specific ones
+    // Platform admins are limited to platform-level capabilities only (no tenant tasks/reports/etc.)
     if (currentUser?.isPlatformAdmin) {
-      return true;
+      const platformOnly = [
+        Permission.PLATFORM_ADMIN,
+        Permission.CAN_MANAGE_TENANTS,
+        Permission.CAN_VIEW_ALL_TENANTS
+      ];
+      return platformOnly.includes(permission);
     }
     
     // ✅ SECURE: Check verified Firebase Auth custom claim for Tenant Admin
@@ -317,7 +368,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // If we have the role doc, use its permissions
     if (currentUserRole) {
-      return currentUserRole.permissions.includes(permission);
+      if (currentUserRole.permissions.includes(permission)) {
+        return true;
+      }
     }
     
     // FALLBACK: If role doc unavailable, use roleName from user doc
@@ -374,6 +427,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           Permission.CAN_VIEW_OWN_CALENDAR,
           Permission.CAN_USE_PERFORMANCE_HUB,
           Permission.CAN_VIEW_TRIGGER_LOG,
+        ].includes(permission);
+      }
+      
+      if (roleName === 'hr') {
+        return [
+          Permission.CAN_SUBMIT_OWN_EOD,
+          Permission.CAN_VIEW_OWN_REPORTS,
+          Permission.CAN_VIEW_ALL_REPORTS,
+          Permission.CAN_MANAGE_TEAM_REPORTS,
+          Permission.CAN_ACKNOWLEDGE_REPORTS,
+          Permission.CAN_USE_PERFORMANCE_HUB,
+          Permission.CAN_VIEW_LEADERBOARD,
+          Permission.CAN_MANAGE_ALL_LEAVES,
+          Permission.CAN_GRANT_LEAVE_ACCESS,
+          Permission.CAN_MANAGE_WEEKLY_OFF,
+          Permission.CAN_DEFINE_LEAVE_REVOKE_RULES,
+          Permission.CAN_SUBMIT_OWN_LEAVE,
+          Permission.CAN_CREATE_PERSONAL_TASKS,
+          Permission.CAN_VIEW_OWN_TASKS,
+          Permission.CAN_MANAGE_TEAM_MEETINGS,
+          Permission.CAN_VIEW_OWN_MEETINGS,
+          Permission.CAN_VIEW_TEAM_CALENDAR,
+          Permission.CAN_VIEW_OWN_CALENDAR,
+          Permission.CAN_USE_GOOGLE_CALENDAR,
+          Permission.CAN_MANAGE_ANNOUNCEMENTS,
         ].includes(permission);
       }
       

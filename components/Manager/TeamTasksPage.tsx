@@ -46,20 +46,38 @@ export const TeamTasksPage: React.FC = () => {
   const [batchUpdateModal, setBatchUpdateModal] = useState<{type: 'dueDate' | 'reassign' | null, taskIds: string[]}>({type: null, taskIds: []});
 
   const fetchData = useCallback(async () => {
-    if (currentUser && currentUser.roleName === 'Manager') {
-      const [users, allTasks, allMeetings] = await Promise.all([
-        DataService.getUsers(),
-        DataService.getTasks(),
-        DataService.getMeetingsForUser(currentUser.id)
-      ]);
+    if (!currentUser) return;
+    const role = currentUser.roleName?.toLowerCase();
+    const isManagerOrDirectorOrAdmin =
+      role === 'manager' || role === 'director' || role === 'admin' || currentUser.isTenantAdmin === true;
+    if (!isManagerOrDirectorOrAdmin) return;
 
-      const members = users.filter(u => u.roleName === 'Employee' && u.status === UserStatus.ACTIVE && u.businessUnitId === currentUser.businessUnitId);
-      setTeamMembers(members);
+    const [users, allTasks, allMeetings] = await Promise.all([
+      DataService.getUsers(),
+      DataService.getTasks(),
+      DataService.getMeetingsForUser(currentUser.id)
+    ]);
 
-      const tasksCreatedByManager = allTasks.filter(t => t.createdBy === currentUser.id && !t.isPersonalTask);
-      setAllTeamTasks(tasksCreatedByManager);
-      setMeetingsMap(new Map(allMeetings.map(m => [m.id, m])));
-    }
+    const members =
+      role === 'director' || role === 'admin' || currentUser.isTenantAdmin === true
+        ? users.filter(u => u.status === UserStatus.ACTIVE)
+        : users.filter(
+            u =>
+              u.roleName === 'Employee' &&
+              u.status === UserStatus.ACTIVE &&
+              u.businessUnitId === currentUser.businessUnitId
+          );
+    setTeamMembers(members);
+
+    // Directors/Admins/Tenant Admins: see all non-personal tasks for the tenant
+    // Managers: show non-personal tasks they created (existing behavior)
+    const tasksForView =
+      role === 'director' || role === 'admin' || currentUser.isTenantAdmin === true
+        ? allTasks.filter(t => !t.isPersonalTask)
+        : allTasks.filter(t => t.createdBy === currentUser.id && !t.isPersonalTask);
+
+    setAllTeamTasks(tasksForView);
+    setMeetingsMap(new Map(allMeetings.map(m => [m.id, m])));
   }, [currentUser]);
 
   useEffect(() => {

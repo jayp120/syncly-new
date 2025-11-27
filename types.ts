@@ -74,6 +74,7 @@ export interface User {
   isPlatformAdmin?: boolean; // True for Syncly platform owner
   email: string; // This is the login ID, e.g., user@mittaleod.com
   notificationEmail: string; // This is the real email for calendar invites, notifications, etc.
+  phoneNumber?: string;
   name: string;
   roleId: string;
   roleName?: string; // For display, populated by dataService

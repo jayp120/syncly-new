@@ -129,11 +129,11 @@ const InlineTaskCreator: React.FC<InlineTaskCreatorProps> = ({ currentUser, team
 
   const handleGenerateTask = useCallback(async () => {
     if (!aiState.prompt.trim()) { addToast("Please describe the task for the AI.", 'error'); return; }
-    const apiKey = DataService.getGeminiApiKey();
+    const apiKey = await DataService.getGeminiApiKeyAsync();
     if (!apiKey) {
       setAiState(prev => ({
         ...prev,
-        error: "AI features are not configured yet. Open your profile menu -> Manage AI API Key to paste a Google Gemini key.",
+        error: "AI features are not configured for this tenant yet. Please ask an admin to enable the Gemini key.",
       }));
       return;
     }
@@ -170,7 +170,7 @@ const InlineTaskCreator: React.FC<InlineTaskCreatorProps> = ({ currentUser, team
       console.error("AI task generation failed:", err);
       const message = typeof err?.message === 'string' ? err.message : 'Unknown error';
       const friendlyMessage = /429|RESOURCE_EXHAUSTED/i.test(message)
-        ? "Google Gemini is rate-limiting this key right now. Try again shortly or paste a different key in the profile menu."
+        ? "Google Gemini is rate-limiting this key right now. Try again shortly or ask an admin to rotate the tenant key."
         : `AI task generation failed: ${message}`;
       setAiState(prev => ({ ...prev, isGenerating: false, error: friendlyMessage }));
     }
@@ -200,7 +200,7 @@ const InlineTaskCreator: React.FC<InlineTaskCreatorProps> = ({ currentUser, team
           <button
             onClick={() => {
               if (!hasGeminiKey) {
-                addToast("Add your Google Gemini API key from the profile menu before using the AI assistant.", "warning");
+                addToast("AI features are disabled until your admin configures the tenant Gemini key.", "warning");
                 return;
               }
               setIsExpanded(true);
@@ -240,7 +240,7 @@ const InlineTaskCreator: React.FC<InlineTaskCreatorProps> = ({ currentUser, team
           {!hasGeminiKey && (
             <Alert
               type="info"
-              message="Paste your Google Gemini API key from the profile menu to enable the AI assistant."
+              message="Ask your admin to configure the tenant Gemini key to enable the AI assistant."
             />
           )}
           {!aiState.generatedTask && (
@@ -290,7 +290,7 @@ const InlineTaskCreator: React.FC<InlineTaskCreatorProps> = ({ currentUser, team
               type="button"
               onClick={() => {
                 if (!hasGeminiKey) {
-                  addToast("Add your Google Gemini API key from the profile menu before using the AI assistant.", "warning");
+                  addToast("AI features are disabled until your admin configures the tenant Gemini key.", "warning");
                   return;
                 }
                 setIsAiMode(true);

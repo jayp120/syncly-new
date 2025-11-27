@@ -8,6 +8,16 @@ import { WEEK_DAYS } from '../../constants';
 import Alert from '../Common/Alert';
 import { useAuth } from '../Auth/AuthContext';
 
+const COUNTRY_CODE_OPTIONS = [
+  { value: '+1', country: 'United States / Canada', flag: '🇺🇸' },
+  { value: '+44', country: 'United Kingdom', flag: '🇬🇧' },
+  { value: '+61', country: 'Australia', flag: '🇦🇺' },
+  { value: '+65', country: 'Singapore', flag: '🇸🇬' },
+  { value: '+91', country: 'India', flag: '🇮🇳' }
+] as const;
+
+const DEFAULT_COUNTRY_CODE = '+91';
+
 interface UserFormProps {
   currentUserToEdit?: User | null;
   onFormSubmit: (user: User, isNew: boolean) => void;
@@ -24,6 +34,8 @@ const UserForm: React.FC<UserFormProps> = ({ currentUserToEdit, onFormSubmit, on
   const [designation, setDesignation] = useState('');
   const [weeklyOffDay, setWeeklyOffDay] = useState<string>('');
   const [businessUnitId, setBusinessUnitId] = useState<string | undefined>(undefined);
+  const [countryCode, setCountryCode] = useState<string>(DEFAULT_COUNTRY_CODE);
+  const [localPhoneNumber, setLocalPhoneNumber] = useState<string>('');
   
   const [availableRoles, setAvailableRoles] = useState<Role[]>([]);
   const [availableBusinessUnits, setAvailableBusinessUnits] = useState<BusinessUnit[]>([]);
@@ -54,6 +66,22 @@ const UserForm: React.FC<UserFormProps> = ({ currentUserToEdit, onFormSubmit, on
       setDesignation(currentUserToEdit.designation || '');
       setWeeklyOffDay(currentUserToEdit.weeklyOffDay || '');
       setBusinessUnitId(currentUserToEdit.businessUnitId || undefined);
+      if (currentUserToEdit.phoneNumber) {
+        const normalized = currentUserToEdit.phoneNumber.replace(/\s+/g, '');
+        const match = normalized.match(/^\+(\d{1,3})(\d{10})$/);
+        if (match) {
+          const matchedCode = `+${match[1]}`;
+          const codeExists = COUNTRY_CODE_OPTIONS.some(opt => opt.value === matchedCode);
+          setCountryCode(codeExists ? matchedCode : DEFAULT_COUNTRY_CODE);
+          setLocalPhoneNumber(match[2]);
+        } else {
+          setCountryCode(DEFAULT_COUNTRY_CODE);
+          setLocalPhoneNumber('');
+        }
+      } else {
+        setCountryCode(DEFAULT_COUNTRY_CODE);
+        setLocalPhoneNumber('');
+      }
     } else {
       // Reset for new user
       setName('');
@@ -64,6 +92,8 @@ const UserForm: React.FC<UserFormProps> = ({ currentUserToEdit, onFormSubmit, on
       setDesignation('');
       setWeeklyOffDay(WEEK_DAYS[0]);
       setBusinessUnitId(undefined);
+      setCountryCode(DEFAULT_COUNTRY_CODE);
+      setLocalPhoneNumber('');
     }
   }, [currentUserToEdit]);
 
@@ -97,10 +127,16 @@ const UserForm: React.FC<UserFormProps> = ({ currentUserToEdit, onFormSubmit, on
     setIsLoading(true);
     try {
       let submittedUser: User | null;
-      const userDataPayload = {
+    if (localPhoneNumber && localPhoneNumber.length !== 10) {
+      setError('WhatsApp / phone number must be exactly 10 digits after the country code.');
+      return;
+    }
+
+    const userDataPayload = {
         name: name.trim(),
         email: email.trim(),
         notificationEmail: notificationEmail.trim(),
+        phoneNumber: localPhoneNumber ? `${countryCode}${localPhoneNumber}` : undefined,
         roleId,
         designation: selectedRole?.name === 'Employee' ? designation : undefined,
         weeklyOffDay: selectedRole?.name === 'Employee' ? weeklyOffDay : undefined,
@@ -149,6 +185,50 @@ const UserForm: React.FC<UserFormProps> = ({ currentUserToEdit, onFormSubmit, on
         />
       )}
       <Input label="Notification Email (Real Email)" id="userNotificationEmail" type="email" value={notificationEmail} onChange={(e) => setNotificationEmail(e.target.value)} required placeholder="e.g., real.email@company.com" />
+      <div>
+        <label className="block text-sm font-medium text-text-primary dark:text-dark-text-primary">
+          WhatsApp / Phone Number
+        </label>
+        <div className="mt-1 grid grid-cols-5 gap-3">
+          <div className="col-span-2">
+            <span className="text-xs uppercase tracking-wide text-gray-500">Country code</span>
+            <div className="relative mt-1">
+              <select
+                className="appearance-none w-full px-3 py-2 bg-white dark:bg-dark-surface-inset border border-border-primary dark:border-dark-border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent text-sm font-semibold text-gray-800 dark:text-white pr-10"
+                value={countryCode}
+                onChange={(e) => setCountryCode(e.target.value)}
+              >
+                {COUNTRY_CODE_OPTIONS.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {`${option.flag} ${option.value} • ${option.country}`}
+                  </option>
+                ))}
+              </select>
+              <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400">
+                <i className="fas fa-chevron-down text-xs"></i>
+              </span>
+            </div>
+          </div>
+          <div className="col-span-3">
+            <span className="text-xs uppercase tracking-wide text-gray-500">Mobile number</span>
+            <input
+              type="tel"
+              className="mt-1 w-full px-3 py-2 bg-surface-inset dark:bg-dark-surface-inset border border-border-primary dark:border-dark-border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent text-sm"
+              value={localPhoneNumber}
+              maxLength={10}
+              inputMode="numeric"
+              placeholder="10 digit number"
+              onChange={(e) => {
+                const digitsOnly = e.target.value.replace(/\D/g, '').slice(0, 10);
+                setLocalPhoneNumber(digitsOnly);
+              }}
+            />
+          </div>
+        </div>
+        <p className="text-xs text-gray-500 mt-1">
+          Select country code then enter a 10 digit mobile number. Leave blank if you don&rsquo;t want WhatsApp alerts.
+        </p>
+      </div>
       <Select 
         label="Role" 
         id="userRole" 

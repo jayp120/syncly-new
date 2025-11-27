@@ -89,7 +89,7 @@ The application is built using **React 19.1** and **TypeScript**, with **Vite 6.
 ```
 
 ## Contact Information
--   **Email:** syncly19@gmail.com
+-   **Email:** support@syncly.one
 -   **Phone:** +91 92702 79703
 
 ## External Dependencies
